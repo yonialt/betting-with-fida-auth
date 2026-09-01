@@ -1,11 +1,11 @@
 import React from 'react';
-import { Trophy, Gamepad2 } from 'lucide-react';
+import { Trophy, Gamepad2, CreditCard } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
 interface Partner {
   id: string;
   name: string;
-  type: 'sports' | 'esports';
+  type: 'sports' | 'esports' | 'payment';
   renderLogo: () => React.ReactNode;
 }
 
@@ -306,6 +306,90 @@ const PARTNERS: Partner[] = [
       </div>
     ),
   },
+  {
+    id: 'telebirr',
+    name: 'Telebirr',
+    type: 'payment',
+    renderLogo: () => (
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-12 h-12 relative flex items-center justify-center">
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <path d="M30,75 Q25,50 40,35 Q50,25 55,30 Q60,35 50,50 Q55,40 65,35 Q75,30 80,40 Q85,50 75,60 Q70,65 65,60 Q60,55 55,60 Q50,65 45,75 Q40,85 30,75 Z" fill="#0B6EFF" />
+          </svg>
+        </div>
+        <span className="text-[8px] font-bold text-white tracking-wide mt-1">telebirr</span>
+      </div>
+    ),
+  },
+  {
+    id: 'national-id',
+    name: 'Ethiopian National ID',
+    type: 'payment',
+    renderLogo: () => (
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center border-2 border-teal-700 shadow-md">
+          <svg viewBox="0 0 60 60" className="w-8 h-8">
+            <circle cx="30" cy="30" r="28" fill="#006652" />
+            <path d="M20,22 Q30,18 40,22 Q42,35 38,42 Q34,48 30,50 Q26,48 22,42 Q18,35 20,22 Z" fill="#ffffff" />
+            <circle cx="26" cy="30" r="3" fill="#006652" />
+            <circle cx="34" cy="30" r="3" fill="#006652" />
+            <path d="M25,38 Q30,42 35,38" fill="none" stroke="#006652" strokeWidth="1.5" />
+          </svg>
+        </div>
+        <span className="text-[7px] font-bold text-white tracking-wide mt-1 text-center leading-tight">National ID</span>
+      </div>
+    ),
+  },
+  {
+    id: 'santim-pay',
+    name: 'Santim Pay',
+    type: 'payment',
+    renderLogo: () => (
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-white font-black text-base tracking-tighter leading-none">SANTIM</span>
+        <span className="text-amber-400 font-black text-xl tracking-tighter leading-none">PAY</span>
+      </div>
+    ),
+  },
+  {
+    id: 'arifpay',
+    name: 'Arifpay',
+    type: 'payment',
+    renderLogo: () => (
+      <div className="flex flex-col items-center justify-center">
+        <div className="flex items-center gap-0.5">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 text-green-500 fill-current">
+            <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <rect x="6" y="8" width="12" height="2" fill="currentColor" opacity="0.5" />
+            <rect x="6" y="12" width="8" height="2" fill="currentColor" opacity="0.3" />
+          </svg>
+          <span className="text-white font-black text-sm">Arif</span>
+          <span className="text-green-400 font-black text-sm">pay</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'dashen-bank',
+    name: 'Dashen Bank',
+    type: 'payment',
+    renderLogo: () => (
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-12 h-12 bg-[#001a6e] rounded flex items-center justify-center shadow-md">
+          <svg viewBox="0 0 60 60" className="w-10 h-10">
+            <path d="M30,8 L20,25 L15,25 L30,8 L45,25 L40,25 Z" fill="#ffffff" />
+            <circle cx="22" cy="28" r="4" fill="none" stroke="#ffffff" strokeWidth="1.5" />
+            <circle cx="38" cy="28" r="4" fill="none" stroke="#ffffff" strokeWidth="1.5" />
+            <path d="M15,35 L45,35 L45,50 L15,50 Z" fill="#001a6e" />
+            <text x="30" y="46" fontSize="6" fontWeight="900" textAnchor="middle" fill="#ffffff" fontFamily="sans-serif">
+              Dashen
+            </text>
+          </svg>
+        </div>
+        <span className="text-[7px] font-bold text-white tracking-wide mt-1">Dashen Bank</span>
+      </div>
+    ),
+  },
 ];
 
 export const PartnersPanel: React.FC = () => {
@@ -335,8 +419,10 @@ export const PartnersPanel: React.FC = () => {
               <div className="absolute top-1.5 right-1.5 text-neutral-400 group-hover:text-amber-400 transition-colors">
                 {partner.type === 'sports' ? (
                   <Trophy className="w-3 h-3" />
-                ) : (
+                ) : partner.type === 'esports' ? (
                   <Gamepad2 className="w-3 h-3" />
+                ) : (
+                  <CreditCard className="w-3 h-3" />
                 )}
               </div>
 
