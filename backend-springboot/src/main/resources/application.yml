@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: polymarket-spring-backend
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=15s
+
+polymarket:
+  gamma:
+    base-url: https://gamma-api.polymarket.com
+    timeout-ms: 5000
+
+logging:
+  level:
+    com.polymarket: DEBUG
+    org.springframework.web: INFO
