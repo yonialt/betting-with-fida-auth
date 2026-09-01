@@ -96,7 +96,7 @@ export const Header: React.FC = () => {
                 </div>
                 <div className="w-px h-3.5 bg-neutral-700"></div>
                 <div className="flex items-center gap-1 text-[11px] font-semibold text-neutral-300">
-                  <User className="w-3.5 h-3.5" />
+                  <img src="/profile-avatar.png" alt="Profile" className="w-5 h-5 rounded-full object-cover" />
                   <span className="hidden md:inline">{user.username}</span>
                 </div>
               </div>
