@@ -95,9 +95,8 @@ export const Header: React.FC = () => {
                   <span className="font-mono text-emerald-400">{user.balance.toLocaleString()} {user.currency}</span>
                 </div>
                 <div className="w-px h-3.5 bg-neutral-700"></div>
-                <div className="flex items-center gap-1 text-[11px] font-semibold text-neutral-300">
-                  <img src="/profile-avatar.png" alt="Profile" className="w-5 h-5 rounded-full object-cover" />
-                  <span className="hidden md:inline">{user.username}</span>
+                <div className="flex items-center">
+                  <img src="/profile-avatar.png" alt="Profile" className="w-7 h-7 rounded-full object-cover" />
                 </div>
               </div>
             </>
