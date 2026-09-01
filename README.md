@@ -1,20 +1,43 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Fida Bet
 
-# Run and deploy your AI Studio app
+Sports betting and prediction market platform built for the Ethiopian market.
 
-This contains everything you need to run your app locally.
+## Project Structure
 
-View your app in AI Studio: https://ai.studio/apps/4b6f3d12-86e7-4e3a-922f-aa2c705cdf2c
+```
+fida-bet/
+├── frontend/          # React + TypeScript + Vite (this repo)
+│   ├── src/           # React components, context, services
+│   ├── public/        # Static assets (logos, partner images)
+│   ├── backend-springboot/  # Spring Boot backend (coming soon)
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+└── README.md
+```
 
-## Run Locally
+## Frontend
 
-**Prerequisites:**  Node.js
+- **Framework:** React 19 + TypeScript
+- **Build:** Vite
+- **Styling:** Tailwind CSS 4
+- **State:** React Context
+- **Charts:** Recharts
+- **Icons:** Lucide React
 
+### Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Backend (Coming Soon)
+
+- **Framework:** Spring Boot 3.4+ (Java 21)
+- **Database:** PostgreSQL 16
+- **Cache:** Redis 7
+- **Message Queue:** Apache Kafka
+- **Search:** Elasticsearch 8
+- **Monitoring:** Prometheus + Grafana
