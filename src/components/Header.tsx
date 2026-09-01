@@ -54,10 +54,7 @@ export const Header: React.FC = () => {
             className="flex items-center cursor-pointer transition-transform active:scale-95 select-none"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <div className="font-extrabold text-2xl tracking-tighter flex items-center">
-              <span className="text-[#0091ff] font-black italic text-2xl tracking-tight">1x</span>
-              <span className="text-[#ffb700] font-black italic text-2xl tracking-tight">BET</span>
-            </div>
+            <img src="/logo.png" alt="Fida Bet Logo" className="h-8 w-auto object-contain" />
           </div>
         </div>
 
