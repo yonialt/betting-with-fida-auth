@@ -18,6 +18,7 @@ import { LiveMatchTrackerModal } from './components/LiveMatchTrackerModal';
 import { LoginModal } from './components/LoginModal';
 import { BonusesModal } from './components/BonusesModal';
 import { SettingsModal } from './components/SettingsModal';
+import { TelebirrDepositModal } from './components/TelebirrDepositModal';
 import { PartnersPanel } from './components/PartnersPanel';
 import { Footer } from './components/Footer';
 import { PolymarketPage } from './components/polymarket/PolymarketPage';
@@ -110,6 +111,7 @@ const BettingAppContent: React.FC = () => {
       <LoginModal />
       <BonusesModal />
       <SettingsModal />
+      <TelebirrDepositModal />
       <ToastNotification />
     </div>
   );

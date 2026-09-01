@@ -20,6 +20,7 @@ export const Header: React.FC = () => {
     user,
     setLoginModalOpen,
     setSettingsModalOpen,
+    setDepositModalOpen,
     setOnlyWithStreams,
     onlyWithStreams,
     setAppMode,
@@ -79,21 +80,30 @@ export const Header: React.FC = () => {
 
           {/* User Account / LOG IN Button */}
           {user.isLoggedIn ? (
-            <div
-              id="btn-user-profile"
-              onClick={() => setLoginModalOpen(true)}
-              className="flex items-center gap-2 bg-[#101822] hover:bg-[#16202c] border border-neutral-700 rounded px-2.5 py-1 cursor-pointer transition-colors"
-            >
-              <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-200">
-                <Wallet className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="font-mono text-emerald-400">{user.balance.toLocaleString()} {user.currency}</span>
+            <>
+              <button
+                id="btn-deposit"
+                onClick={() => setDepositModalOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded transition-colors cursor-pointer shadow-xs"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">DEPOSIT</span>
+              </button>
+              <div
+                id="btn-user-profile"
+                onClick={() => setLoginModalOpen(true)}
+                className="flex items-center gap-2 bg-[#101822] hover:bg-[#16202c] border border-neutral-700 rounded px-2.5 py-1 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-200">
+                  <span className="font-mono text-emerald-400">{user.balance.toLocaleString()} {user.currency}</span>
+                </div>
+                <div className="w-px h-3.5 bg-neutral-700"></div>
+                <div className="flex items-center gap-1 text-[11px] font-semibold text-neutral-300">
+                  <User className="w-3.5 h-3.5" />
+                  <span className="hidden md:inline">{user.username}</span>
+                </div>
               </div>
-              <div className="w-px h-3.5 bg-neutral-700"></div>
-              <div className="flex items-center gap-1 text-[11px] font-semibold text-neutral-300">
-                <User className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">{user.username}</span>
-              </div>
-            </div>
+            </>
           ) : (
             <button
               id="btn-login"

@@ -39,6 +39,7 @@ interface BettingContextType {
   loginModalOpen: boolean;
   bonusesModalOpen: boolean;
   settingsModalOpen: boolean;
+  depositModalOpen: boolean;
   notification: { message: string; type: 'success' | 'info' | 'warning' } | null;
 
   // Actions
@@ -64,6 +65,8 @@ interface BettingContextType {
   setLoginModalOpen: (open: boolean) => void;
   setBonusesModalOpen: (open: boolean) => void;
   setSettingsModalOpen: (open: boolean) => void;
+  setDepositModalOpen: (open: boolean) => void;
+  setNotification: (n: { message: string; type: 'success' | 'info' | 'warning' } | null) => void;
   placeBet: () => boolean;
   cashoutBet: (betId: string) => void;
   isOddsSelected: (oddsId: string) => boolean;
@@ -152,6 +155,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false);
   const [bonusesModalOpen, setBonusesModalOpen] = useState<boolean>(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
+  const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
 
   const openDetailedEvent = (match: Match) => {
@@ -443,6 +447,9 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setLoginModalOpen,
         setBonusesModalOpen,
         setSettingsModalOpen,
+        depositModalOpen,
+        setDepositModalOpen,
+        setNotification,
         placeBet,
         cashoutBet,
         isOddsSelected,
