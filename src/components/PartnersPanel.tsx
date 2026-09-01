@@ -21,6 +21,16 @@ const PARTNERS: Partner[] = [
     ),
   },
   {
+    id: 'national-id',
+    name: 'Fida National ID',
+    type: 'payment',
+    renderLogo: () => (
+      <div className="flex flex-col items-center justify-center">
+        <img src="/partners/fayda-id.jpg" alt="Fida National ID" className="w-11 h-11 object-contain rounded-full bg-white p-0.5" loading="lazy" />
+      </div>
+    ),
+  },
+  {
     id: 'santim-pay',
     name: 'Santim Pay',
     type: 'payment',
@@ -37,16 +47,6 @@ const PARTNERS: Partner[] = [
     renderLogo: () => (
       <div className="flex flex-col items-center justify-center">
         <img src="/partners/arifpay.svg" alt="Arifpay" className="w-11 h-11 object-contain" loading="lazy" />
-      </div>
-    ),
-  },
-  {
-    id: 'national-id',
-    name: 'Fida National ID',
-    type: 'payment',
-    renderLogo: () => (
-      <div className="flex flex-col items-center justify-center">
-        <img src="/partners/fayda-id.jpg" alt="Fida National ID" className="w-11 h-11 object-contain rounded-full bg-white p-0.5" loading="lazy" />
       </div>
     ),
   },
