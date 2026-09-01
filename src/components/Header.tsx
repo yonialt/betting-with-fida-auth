@@ -147,8 +147,7 @@ export const Header: React.FC = () => {
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center pr-2.5 mr-1 border-r border-neutral-300 cursor-pointer select-none"
             >
-              <span className="text-[#0091ff] font-black italic text-lg tracking-tight">1x</span>
-              <span className="text-[#ffb700] font-black italic text-lg tracking-tight">BET</span>
+              <img src="/logo.png" alt="Fida Bet" className="h-6 w-auto object-contain" />
             </div>
 
             {/* TOP-EVENTS */}
