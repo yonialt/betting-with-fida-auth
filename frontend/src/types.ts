@@ -147,4 +147,7 @@ export interface UserProfile {
   balance: number;
   currency: string;
   bonusBalance: number;
+  phone?: string;
+  isAgeVerified?: boolean;
+  ageVerificationStatus?: 'none' | 'pending' | 'verified' | 'rejected';
 }
