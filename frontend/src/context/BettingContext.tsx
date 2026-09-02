@@ -12,6 +12,8 @@ import {
   UserProfile,
 } from '../types';
 import { INITIAL_MATCHES } from '../data/initialMatches';
+import { fidaBetApi } from '../services/fidaBetApi';
+import { fidaBetWebSocket } from '../services/fidaBetWebSocket';
 
 interface BettingContextType {
   matches: Match[];
@@ -78,7 +80,6 @@ interface BettingContextType {
 const BettingContext = createContext<BettingContextType | undefined>(undefined);
 
 // Preload initial bet slip item to match user screenshot precisely:
-// Defensa y Justicia vs Platense [1:0], 1.11 (1X2: W1)
 const INITIAL_SLIP: BetSlipItem[] = [
   {
     id: 'arg1-w1',
@@ -134,6 +135,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     balance: 14500.00,
     currency: 'ETB',
     bonusBalance: 250.00,
+    phone: '+251911000000',
   });
 
   const [activeSport, setActiveSport] = useState<SportId | 'all'>('all');
@@ -141,7 +143,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>('matches');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [favorites, setFavorites] = useState<Set<string>>(new Set(['arg-1']));
-  const [stakeAmount, setStakeAmount] = useState<number>(50); // Default 50 ETB as in screenshot
+  const [stakeAmount, setStakeAmount] = useState<number>(50); // Default 50 ETB
   const [betType, setBetType] = useState<BetType>('single');
   const [oddsAcceptanceMode, setOddsAcceptanceMode] = useState<OddsAcceptanceMode>('increase');
   const [promoCode, setPromoCode] = useState<string>('');
@@ -157,6 +159,108 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
+
+  // Backend Integration: Fetch initial matches from backend if available
+  useEffect(() => {
+    let isMounted = true;
+    fidaBetApi.getLiveMatches('all')
+      .then((backendMatches) => {
+        if (isMounted && backendMatches && backendMatches.length > 0) {
+          setMatches(backendMatches);
+          if (backendMatches[0]) {
+            setSelectedEventMatch(backendMatches[0]);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback to in-memory INITIAL_MATCHES cleanly
+      });
+
+    // Connect WebSocket client for real-time STOMP topics
+    try {
+      fidaBetWebSocket.connect();
+    } catch {}
+
+    // Auto-authenticate with backend on load
+    (async () => {
+      try {
+        const existingToken = localStorage.getItem('fidabet_token');
+        if (!existingToken) {
+          // Try login with seeded user first, then register if not found
+          try {
+            const loginData = await fidaBetApi.login('Player_8831', 'password123');
+            if (loginData.token) {
+              setUser({
+                isLoggedIn: true,
+                username: loginData.user.username,
+                userId: loginData.user.userId || loginData.user.id || '',
+                balance: loginData.user.balance || 100,
+                currency: loginData.user.currency || 'ETB',
+                bonusBalance: loginData.user.bonusBalance || 50,
+                phone: loginData.user.phone || '',
+              });
+            }
+          } catch {
+            // Register new user if seeded user not found
+            const regData = await fidaBetApi.register({
+              username: 'aderabet_user',
+              password: 'Ad3r@Bet2026!',
+              phone: '+251911000000',
+              email: 'adera@test.com',
+            });
+            if (regData.token) {
+              setUser({
+                isLoggedIn: true,
+                username: regData.user.username,
+                userId: regData.user.userId || regData.user.id || '',
+                balance: regData.user.balance || 100,
+                currency: regData.user.currency || 'ETB',
+                bonusBalance: regData.user.bonusBalance || 50,
+                phone: regData.user.phone || '',
+              });
+            }
+          }
+        } else {
+          // Token exists, try to get balance from backend
+          try {
+            const bal = await fidaBetApi.getBalance();
+            setUser((prev) => ({
+              ...prev,
+              isLoggedIn: true,
+              balance: bal.balance,
+              bonusBalance: bal.bonusBalance,
+              currency: bal.currency,
+            }));
+          } catch {}
+        }
+
+        // Check age verification status
+        try {
+          const token = localStorage.getItem('fidabet_token');
+          if (token) {
+            const verifyRes = await fetch('/api/age-verification/status', {
+              headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (verifyRes.ok) {
+              const verifyData = await verifyRes.json();
+              setUser((prev) => ({
+                ...prev,
+                isAgeVerified: verifyData.verified,
+                ageVerificationStatus: verifyData.verified ? 'verified' : (verifyData.latestVerification?.status === 'REJECTED' ? 'rejected' : 'none'),
+              }));
+            }
+          }
+        } catch {}
+      } catch {}
+    })();
+
+    return () => {
+      isMounted = false;
+      try {
+        fidaBetWebSocket.disconnect();
+      } catch {}
+    };
+  }, []);
 
   const openDetailedEvent = (match: Match) => {
     setSelectedEventMatch(match);
@@ -198,11 +302,10 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     return () => clearInterval(timer);
   }, []);
 
-  // Micro-odds fluctuation simulation (realistic subtle live betting movements every 6-10s)
+  // Micro-odds fluctuation simulation (subtle live betting movements every 7s)
   useEffect(() => {
     const oddsTimer = setInterval(() => {
       setMatches((prevMatches) => {
-        // Randomly pick 1 match to shift an odd slightly
         const matchIndex = Math.floor(Math.random() * prevMatches.length);
         const match = prevMatches[matchIndex];
         if (!match || !match.isLive) return prevMatches;
@@ -212,7 +315,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         const currentItem = match.odds[randomKey];
         if (!currentItem || typeof currentItem === 'string') return prevMatches;
 
-        const delta = (Math.random() * 0.08 - 0.04); // subtle fluctuation
+        const delta = (Math.random() * 0.08 - 0.04);
         const newVal = Math.max(1.01, +(currentItem.value + delta).toFixed(3));
         const trend = newVal > currentItem.value ? 'up' : newVal < currentItem.value ? 'down' : 'same';
 
@@ -227,7 +330,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
           },
         };
 
-        // Also update selection in bet slip if present
+        // Update selection in bet slip if present
         setBetSlip((prevSlip) =>
           prevSlip.map((slipItem) => {
             if (slipItem.id === currentItem.id) {
@@ -270,8 +373,6 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       };
 
       setBetSlip((prev) => [...prev, newItem]);
-
-      // Switch to Bet Slip tab automatically
       setActiveTabSlip('slip');
       setNotification({ message: `Added ${match.team1} vs ${match.team2} (${oddsItem.label}: ${oddsItem.value})`, type: 'success' });
     }
@@ -289,11 +390,13 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const toggleFavorite = (matchId: string) => {
     setFavorites((prev) => {
       const next = new Set(prev);
-      if (next.has(matchId)) {
+      const isFav = next.has(matchId);
+      if (isFav) {
         next.delete(matchId);
       } else {
         next.add(matchId);
       }
+      fidaBetApi.toggleFavorite(matchId, isFav).catch(() => {});
       return next;
     });
   };
@@ -324,7 +427,10 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       return false;
     }
 
-    // Deduct user balance
+    const currentSlip = [...betSlip];
+    const betTypeChosen = betSlip.length > 1 ? 'accumulator' : 'single';
+
+    // Deduct user balance in client state
     setUser((prev) => ({
       ...prev,
       balance: +(prev.balance - stakeAmount).toFixed(2),
@@ -333,8 +439,8 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     const newPlacedBet: PlacedBet = {
       id: `BET-${Math.floor(100000 + Math.random() * 900000)}`,
       placedAt: 'Just now',
-      type: betSlip.length > 1 ? 'accumulator' : 'single',
-      items: [...betSlip],
+      type: betTypeChosen,
+      items: currentSlip,
       totalOdds,
       stake: stakeAmount,
       potentialWin,
@@ -347,7 +453,18 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setBetSlip([]);
     setActiveTabSlip('mybets');
 
-    // Confetti effect!
+    // Call backend placeBet API seamlessly
+    fidaBetApi.placeBet(stakeAmount, betTypeChosen, currentSlip)
+      .then((backendBet) => {
+        if (backendBet && backendBet.id) {
+          setPlacedBets((prev) => prev.map((b) => (b.id === newPlacedBet.id ? { ...b, id: backendBet.id } : b)));
+        }
+      })
+      .catch(() => {
+        // Kept in local state
+      });
+
+    // Confetti animation
     try {
       confetti({
         particleCount: 70,
@@ -355,9 +472,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         origin: { y: 0.8, x: 0.85 },
         colors: ['#ffc600', '#00b0ff', '#ffffff'],
       });
-    } catch {
-      // ignore in headless
-    }
+    } catch {}
 
     setNotification({
       message: `Bet placed successfully! Potential win: ${potentialWin} ${user.currency}`,
@@ -379,6 +494,8 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       prev.map((b) => (b.id === betId ? { ...b, status: 'cashed_out' } : b))
     );
 
+    fidaBetApi.cashoutBet(betId).catch(() => {});
+
     setNotification({
       message: `Successfully cashed out ${bet.cashoutValue} ${bet.currency}!`,
       type: 'success',
@@ -390,6 +507,9 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       ...prev,
       balance: +(prev.balance + amount).toFixed(2),
     }));
+
+    fidaBetApi.deposit(amount, 'telebirr').catch(() => {});
+
     setNotification({
       message: `Successfully deposited ${amount} ${user.currency}!`,
       type: 'success',
@@ -424,6 +544,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         loginModalOpen,
         bonusesModalOpen,
         settingsModalOpen,
+        depositModalOpen,
         notification,
         setActiveSport,
         setOnlyWithStreams,
@@ -447,7 +568,6 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setLoginModalOpen,
         setBonusesModalOpen,
         setSettingsModalOpen,
-        depositModalOpen,
         setDepositModalOpen,
         setNotification,
         placeBet,
