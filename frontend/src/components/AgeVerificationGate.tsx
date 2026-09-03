@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { SplashScreen } from './SplashScreen';
 
 interface VerificationResult {
   verified: boolean;
@@ -18,6 +19,11 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [faydaId, setFaydaId] = useState<string>('');
+  const [splashDone, setSplashDone] = useState<boolean>(false);
+
+  const handleSplashComplete = useCallback(() => {
+    setSplashDone(true);
+  }, []);
   const [showFaydaId, setShowFaydaId] = useState<boolean>(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string>('');
@@ -199,8 +205,11 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
     );
   }
 
-  // Already verified
+  // Already verified — show splash then app
   if (isVerified) {
+    if (!splashDone) {
+      return <SplashScreen onComplete={handleSplashComplete} />;
+    }
     return <>{children}</>;
   }
 

@@ -17,8 +17,6 @@ export const SportFilterBar: React.FC = () => {
   const {
     activeSport,
     setActiveSport,
-    onlyWithStreams,
-    setOnlyWithStreams,
   } = useBetting();
 
   const sports: SportItem[] = [
@@ -34,33 +32,9 @@ export const SportFilterBar: React.FC = () => {
   return (
     <div
       id="sports-filter-bar"
-      className="w-full bg-[#163b63] border-b border-[#102d4d] px-2 sm:px-3 py-1 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar text-xs select-none text-white"
+      className="w-full bg-[#163b63] border-b border-[#102d4d] px-2 sm:px-3 py-1 flex items-center gap-2 text-xs select-none text-white"
     >
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Toggle Switch: With live streams */}
-        <button
-          id="filter-with-streams"
-          onClick={() => setOnlyWithStreams((prev) => !prev)}
-          className="flex items-center gap-2 px-1 py-0.5 cursor-pointer group"
-          title="Toggle live streams only"
-        >
-          {/* Pill Switch */}
-          <div
-            className={`w-9 h-4.5 rounded-full flex items-center p-0.5 transition-colors ${
-              onlyWithStreams ? 'bg-[#0091ff]' : 'bg-[#7a9bbd]'
-            }`}
-          >
-            <div
-              className={`w-3.5 h-3.5 rounded-full bg-white shadow-xs transform transition-transform duration-150 ${
-                onlyWithStreams ? 'translate-x-4.5' : 'translate-x-0'
-              }`}
-            />
-          </div>
-          <span className="text-white text-xs font-semibold whitespace-nowrap group-hover:text-neutral-200">
-            With live streams
-          </span>
-        </button>
-
         {/* Sports List */}
         <div className="flex items-center gap-1 sm:gap-2">
           {sports.map((s) => {

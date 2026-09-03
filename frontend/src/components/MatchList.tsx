@@ -10,11 +10,8 @@ import {
   List,
   Users,
   Lock,
-  Activity,
   Layers,
   LayoutGrid,
-  Shield,
-  Zap,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { Match, OddsItem } from '../types';
@@ -24,7 +21,6 @@ export const MatchList: React.FC = () => {
   const {
     matches,
     activeSport,
-    onlyWithStreams,
     activeSubTab,
     searchQuery,
     favorites,
@@ -35,13 +31,14 @@ export const MatchList: React.FC = () => {
   // Filter matches based on user selections
   const filteredMatches = matches.filter((m) => {
     if (activeSport !== 'all' && m.sport !== activeSport) return false;
-    if (onlyWithStreams && !m.hasLiveStream) return false;
     if (activeSubTab === 'recommended' && !favorites.has(m.id)) return false;
     if (activeSubTab === 'upcoming' && m.isLive) return false;
 
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
-      const matchText = `${m.team1} ${m.team2} ${m.league}`.toLowerCase();
+      const matchText =
+        `${m.team1} ${m.team2} ${m.league}`.toLowerCase();
+
       if (!matchText.includes(q)) return false;
     }
 
@@ -49,41 +46,50 @@ export const MatchList: React.FC = () => {
   });
 
   // Group matches by league
-  const groupedMatches = filteredMatches.reduce<Record<string, Match[]>>((acc, match) => {
-    if (!acc[match.league]) {
-      acc[match.league] = [];
-    }
-    acc[match.league].push(match);
-    return acc;
-  }, {});
+  const groupedMatches = filteredMatches.reduce<Record<string, Match[]>>(
+    (acc, match) => {
+      if (!acc[match.league]) {
+        acc[match.league] = [];
+      }
+
+      acc[match.league].push(match);
+      return acc;
+    },
+    {}
+  );
 
   const leagues = Object.keys(groupedMatches);
 
   return (
-    <div id="match-list-container" className="w-full bg-[#eaedf1] divide-y divide-[#c9d6e4]">
+    <div
+      id="match-list-container"
+      className="w-full bg-[#eaedf1] divide-y divide-[#c9d6e4]"
+    >
       {/* Odds View Switcher Toolbar */}
-      <div className="bg-[#1b4470] text-white px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs border-b border-[#14365b]">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-neutral-200">Odds Display Mode:</span>
+      <div className="bg-[#1b4470] text-white px-2 py-1 flex items-center justify-between gap-1 text-xs border-b border-[#14365b]">
+        <div className="flex items-center gap-1">
+          <span className="font-bold text-neutral-200 whitespace-nowrap">
+            Odds Display Mode:
+          </span>
+
           <div className="flex items-center bg-[#0e2c4d] rounded p-0.5 border border-white/20">
             <button
               onClick={() => setOddsDisplayMode('simple')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
-                oddsDisplayMode === 'simple'
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold transition-all cursor-pointer ${oddsDisplayMode === 'simple'
                   ? 'bg-[#0091ff] text-white shadow-xs'
                   : 'text-neutral-300 hover:text-white'
-              }`}
+                }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Simple Odds</span>
             </button>
+
             <button
               onClick={() => setOddsDisplayMode('detailed')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
-                oddsDisplayMode === 'detailed'
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold transition-all cursor-pointer ${oddsDisplayMode === 'detailed'
                   ? 'bg-[#0091ff] text-white shadow-xs'
                   : 'text-neutral-300 hover:text-white'
-              }`}
+                }`}
             >
               <Layers className="w-3.5 h-3.5" />
               <span>Detailed Odds</span>
@@ -91,18 +97,26 @@ export const MatchList: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-[11px] text-neutral-300 flex items-center gap-3">
+        <div className="text-[11px] text-neutral-300 flex items-center gap-2 shrink-0">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-bold text-white">{filteredMatches.length}</span> Live Matches
+            <span className="font-bold text-white">
+              {filteredMatches.length}
+            </span>
+            Live Matches
           </span>
-          <span className="hidden sm:inline text-neutral-400">| Click 🏟️ for Live Active Stadium</span>
+
+          <span className="hidden sm:inline text-neutral-400">
+            | Click 🏟️ for Live Active Stadium
+          </span>
         </div>
       </div>
 
       {leagues.length === 0 ? (
-        <div className="bg-white p-8 text-center">
-          <p className="text-neutral-500 text-sm font-semibold">No live matches found matching your filters.</p>
+        <div className="bg-white p-6 text-center">
+          <p className="text-neutral-500 text-sm font-semibold">
+            No live matches found matching your filters.
+          </p>
         </div>
       ) : (
         leagues.map((leagueName) => {
@@ -113,16 +127,20 @@ export const MatchList: React.FC = () => {
           return (
             <div
               key={leagueName}
-              id={`league-group-${leagueName.replace(/[^a-zA-Z0-9]/g, '-')}`}
+              id={`league-group-${leagueName.replace(
+                /[^a-zA-Z0-9]/g,
+                '-'
+              )}`}
               className="w-full bg-white overflow-hidden"
             >
               {/* League Header */}
-              <div className="bg-[#d2dce8] border-b border-[#c2d0df] px-3 py-1.5 flex items-center justify-between gap-2 text-xs">
+              <div className="bg-[#d2dce8] border-b border-[#c2d0df] px-2 py-1 flex items-center justify-between gap-1 text-xs">
                 {/* Left: Sport Icon + Flag/Badge + League Name */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-sm leading-none">
                     {firstMatch?.sport === 'esports' ? '🎮' : '⚽'}
                   </span>
+
                   {leagueName.includes('Portugal') ? (
                     <span className="text-xs">🇵🇹</span>
                   ) : leagueName.includes('India') ? (
@@ -138,16 +156,17 @@ export const MatchList: React.FC = () => {
                       L
                     </span>
                   ) : (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#163b63]" />
+                    <div className="w-2 h-2 rounded-full bg-[#163b63]" />
                   )}
-                  <h3 className="font-bold text-[13px] text-[#163b63] tracking-tight">
+
+                  <h3 className="font-bold text-[13px] text-[#163b63] tracking-tight truncate">
                     {leagueName}
                   </h3>
                 </div>
 
-                {/* Right: Column Odds Headers (in simple mode) */}
+                {/* Right: Column Odds Headers */}
                 {oddsDisplayMode === 'simple' && (
-                  <div className="hidden sm:flex items-center gap-2 text-[11px] font-bold text-[#476587] pr-2">
+                  <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-[#476587] pr-1 shrink-0">
                     {isEsports ? (
                       <>
                         <span className="w-12 text-center">1</span>
@@ -160,16 +179,26 @@ export const MatchList: React.FC = () => {
                     ) : (
                       <>
                         <span className="w-12 text-center">1</span>
+
                         <span className="w-12 text-center flex items-center justify-center gap-0.5">
-                          X <ChevronDown className="w-2.5 h-2.5" />
+                          X
+                          <ChevronDown className="w-2.5 h-2.5" />
                         </span>
+
                         <span className="w-12 text-center">2</span>
+
                         <span className="w-12 text-center">1X</span>
+
                         <span className="w-12 text-center flex items-center justify-center gap-0.5">
-                          12 <ChevronDown className="w-2.5 h-2.5" />
+                          12
+                          <ChevronDown className="w-2.5 h-2.5" />
                         </span>
+
                         <span className="w-12 text-center">2X</span>
-                        <span className="w-8 text-center text-[#1b65a5] font-black">+5</span>
+
+                        <span className="w-8 text-center text-[#1b65a5] font-black">
+                          +5
+                        </span>
                       </>
                     )}
                   </div>
@@ -201,7 +230,11 @@ interface MatchRowProps {
   displayMode: 'simple' | 'detailed';
 }
 
-const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) => {
+const MatchRow: React.FC<MatchRowProps> = ({
+  match,
+  isEsports,
+  displayMode,
+}) => {
   const {
     favorites,
     toggleFavorite,
@@ -211,57 +244,93 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
   } = useBetting();
 
   const [isPinned, setIsPinned] = useState<boolean>(false);
-  const [subGamesExpanded, setSubGamesExpanded] = useState<boolean>(false);
-  const [showActiveStadium, setShowActiveStadium] = useState<boolean>(false);
+  const [subGamesExpanded, setSubGamesExpanded] =
+    useState<boolean>(false);
+  const [showActiveStadium, setShowActiveStadium] =
+    useState<boolean>(false);
+  const [quickOddsExpanded, setQuickOddsExpanded] = useState<boolean>(false);
+  const [miniOddsOpen, setMiniOddsOpen] = useState<boolean>(false);
+
   const isFav = favorites.has(match.id);
 
   // Helper for rendering team logo or custom badge
   const renderTeamIcon = (teamName: string) => {
     if (teamName.includes('Gen.G')) {
       return (
-        <div className="w-4 h-4 bg-[#a8893a] text-black font-black text-[7px] rounded flex items-center justify-center shadow-2xs">
+        <div className="w-4 h-4 bg-[#a8893a] text-black font-black text-[7px] rounded flex items-center justify-center">
           GG
         </div>
       );
     }
+
     if (teamName.includes('KT Rolster')) {
       return (
-        <div className="w-4 h-4 bg-[#e60012] text-white font-black text-[7px] rounded flex items-center justify-center shadow-2xs">
+        <div className="w-4 h-4 bg-[#e60012] text-white font-black text-[7px] rounded flex items-center justify-center">
           KT
         </div>
       );
     }
+
     if (teamName.includes('Serbia')) {
       return <span className="text-sm leading-none">🇷🇸</span>;
     }
+
     if (teamName.includes('Luxembourg')) {
       return <span className="text-sm leading-none">🇱🇺</span>;
     }
+
     if (teamName.includes('De-Elite')) {
       return <span className="text-xs leading-none">🛡️</span>;
     }
+
     if (teamName.includes('Prince Kazeem')) {
       return <span className="text-xs leading-none">⚽</span>;
     }
+
     if (teamName.includes('Moreirense')) {
-      return <div className="w-4 h-4 bg-emerald-600 text-white font-bold text-[8px] rounded flex items-center justify-center">M</div>;
+      return (
+        <div className="w-4 h-4 bg-emerald-600 text-white font-bold text-[8px] rounded flex items-center justify-center">
+          M
+        </div>
+      );
     }
+
     if (teamName.includes('Portimonense')) {
-      return <div className="w-4 h-4 bg-neutral-900 text-white font-bold text-[8px] rounded flex items-center justify-center">P</div>;
+      return (
+        <div className="w-4 h-4 bg-neutral-900 text-white font-bold text-[8px] rounded flex items-center justify-center">
+          P
+        </div>
+      );
     }
+
     if (teamName.includes('Farense')) {
-      return <div className="w-4 h-4 bg-black text-white font-bold text-[8px] rounded flex items-center justify-center">F</div>;
+      return (
+        <div className="w-4 h-4 bg-black text-white font-bold text-[8px] rounded flex items-center justify-center">
+          F
+        </div>
+      );
     }
+
     if (teamName.includes('Famalicão')) {
-      return <div className="w-4 h-4 bg-blue-700 text-white font-bold text-[8px] rounded flex items-center justify-center">FA</div>;
+      return (
+        <div className="w-4 h-4 bg-blue-700 text-white font-bold text-[8px] rounded flex items-center justify-center">
+          FA
+        </div>
+      );
     }
-    return <div className="w-3.5 h-3.5 rounded-full bg-neutral-300" />;
+
+    return (
+      <div className="w-3 h-3 rounded-full bg-neutral-300 shrink-0" />
+    );
   };
 
-  const renderOddsPill = (item: OddsItem | undefined, dashPlaceholder: boolean = false) => {
+  const renderOddsPill = (
+    item: OddsItem | undefined,
+    dashPlaceholder: boolean = false
+  ) => {
     if (!item || item.value === 0 || dashPlaceholder) {
       return (
-        <div className="w-12 h-7 rounded bg-[#e8eef5] text-neutral-400 font-bold text-xs flex items-center justify-center select-none">
+        <div className="w-12 h-6 rounded bg-[#e8eef5] text-neutral-400 font-bold text-xs flex items-center justify-center select-none">
           -
         </div>
       );
@@ -275,21 +344,31 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
         id={`odds-btn-${item.id}`}
         onClick={() => toggleSelection(match, item)}
         title={`${item.marketName}: ${item.name} (${item.value})`}
-        className={`w-12 h-7 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-0.5 ${
-          selected
+        className={`w-12 h-6 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-0.5 ${selected
             ? 'bg-[#ffc600] text-black shadow-inner font-black'
             : 'bg-[#e8eef5] hover:bg-[#d9e4f0] text-[#1b3e66]'
-        }`}
+          }`}
       >
-        <span className="font-sans text-[11.5px]">{item.value}</span>
-        {item.isLocked && <Lock className="w-2.5 h-2.5 text-neutral-500 shrink-0" />}
+        <span className="font-sans text-[11.5px]">
+          {item.value}
+        </span>
+
+        {item.isLocked && (
+          <Lock className="w-2.5 h-2.5 text-neutral-500 shrink-0" />
+        )}
       </button>
     );
   };
 
-  const renderDetailedOddsBtn = (label: string, value: number, marketName: string, subId: string) => {
+  const renderDetailedOddsBtn = (
+    label: string,
+    value: number,
+    marketName: string,
+    subId: string
+  ) => {
     const oddsId = `${match.id}-${marketName}-${subId}`;
     const selected = isOddsSelected(oddsId);
+
     const item: OddsItem = {
       id: oddsId,
       label,
@@ -302,43 +381,49 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
       <button
         key={oddsId}
         onClick={() => toggleSelection(match, item)}
-        className={`flex-1 py-1.5 px-2 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-between border ${
-          selected
+        className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-between border ${selected
             ? 'bg-[#ffc600] border-[#e6b200] text-black font-extrabold shadow-inner'
             : 'bg-[#f4f6f8] border-neutral-200 text-neutral-900 hover:bg-[#e8ecf0]'
-        }`}
+          }`}
       >
-        <span className="text-[11px] text-neutral-600 font-semibold">{label}</span>
-        <span className="font-mono text-neutral-900 font-bold">{value}</span>
+        <span className="text-[11px] text-neutral-600 font-semibold">
+          {label}
+        </span>
+
+        <span className="font-mono text-neutral-900 font-bold">
+          {value}
+        </span>
       </button>
     );
   };
 
   return (
-    <div id={`match-row-wrapper-${match.id}`} className="flex flex-col bg-white">
+    <div
+      id={`match-row-wrapper-${match.id}`}
+      className="flex flex-col bg-white"
+    >
       {/* Primary Match Row */}
       <div
         id={`match-row-${match.id}`}
-        className="p-2 sm:px-3 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-[#f6f9fc] transition-colors"
+        className="px-2 py-1 sm:px-2 sm:py-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-[#f6f9fc] transition-colors"
       >
-        {/* Left Column: Pin, Star, Teams, Scores & Status Actions */}
-        <div className="flex items-start sm:items-center gap-2 flex-1 min-w-0">
-          {/* Pin & Star icons */}
-          <div className="flex flex-col sm:flex-row items-center gap-1.5 text-neutral-400 pt-0.5 sm:pt-0">
+        {/* Left Column */}
+        <div className="flex items-start sm:items-center gap-1 flex-1 min-w-0">
+          {/* Pin & Star */}
+          <div className="flex flex-col sm:flex-row items-center gap-1 text-neutral-400 pt-0 sm:pt-0 shrink-0">
             <button
               onClick={() => setIsPinned(!isPinned)}
-              className={`cursor-pointer hover:text-neutral-700 transition-colors ${
-                isPinned ? 'text-[#163b63]' : ''
-              }`}
+              className={`cursor-pointer hover:text-neutral-700 transition-colors ${isPinned ? 'text-[#163b63]' : ''
+                }`}
               title="Pin match"
             >
               <Pin className="w-3.5 h-3.5 rotate-45" />
             </button>
+
             <button
               onClick={() => toggleFavorite(match.id)}
-              className={`cursor-pointer hover:text-amber-400 transition-colors ${
-                isFav ? 'text-amber-500 fill-amber-400' : ''
-              }`}
+              className={`cursor-pointer hover:text-amber-400 transition-colors ${isFav ? 'text-amber-500 fill-amber-400' : ''
+                }`}
               title="Favorite match"
             >
               <Star className="w-3.5 h-3.5" />
@@ -348,22 +433,25 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
           {/* Teams & Status */}
           <div className="flex-1 min-w-0">
             {/* Team 1 */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-1">
               <div
                 onClick={() => openDetailedEvent(match)}
-                className="flex items-center gap-1.5 font-bold text-xs sm:text-[13px] text-neutral-900 cursor-pointer hover:text-[#0091ff] truncate"
+                className="flex items-center gap-1 font-bold text-xs sm:text-[13px] text-neutral-900 cursor-pointer hover:text-[#0091ff] truncate min-w-0"
               >
                 {renderTeamIcon(match.team1)}
                 <span className="truncate">{match.team1}</span>
               </div>
+
               {/* Score 1 */}
-              <div className="flex items-center gap-2 font-black text-xs sm:text-[13px] text-neutral-900 pr-3 font-mono">
+              <div className="flex items-center gap-1 font-black text-xs sm:text-[13px] text-neutral-900 pr-1 font-mono shrink-0">
                 <span>{match.score1}</span>
+
                 {match.periodScores?.p1 && (
                   <span className="text-neutral-500 text-[11px] font-normal">
                     {match.periodScores.p1[0]}
                   </span>
                 )}
+
                 {match.periodScores?.p2 && (
                   <span className="text-neutral-400 text-[11px] font-normal">
                     {match.periodScores.p2[0]}
@@ -373,22 +461,25 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
             </div>
 
             {/* Team 2 */}
-            <div className="flex items-center justify-between gap-2 mt-0.5">
+            <div className="flex items-center justify-between gap-1 mt-0">
               <div
                 onClick={() => openDetailedEvent(match)}
-                className="flex items-center gap-1.5 font-bold text-xs sm:text-[13px] text-neutral-900 cursor-pointer hover:text-[#0091ff] truncate"
+                className="flex items-center gap-1 font-bold text-xs sm:text-[13px] text-neutral-900 cursor-pointer hover:text-[#0091ff] truncate min-w-0"
               >
                 {renderTeamIcon(match.team2)}
                 <span className="truncate">{match.team2}</span>
               </div>
+
               {/* Score 2 */}
-              <div className="flex items-center gap-2 font-black text-xs sm:text-[13px] text-neutral-900 pr-3 font-mono">
+              <div className="flex items-center gap-1 font-black text-xs sm:text-[13px] text-neutral-900 pr-1 font-mono shrink-0">
                 <span>{match.score2}</span>
+
                 {match.periodScores?.p1 && (
                   <span className="text-neutral-500 text-[11px] font-normal">
                     {match.periodScores.p1[1]}
                   </span>
                 )}
+
                 {match.periodScores?.p2 && (
                   <span className="text-neutral-400 text-[11px] font-normal">
                     {match.periodScores.p2[1]}
@@ -397,18 +488,19 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
               </div>
             </div>
 
-            {/* Subtitle Line: Status + Stadium Active Indicator + Quick Actions */}
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#556980] mt-1 font-medium">
+            {/* Status + Actions */}
+            <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[#556980] mt-0.5 font-medium">
               <span className="truncate">{match.period}</span>
 
-              {/* Stadium Active Live Badge */}
+              {/* Stadium Active */}
               <button
-                onClick={() => setShowActiveStadium(!showActiveStadium)}
-                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold cursor-pointer transition-all ${
-                  showActiveStadium
+                onClick={() =>
+                  setShowActiveStadium(!showActiveStadium)
+                }
+                className={`flex items-center gap-1 px-1 py-0 rounded text-[9px] font-extrabold cursor-pointer transition-all ${showActiveStadium
                     ? 'bg-emerald-600 text-white shadow-xs'
                     : 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
-                }`}
+                  }`}
                 title="Toggle Active Stadium Pitch"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
@@ -416,29 +508,38 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
               </button>
 
               {/* Action Icons */}
-              <div className="flex items-center gap-1.5 text-neutral-600 shrink-0">
+              <div className="flex items-center gap-1 text-neutral-600 shrink-0">
                 {match.hasLiveStream && (
-                  <button onClick={() => openDetailedEvent(match)} title="Live Stream">
+                  <button
+                    onClick={() => openDetailedEvent(match)}
+                    title="Live Stream"
+                  >
                     <Play className="w-2.5 h-2.5 text-blue-600 fill-blue-600 cursor-pointer" />
                   </button>
                 )}
+
                 <button
-                  onClick={() => setShowActiveStadium(!showActiveStadium)}
+                  onClick={() =>
+                    setShowActiveStadium(!showActiveStadium)
+                  }
                   title="Active Stadium & Stats"
                   className="hover:text-black cursor-pointer"
                 >
                   <BarChart2 className="w-3 h-3 text-[#0091ff]" />
                 </button>
+
                 <TrendingUp
                   onClick={() => openDetailedEvent(match)}
                   className="w-2.5 h-2.5 text-neutral-500 hover:text-black cursor-pointer"
                   title="Markets Movement"
                 />
+
                 <List
                   onClick={() => openDetailedEvent(match)}
                   className="w-2.5 h-2.5 text-neutral-500 hover:text-black cursor-pointer"
                   title="All Markets"
                 />
+
                 <Users
                   onClick={() => openDetailedEvent(match)}
                   className="w-2.5 h-2.5 text-neutral-500 hover:text-black cursor-pointer"
@@ -449,21 +550,46 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
           </div>
         </div>
 
-        {/* Right Column: Simple Odds Mode */}
+        {/* Right Column: Simple Odds */}
         {displayMode === 'simple' && (
-          <div className="flex items-center gap-1.5 shrink-0 justify-end overflow-x-auto no-scrollbar pt-1 sm:pt-0">
-            {/* Show Sub-Games Dropdown Button (matching video at 00:00) */}
+          <div className="flex items-center gap-1 shrink-0 justify-end overflow-x-auto no-scrollbar pt-0">
+            {/* Mini Odds Chevron - Before Odds */}
+            <button
+              onClick={() => setMiniOddsOpen(!miniOddsOpen)}
+              className={`w-5 h-6 rounded flex items-center justify-center transition-colors cursor-pointer ${miniOddsOpen
+                  ? 'bg-[#0091ff] text-white'
+                  : 'bg-[#1b4470] hover:bg-[#255c96] text-white'
+                }`}
+              title="Quick odds"
+            >
+              {miniOddsOpen ? (
+                <ChevronUp className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5" />
+              )}
+            </button>
+
+            {/* Sub-Games */}
             {match.subGames && match.subGames.length > 0 && (
               <button
-                onClick={() => setSubGamesExpanded(!subGamesExpanded)}
-                className={`w-6 h-7 rounded flex items-center justify-center transition-colors cursor-pointer ${
-                  subGamesExpanded
+                onClick={() =>
+                  setSubGamesExpanded(!subGamesExpanded)
+                }
+                className={`w-5 h-6 rounded flex items-center justify-center transition-colors cursor-pointer ${subGamesExpanded
                     ? 'bg-[#0091ff] text-white'
                     : 'bg-[#1b4470] hover:bg-[#255c96] text-white'
-                }`}
-                title={subGamesExpanded ? 'Hide sub-games' : 'Show sub-games'}
+                  }`}
+                title={
+                  subGamesExpanded
+                    ? 'Hide sub-games'
+                    : 'Show sub-games'
+                }
               >
-                {subGamesExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {subGamesExpanded ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
               </button>
             )}
 
@@ -487,10 +613,10 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
               </>
             )}
 
-            {/* Extra Markets Count */}
+            {/* Extra Markets */}
             <button
               onClick={() => openDetailedEvent(match)}
-              className="w-10 text-center text-xs font-bold text-[#1b65a5] hover:underline cursor-pointer"
+              className="w-9 text-center text-xs font-bold text-[#1b65a5] hover:underline cursor-pointer"
               title={`View all ${match.extraMarketsCount} markets`}
             >
               +{match.extraMarketsCount}
@@ -499,79 +625,255 @@ const MatchRow: React.FC<MatchRowProps> = ({ match, isEsports, displayMode }) =>
         )}
       </div>
 
-      {/* Detailed Odds Mode Inline Panel */}
+      {/* Mini Odds Inline Popup */}
+      {miniOddsOpen && displayMode === 'simple' && !isEsports && (
+        <div className="px-2 py-1.5 bg-[#f0f4f9] border-t border-[#e2eaf2] animate-in fade-in">
+          <div className="grid grid-cols-3 gap-1">
+            <div className="text-center">
+              <div className="text-[9px] font-bold text-[#556980] mb-0.5">1</div>
+              {match.odds.w1 && renderOddsPill(match.odds.w1)}
+            </div>
+            <div className="text-center">
+              <div className="text-[9px] font-bold text-[#556980] mb-0.5">X</div>
+              {match.odds.x ? renderOddsPill(match.odds.x) : renderOddsPill(undefined, true)}
+            </div>
+            <div className="text-center">
+              <div className="text-[9px] font-bold text-[#556980] mb-0.5">2</div>
+              {match.odds.w2 && renderOddsPill(match.odds.w2)}
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-1 mt-1">
+            <div className="text-center">
+              <div className="text-[9px] font-bold text-[#556980] mb-0.5">1X</div>
+              {match.odds.x1 && renderOddsPill(match.odds.x1)}
+            </div>
+            <div className="text-center">
+              <div className="text-[9px] font-bold text-[#556980] mb-0.5">12</div>
+              {match.odds.w12 && renderOddsPill(match.odds.w12)}
+            </div>
+            <div className="text-center">
+              <div className="text-[9px] font-bold text-[#556980] mb-0.5">2X</div>
+              {match.odds.x2 && renderOddsPill(match.odds.x2)}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detailed Odds Mode */}
       {displayMode === 'detailed' && (
-        <div className="px-3 pb-3 pt-1 bg-[#f8fafc] border-t border-[#e2eaf2] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-xs animate-in fade-in">
+        <div className="px-2 pb-2 pt-1 bg-[#f8fafc] border-t border-[#e2eaf2] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1.5 text-xs animate-in fade-in">
           {/* 1X2 */}
-          <div className="bg-white p-2 rounded border border-neutral-200 shadow-2xs">
-            <div className="font-bold text-neutral-700 mb-1 text-[11px]">1X2</div>
+          <div className="bg-white p-1.5 rounded border border-neutral-200 shadow-2xs">
+            <div className="font-bold text-neutral-700 mb-0.5 text-[11px]">
+              1X2
+            </div>
+
             <div className="flex gap-1">
-              {renderDetailedOddsBtn('1', match.odds.w1?.value || 1.8, '1X2', '1')}
-              {match.odds.x && renderDetailedOddsBtn('X', match.odds.x.value, '1X2', 'x')}
-              {renderDetailedOddsBtn('2', match.odds.w2?.value || 2.2, '1X2', '2')}
+              {renderDetailedOddsBtn(
+                '1',
+                match.odds.w1?.value || 1.8,
+                '1X2',
+                '1'
+              )}
+
+              {match.odds.x &&
+                renderDetailedOddsBtn(
+                  'X',
+                  match.odds.x.value,
+                  '1X2',
+                  'x'
+                )}
+
+              {renderDetailedOddsBtn(
+                '2',
+                match.odds.w2?.value || 2.2,
+                '1X2',
+                '2'
+              )}
             </div>
           </div>
 
           {/* Double Chance */}
-          <div className="bg-white p-2 rounded border border-neutral-200 shadow-2xs">
-            <div className="font-bold text-neutral-700 mb-1 text-[11px]">Double Chance</div>
+          <div className="bg-white p-1.5 rounded border border-neutral-200 shadow-2xs">
+            <div className="font-bold text-neutral-700 mb-0.5 text-[11px]">
+              Double Chance
+            </div>
+
             <div className="flex gap-1">
-              {renderDetailedOddsBtn('1X', match.odds.x1?.value || 1.15, 'DC', '1x')}
-              {renderDetailedOddsBtn('12', match.odds.w12?.value || 1.25, 'DC', '12')}
-              {renderDetailedOddsBtn('2X', match.odds.x2?.value || 1.85, 'DC', '2x')}
+              {renderDetailedOddsBtn(
+                '1X',
+                match.odds.x1?.value || 1.15,
+                'DC',
+                '1x'
+              )}
+
+              {renderDetailedOddsBtn(
+                '12',
+                match.odds.w12?.value || 1.25,
+                'DC',
+                '12'
+              )}
+
+              {renderDetailedOddsBtn(
+                '2X',
+                match.odds.x2?.value || 1.85,
+                'DC',
+                '2x'
+              )}
             </div>
           </div>
 
           {/* Both Teams to Score */}
-          <div className="bg-white p-2 rounded border border-neutral-200 shadow-2xs">
-            <div className="font-bold text-neutral-700 mb-1 text-[11px]">Both Teams to Score</div>
+          <div className="bg-white p-1.5 rounded border border-neutral-200 shadow-2xs">
+            <div className="font-bold text-neutral-700 mb-0.5 text-[11px]">
+              Both Teams to Score
+            </div>
+
             <div className="flex gap-1">
-              {renderDetailedOddsBtn('Yes', 1.88, 'BTTS', 'yes')}
-              {renderDetailedOddsBtn('No', 1.92, 'BTTS', 'no')}
+              {renderDetailedOddsBtn(
+                'Yes',
+                1.88,
+                'BTTS',
+                'yes'
+              )}
+
+              {renderDetailedOddsBtn(
+                'No',
+                1.92,
+                'BTTS',
+                'no'
+              )}
             </div>
           </div>
 
           {/* Total Goals */}
-          <div className="bg-white p-2 rounded border border-neutral-200 shadow-2xs">
-            <div className="font-bold text-neutral-700 mb-1 text-[11px]">Total Goals (2.5)</div>
+          <div className="bg-white p-1.5 rounded border border-neutral-200 shadow-2xs">
+            <div className="font-bold text-neutral-700 mb-0.5 text-[11px]">
+              Total Goals (2.5)
+            </div>
+
             <div className="flex gap-1">
-              {renderDetailedOddsBtn('Over 2.5', 1.95, 'Total', 'o2.5')}
-              {renderDetailedOddsBtn('Under 2.5', 1.85, 'Total', 'u2.5')}
+              {renderDetailedOddsBtn(
+                'Over 2.5',
+                1.95,
+                'Total',
+                'o2.5'
+              )}
+
+              {renderDetailedOddsBtn(
+                'Under 2.5',
+                1.85,
+                'Total',
+                'u2.5'
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Expandable Sub-Games List (matching video at 00:00 - 00:09) */}
-      {subGamesExpanded && match.subGames && match.subGames.length > 0 && (
-        <div className="bg-[#f0f4f9] border-t border-[#d8e2ec] px-4 py-2 space-y-1.5 divide-y divide-white/60 animate-in fade-in">
-          {match.subGames.map((sub) => (
-            <div key={sub.id} className="pt-1.5 flex items-center justify-between gap-2 text-xs">
-              <span className="font-bold text-[#163b63] text-xs pl-6">{sub.name}</span>
-              <div className="flex items-center gap-1.5">
-                {sub.odds?.w1 && renderOddsPill(sub.odds.w1)}
-                {sub.odds?.x && renderOddsPill(sub.odds.x)}
-                {sub.odds?.w2 && renderOddsPill(sub.odds.w2)}
-                {sub.odds?.x1 && renderOddsPill(sub.odds.x1)}
-                {sub.odds?.w12 && renderOddsPill(sub.odds.w12)}
-                {sub.odds?.x2 && renderOddsPill(sub.odds.x2)}
-                {sub.extraMarketsCount && (
-                  <button
-                    onClick={() => openDetailedEvent(match)}
-                    className="w-10 text-center text-xs font-bold text-[#1b65a5] hover:underline cursor-pointer"
-                  >
-                    +{sub.extraMarketsCount}
-                  </button>
-                )}
+      {/* Quick Odds Categories Chevron */}
+      {displayMode === 'simple' && !isEsports && (
+        <div className="px-2 py-0.5 bg-[#f0f4f9] border-t border-[#e2eaf2]">
+          <button
+            onClick={() => setQuickOddsExpanded(!quickOddsExpanded)}
+            className="w-full flex items-center justify-between px-1 py-0.5 text-[11px] font-bold text-[#476587] hover:text-[#163b63] cursor-pointer transition-colors"
+          >
+            <span className="flex items-center gap-1">
+              <span className="text-[10px]">📊</span>
+              Quick Markets
+            </span>
+            {quickOddsExpanded ? (
+              <ChevronUp className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5" />
+            )}
+          </button>
+
+          {quickOddsExpanded && (
+            <div className="pb-1.5 pt-0.5 space-y-1 animate-in fade-in">
+              {/* 1st Half */}
+              <div className="flex items-center gap-1">
+                <span className="w-20 text-[10px] font-bold text-[#556980] shrink-0">1st Half</span>
+                <div className="flex items-center gap-1">
+                  {match.odds.w1 && renderOddsPill({ ...match.odds.w1, id: `${match.id}-h1-1`, marketName: '1st Half', name: '1st Half - 1' })}
+                  {match.odds.x && renderOddsPill({ ...match.odds.x, id: `${match.id}-h1-x`, value: +(match.odds.x.value * 0.7).toFixed(2), marketName: '1st Half', name: '1st Half - X' })}
+                  {match.odds.w2 && renderOddsPill({ ...match.odds.w2, id: `${match.id}-h1-2`, marketName: '1st Half', name: '1st Half - 2' })}
+                </div>
+              </div>
+
+              {/* 2nd Half */}
+              <div className="flex items-center gap-1">
+                <span className="w-20 text-[10px] font-bold text-[#556980] shrink-0">2nd Half</span>
+                <div className="flex items-center gap-1">
+                  {match.odds.w1 && renderOddsPill({ ...match.odds.w1, id: `${match.id}-h2-1`, value: +(match.odds.w1.value * 0.85).toFixed(2), marketName: '2nd Half', name: '2nd Half - 1' })}
+                  {match.odds.x && renderOddsPill({ ...match.odds.x, id: `${match.id}-h2-x`, value: +(match.odds.x.value * 0.65).toFixed(2), marketName: '2nd Half', name: '2nd Half - X' })}
+                  {match.odds.w2 && renderOddsPill({ ...match.odds.w2, id: `${match.id}-h2-2`, value: +(match.odds.w2.value * 0.8).toFixed(2), marketName: '2nd Half', name: '2nd Half - 2' })}
+                </div>
+              </div>
+
+              {/* Corners */}
+              <div className="flex items-center gap-1">
+                <span className="w-20 text-[10px] font-bold text-[#556980] shrink-0">Corners</span>
+                <div className="flex items-center gap-1">
+                  {renderOddsPill({ id: `${match.id}-corn-o9.5`, label: 'O9.5', name: 'Corners Over 9.5', marketName: 'Corners', value: 1.85 })}
+                  {renderOddsPill({ id: `${match.id}-corn-u9.5`, label: 'U9.5', name: 'Corners Under 9.5', marketName: 'Corners', value: 1.95 })}
+                </div>
               </div>
             </div>
-          ))}
+          )}
         </div>
       )}
 
-      {/* Inline Active Stadium Tracker Panel */}
+      {/* Expandable Sub-Games */}
+      {subGamesExpanded &&
+        match.subGames &&
+        match.subGames.length > 0 && (
+          <div className="bg-[#f0f4f9] border-t border-[#d8e2ec] px-2 py-1 space-y-1 divide-y divide-white/60 animate-in fade-in">
+            {match.subGames.map((sub) => (
+              <div
+                key={sub.id}
+                className="pt-1 flex items-center justify-between gap-1 text-xs"
+              >
+                <span className="font-bold text-[#163b63] text-xs pl-3 truncate">
+                  {sub.name}
+                </span>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  {sub.odds?.w1 &&
+                    renderOddsPill(sub.odds.w1)}
+
+                  {sub.odds?.x &&
+                    renderOddsPill(sub.odds.x)}
+
+                  {sub.odds?.w2 &&
+                    renderOddsPill(sub.odds.w2)}
+
+                  {sub.odds?.x1 &&
+                    renderOddsPill(sub.odds.x1)}
+
+                  {sub.odds?.w12 &&
+                    renderOddsPill(sub.odds.w12)}
+
+                  {sub.odds?.x2 &&
+                    renderOddsPill(sub.odds.x2)}
+
+                  {sub.extraMarketsCount && (
+                    <button
+                      onClick={() => openDetailedEvent(match)}
+                      className="w-9 text-center text-xs font-bold text-[#1b65a5] hover:underline cursor-pointer"
+                    >
+                      +{sub.extraMarketsCount}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      {/* Inline Active Stadium Tracker */}
       {showActiveStadium && (
-        <div className="p-3 bg-[#0f2845] border-t border-[#204975] animate-in fade-in">
+        <div className="p-2 bg-[#0f2845] border-t border-[#204975] animate-in fade-in">
           <ActiveStadiumTracker match={match} />
         </div>
       )}
