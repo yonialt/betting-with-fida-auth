@@ -21,8 +21,7 @@ export const Header: React.FC = () => {
     setLoginModalOpen,
     setSettingsModalOpen,
     setDepositModalOpen,
-    setOnlyWithStreams,
-    onlyWithStreams,
+
     setAppMode,
   } = useBetting();
 
@@ -54,27 +53,12 @@ export const Header: React.FC = () => {
             className="flex items-center cursor-pointer transition-transform active:scale-95 select-none"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <img src="/logo.png" alt="Fida Bet Logo" className="h-8 w-auto object-contain" />
+            <img src="/hagerawi-logo.svg" alt="Hagerawi Logo" className="h-10 w-auto object-contain" />
           </div>
         </div>
 
         {/* Right: Tools, Wallet, Login, Settings, Clock */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Live Video Streams Filter */}
-          <button
-            id="btn-video-filter"
-            onClick={() => setOnlyWithStreams((prev) => !prev)}
-            title={onlyWithStreams ? "Showing only live streams" : "Show all / toggle stream filter"}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
-              onlyWithStreams
-                ? 'bg-red-600 text-white shadow-xs'
-                : 'bg-[#101822] hover:bg-[#223042] text-neutral-300 border border-neutral-700'
-            }`}
-          >
-            <Video className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Live Stream</span>
-          </button>
-
           {/* User Account / LOG IN Button */}
           {user.isLoggedIn ? (
             <>
@@ -146,18 +130,17 @@ export const Header: React.FC = () => {
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center pr-2.5 mr-1 border-r border-neutral-300 cursor-pointer select-none"
             >
-              <img src="/logo.png" alt="Fida Bet" className="h-6 w-auto object-contain" />
+              <img src="/hagerawi-logo.svg" alt="Hagerawi Logo" className="h-6 w-auto object-contain" />
             </div>
 
             {/* TOP-EVENTS */}
             <button
               id="nav-top-events"
               onClick={() => setActiveNavTab('top-events')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${
-                activeNavTab === 'top-events'
-                  ? 'bg-neutral-100 text-[#ff5722]'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'top-events'
+                ? 'bg-neutral-100 text-[#ff5722]'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <Flame className="w-4 h-4 text-[#ff5722]" />
               <span>TOP-EVENTS</span>
@@ -168,11 +151,10 @@ export const Header: React.FC = () => {
             <button
               id="nav-sports"
               onClick={() => setActiveNavTab('sports')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${
-                activeNavTab === 'sports'
-                  ? 'bg-neutral-100 text-[#0091ff]'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'sports'
+                ? 'bg-neutral-100 text-[#0091ff]'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <Zap className="w-4 h-4 text-[#0091ff]" />
               <span>SPORTS</span>
@@ -183,11 +165,10 @@ export const Header: React.FC = () => {
             <button
               id="nav-live"
               onClick={() => setActiveNavTab('live')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all uppercase tracking-tight font-black cursor-pointer ${
-                activeNavTab === 'live'
-                  ? 'bg-neutral-100 text-black shadow-2xs border border-neutral-200/80'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all uppercase tracking-tight font-black cursor-pointer ${activeNavTab === 'live'
+                ? 'bg-neutral-100 text-black shadow-2xs border border-neutral-200/80'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -202,11 +183,10 @@ export const Header: React.FC = () => {
             <button
               id="nav-1xgames"
               onClick={() => setActiveNavTab('1xgames')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${
-                activeNavTab === '1xgames'
-                  ? 'bg-neutral-100 text-emerald-600'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === '1xgames'
+                ? 'bg-neutral-100 text-emerald-600'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <Gamepad2 className="w-4 h-4 text-emerald-600" />
               <span>1XGAMES</span>
@@ -217,11 +197,10 @@ export const Header: React.FC = () => {
             <button
               id="nav-casino"
               onClick={() => setActiveNavTab('casino')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${
-                activeNavTab === 'casino'
-                  ? 'bg-neutral-100 text-purple-600'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'casino'
+                ? 'bg-neutral-100 text-purple-600'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <Spade className="w-4 h-4 text-purple-600" />
               <span>CASINO</span>
@@ -232,11 +211,10 @@ export const Header: React.FC = () => {
             <button
               id="nav-live-casino"
               onClick={() => setActiveNavTab('live-casino')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${
-                activeNavTab === 'live-casino'
-                  ? 'bg-neutral-100 text-pink-600'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'live-casino'
+                ? 'bg-neutral-100 text-pink-600'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <Tv className="w-4 h-4 text-pink-600" />
               <span>LIVE CASINO</span>
@@ -247,11 +225,10 @@ export const Header: React.FC = () => {
             <button
               id="nav-esports"
               onClick={() => setActiveNavTab('esports')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${
-                activeNavTab === 'esports'
-                  ? 'bg-neutral-100 text-amber-600'
-                  : 'text-[#222] hover:bg-neutral-100'
-              }`}
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'esports'
+                ? 'bg-neutral-100 text-amber-600'
+                : 'text-[#222] hover:bg-neutral-100'
+                }`}
             >
               <Tv className="w-4 h-4 text-amber-600" />
               <span>ESPORTS</span>

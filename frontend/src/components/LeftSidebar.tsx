@@ -54,7 +54,7 @@ export const LeftSidebar: React.FC = () => {
       >
         {/* Top dummy blue header matching popout height */}
         <div className="w-full bg-[#1b4470] h-8 flex items-center justify-center border-b border-[#14365b]">
-          <img src="/logo.png" alt="Fida Bet" className="h-5 w-auto object-contain" />
+          <img src="/hagerawi-logo.svg" alt="Hagerawi Logo" className="h-5 w-auto object-contain" />
         </div>
 
         {/* Sub-header spacer */}
