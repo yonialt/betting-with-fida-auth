@@ -1,6 +1,0 @@
-{
-  "name": "1xBET Live Sports & Polymarket Predictions",
-  "description": "Interactive sports betting and Polymarket decentralized prediction trading platform with live order books, real-time community chat/trollbox, dynamic odds, and trade execution.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
