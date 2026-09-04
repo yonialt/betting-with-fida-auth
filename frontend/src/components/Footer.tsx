@@ -3,10 +3,12 @@ import { Apple, Smartphone, LayoutGrid } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
 export const Footer: React.FC = () => {
-  const { setLoginModalOpen, setBonusesModalOpen } = useBetting();
+  const { setLoginModalOpen, setBonusesModalOpen, openAuthModal } = useBetting();
 
   const handleLinkClick = (title: string) => {
-    if (title === 'Registration' || title === 'Payment methods') {
+    if (title === 'Registration') {
+      openAuthModal('signup');
+    } else if (title === 'Payment methods') {
       setLoginModalOpen(true);
     } else if (title === 'About us' || title === 'Terms and Conditions' || title === 'Cookie Policy') {
       setBonusesModalOpen(true);

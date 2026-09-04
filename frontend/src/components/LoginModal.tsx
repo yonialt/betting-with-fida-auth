@@ -1,12 +1,56 @@
 import React, { useState } from 'react';
-import { X, Wallet, ArrowDownToLine, CheckCircle2, ShieldCheck, User } from 'lucide-react';
+import { X, Wallet, ArrowDownToLine, CheckCircle2, ShieldCheck, User, LogIn, UserPlus } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
 export const LoginModal: React.FC = () => {
-  const { loginModalOpen, setLoginModalOpen, user, depositFunds } = useBetting();
+  const { loginModalOpen, setLoginModalOpen, user, depositFunds, openAuthModal } = useBetting();
   const [customAmount, setCustomAmount] = useState<string>('500');
 
   if (!loginModalOpen) return null;
+
+  // Signed-out visitor opened the wallet modal → prompt them to log in first
+  if (!user.isLoggedIn) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
+        <div
+          id="login-account-modal"
+          className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150 border border-neutral-200"
+        >
+          <div className="bg-[#1e2329] text-white px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-[#ffc600]" />
+              <span className="font-bold text-sm">Account & Wallet</span>
+            </div>
+            <button
+              onClick={() => setLoginModalOpen(false)}
+              className="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-6 text-center space-y-4">
+            <p className="text-sm text-neutral-600">
+              Log in to view your account and wallet.<br />One account works for Sport Betting and Polymarket.
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => { setLoginModalOpen(false); openAuthModal('login'); }}
+                className="w-full py-2.5 bg-[#1e2329] hover:bg-black text-white font-bold text-sm rounded transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogIn className="w-4 h-4" /> LOG IN
+              </button>
+              <button
+                onClick={() => { setLoginModalOpen(false); openAuthModal('signup'); }}
+                className="w-full py-2.5 bg-[#0091ff] hover:bg-[#007ad6] text-white font-bold text-sm rounded transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <UserPlus className="w-4 h-4" /> SIGN UP
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleDeposit = (amount: number) => {
     depositFunds(amount);
