@@ -82,7 +82,13 @@ const BettingAppContent: React.FC = () => {
         <LeftSidebar />
 
         {/* Center Live Matches Area / Event Detailed View */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5">
+        <main
+          className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5"
+          style={{
+            marginLeft: '0px',
+            marginRight: '0px',
+          }}
+        >
           {activeCenterView === 'event' ? (
             <EventDetailedView />
           ) : (

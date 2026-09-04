@@ -185,22 +185,36 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
 
-  // Backend Integration: Fetch initial matches from backend if available
+  // Backend Integration: Fetch initial matches from backend if available (Live + Upcoming)
   useEffect(() => {
     let isMounted = true;
-    fidaBetApi.getLiveMatches('all')
-      .then((backendMatches) => {
-        if (isMounted && backendMatches && backendMatches.length > 0) {
-          setMatches(backendMatches);
-          if (backendMatches[0]) {
-            setSelectedEventMatch(backendMatches[0]);
+    const loadMatches = () => {
+      fidaBetApi.getAllMatches('all')
+        .then((data: any) => {
+          const list: Match[] = Array.isArray(data) ? data : (data?.content || []);
+          if (isMounted && list.length > 0) {
+            setMatches(list);
+            if (list[0]) {
+              setSelectedEventMatch(list[0]);
+            }
           }
-        }
-      })
-      .catch(() => {
-        // Fallback to in-memory INITIAL_MATCHES cleanly
-      });
+        })
+        .catch(() => {
+          // Fallback to in-memory INITIAL_MATCHES cleanly
+        });
+    };
 
+    loadMatches();
+    const interval = setInterval(loadMatches, 45000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
     // Connect WebSocket client for real-time STOMP topics
     try {
       fidaBetWebSocket.connect();

@@ -5,6 +5,7 @@ import { INITIAL_MATCHES } from './src/data/initialMatches';
 import { Match, PlacedBet, UserProfile, BetSlipItem } from './src/types';
 import { redisCache } from './src/server/redisCache';
 import { apiFootballService } from './src/server/apiFootballService';
+import { freeMatchOddsService } from './src/server/freeMatchOddsService';
 
 const app = express();
 const PORT = 3000;
@@ -247,6 +248,31 @@ app.get('/api/wallet/transactions', (_req, res) => {
 });
 
 // Matches & Odds with Redis Cache-Aside & API-Football
+app.get('/api/matches', async (req, res) => {
+  const { sport = 'all', status = 'all', timeFilter = 'all' } = req.query;
+  const sportStr = (sport as string) || 'all';
+  const statusStr = (status as string) || 'all';
+  const timeFilterStr = (timeFilter as string) || 'all';
+
+  try {
+    let result: Match[] = [];
+    if (statusStr === 'live') {
+      result = await apiFootballService.getLiveMatches(sportStr);
+    } else if (statusStr === 'upcoming') {
+      result = await apiFootballService.getUpcomingMatches(sportStr, timeFilterStr);
+    } else {
+      const [live, upcoming] = await Promise.all([
+        apiFootballService.getLiveMatches(sportStr),
+        apiFootballService.getUpcomingMatches(sportStr, timeFilterStr),
+      ]);
+      result = [...live, ...upcoming];
+    }
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/matches/live', async (req, res) => {
   const { sport } = req.query;
   const sportStr = (sport as string) || 'all';
@@ -263,10 +289,11 @@ app.get('/api/matches/live', async (req, res) => {
 });
 
 app.get('/api/matches/upcoming', async (req, res) => {
-  const { sport } = req.query;
+  const { sport, timeFilter } = req.query;
   const sportStr = (sport as string) || 'all';
+  const timeFilterStr = (timeFilter as string) || 'all';
   try {
-    const upcoming = await apiFootballService.getUpcomingMatches(sportStr);
+    const upcoming = await apiFootballService.getUpcomingMatches(sportStr, timeFilterStr);
     res.json({
       content: upcoming,
       totalElements: upcoming.length,
@@ -361,12 +388,43 @@ app.get('/api/matches/:id/markets', async (req, res) => {
   res.json(marketGroups);
 });
 
-// --- API-Football & Redis Control Endpoints ---
+// --- Free Match & Odds API & Redis Control Endpoints ---
+app.get('/api/sports/free/status', (_req, res) => {
+  res.json(freeMatchOddsService.getStatus());
+});
+
+app.post('/api/sports/free/sync', async (_req, res) => {
+  try {
+    const result = await apiFootballService.syncAllFromApi();
+    const cacheStats = await redisCache.getStats();
+    res.json({
+      success: true,
+      ...result,
+      cacheStats,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/sports/odds-api/configure', (req, res) => {
+  const { apiKey } = req.body || {};
+  if (apiKey !== undefined) {
+    freeMatchOddsService.setOddsApiKey(apiKey);
+  }
+  res.json({
+    success: true,
+    status: freeMatchOddsService.getStatus(),
+  });
+});
+
 app.get('/api/football/status', async (_req, res) => {
   const fbStatus = apiFootballService.getStatus();
+  const freeStatus = freeMatchOddsService.getStatus();
   const cacheStats = await redisCache.getStats();
   res.json({
     apiFootball: fbStatus,
+    freeEngine: freeStatus,
     redis: cacheStats,
   });
 });
@@ -422,6 +480,67 @@ app.post('/api/football/drift', async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+// --- Spring Boot 3 Controller Compatibility Endpoints ---
+app.get('/api/football/fixtures/live', async (req, res) => {
+  const sport = (req.query.sport as string) || 'all';
+  try {
+    const live = await apiFootballService.getLiveMatches(sport);
+    res.json(live);
+  } catch {
+    res.json(matches.filter((m) => m.isLive));
+  }
+});
+
+app.get('/api/football/fixtures/upcoming', async (req, res) => {
+  const sport = (req.query.sport as string) || 'all';
+  try {
+    const upcoming = await apiFootballService.getUpcomingMatches(sport);
+    res.json(upcoming);
+  } catch {
+    res.json(matches);
+  }
+});
+
+app.get('/api/football/matches/:id/markets', async (req, res) => {
+  try {
+    const markets = await apiFootballService.getMatchMarkets(req.params.id);
+    res.json(markets);
+  } catch {
+    res.json([]);
+  }
+});
+
+app.get('/api/redis/stats', async (_req, res) => {
+  const stats = await redisCache.getStats();
+  const keys = await redisCache.keys('football:*');
+  res.json({
+    hits: stats.hits,
+    misses: stats.misses,
+    totalRequests: stats.totalRequests,
+    hitRatePercentage: stats.hitRate,
+    activeKeysCount: stats.keysCount,
+    redisStatus: stats.connected ? 'CONNECTED' : 'DISCONNECTED',
+    uptimeSeconds: stats.uptimeSeconds,
+    lastSyncTimestamp: stats.lastSyncAt || new Date().toISOString(),
+    sampleKeys: keys.slice(0, 20).map((k) => ({
+      key: k,
+      ttlSeconds: 20,
+      cacheRegion: k.split(':')[1] || 'live',
+    })),
+  });
+});
+
+app.post('/api/redis/flush', async (req, res) => {
+  const pattern = (req.query.pattern as string) || (req.body?.pattern as string) || '*';
+  const deleted = await redisCache.delPattern(pattern);
+  res.json({
+    status: 'SUCCESS',
+    pattern,
+    deletedKeysCount: deleted,
+  });
+});
+
 
 
 app.get('/api/matches/:id/stats', (req, res) => {

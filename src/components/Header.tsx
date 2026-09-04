@@ -70,7 +70,17 @@ export const Header: React.FC = () => {
           the right; the left stays plain navy — the white logo
           circle (below) is centered on the seam with this bar.
          ======================================================== */}
-      <div className="top-navbar-cutout w-full bg-[#1b2838] text-white h-[36px] sm:h-[40px] lg:h-[47px] px-3 sm:px-4 flex items-center justify-end gap-3 border-b border-neutral-800">
+      <div
+        className="top-navbar-cutout w-full bg-[#1b2838] text-white px-3 sm:px-4 flex items-center justify-end gap-3 border-b border-neutral-800"
+        style={{
+          marginLeft: '-2px',
+          borderRadius: '0px',
+          backgroundColor: '#1b2838',
+          height: '46px',
+          width: '1354px',
+          borderWidth: '1px',
+        }}
+      >
         {/* Right: Tools, Wallet, Login, Settings, Clock */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* User Account / LOG IN Button */}
@@ -128,15 +138,16 @@ export const Header: React.FC = () => {
             </>
           )}
 
-          {/* API-Football & Redis Cache Engine Console */}
+          {/* Live Match & Odds API Console */}
           <button
             id="btn-api-football-redis"
             onClick={() => setApiFootballModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0d1d2c] hover:bg-[#14283b] border border-emerald-500/50 hover:border-emerald-400 rounded text-xs font-bold text-emerald-400 transition-all cursor-pointer shadow-xs"
-            title="API-Football & Redis Cache Engine Console"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0d1d2c] hover:bg-[#14283b] border border-emerald-500/60 hover:border-emerald-400 rounded text-xs font-bold text-emerald-400 transition-all cursor-pointer shadow-xs"
+            title="Free Match API & Real Odds Engine (ESPN + DraftKings + Redis)"
           >
-            <Database className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span className="hidden sm:inline">API FOOTBALL & REDIS</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <Database className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">FREE MATCH & ODDS API</span>
           </button>
 
           {/* Settings Gear */}
@@ -168,8 +179,14 @@ export const Header: React.FC = () => {
           Its left padding gives generous clearance past the logo
           fender arch so TOP-EVENTS and categories start cleanly to the right.
          ======================================================== */}
-      <div className="w-full bg-white border-b border-neutral-200 pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5">
-        <nav className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold">
+      <div
+        className="w-full bg-white border-b border-neutral-200 pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5"
+        style={{ backgroundColor: '#ffffff' }}
+      >
+        <nav
+          className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold"
+          style={{ backgroundColor: '#ffffff' }}
+        >
           {/* Left Category Pillar Links */}
           <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap">
             {/* TOP-EVENTS */}
@@ -280,6 +297,12 @@ export const Header: React.FC = () => {
           id="brand-logo"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="absolute left-[15px] sm:left-[13px] lg:left-[11px] top-[42px] sm:top-[46px] lg:top-[50px] -translate-y-1/2 w-[86px] h-[86px] sm:w-[98px] sm:h-[98px] lg:w-[110px] lg:h-[110px] overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform active:scale-95"
+          style={{
+            borderRadius: '192px',
+            paddingLeft: '0px',
+            marginLeft: '0px',
+            marginTop: '-2px',
+          }}
         >
           {/* Rasterized badge (square PNG with a transparent
               background). The badge circle fills ~91.2% of the

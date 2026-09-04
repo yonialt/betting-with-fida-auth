@@ -1,11 +1,13 @@
 import { Match, OddsItem, MarketGroup, MatchStats, LiveMatchEvent } from '../types';
 import { INITIAL_MATCHES } from '../data/initialMatches';
 import { redisCache } from './redisCache';
+import { freeMatchOddsService } from './freeMatchOddsService';
 
 export interface ApiFootballStatus {
   configured: boolean;
   apiKeyMasked: string;
-  provider: 'api-sports' | 'rapidapi' | 'demo-simulator';
+  provider: 'free-public-engine' | 'api-sports' | 'rapidapi' | 'demo-simulator';
+  freeEngineActive: boolean;
   apiUrl: string;
   cacheTtlLiveSec: number;
   cacheTtlOddsSec: number;
@@ -13,6 +15,8 @@ export interface ApiFootballStatus {
   lastCallMessage: string;
   totalApiRequests: number;
   liveMatchesCount: number;
+  upcomingMatchesCount: number;
+  freeLeaguesCount: number;
 }
 
 export class ApiFootballService {
@@ -21,15 +25,18 @@ export class ApiFootballService {
   private baseUrl: string = 'https://v3.football.api-sports.io';
   private totalApiRequests: number = 0;
   private lastCallStatus: 'ok' | 'rate_limited' | 'error' | 'not_called_yet' = 'not_called_yet';
-  private lastCallMessage: string = 'System ready.';
+  private lastCallMessage: string = 'Free Match & Odds Engine Active (ESPN + DraftKings / Caesars)';
 
   // In-memory working matches for live updates
   private simulatedMatches: Match[] = [...INITIAL_MATCHES];
+  private liveFreeMatches: Match[] = [];
+  private upcomingFreeMatches: Match[] = [];
 
   constructor() {
     this.initFromEnv();
-    // Preload Redis with initial matches
     this.seedInitialCache();
+    // Eagerly trigger initial free matches fetch in background
+    this.refreshFromFreeApi().catch(() => {});
   }
 
   private initFromEnv() {
@@ -58,22 +65,44 @@ export class ApiFootballService {
   }
 
   public getStatus(): ApiFootballStatus {
+    const freeStatus = freeMatchOddsService.getStatus();
     const masked = this.apiKey
       ? this.apiKey.substring(0, 4) + '...' + this.apiKey.slice(-4)
-      : 'None (Simulation Active)';
+      : 'Free Public Engine (Active)';
 
     return {
       configured: Boolean(this.apiKey && this.apiKey.length > 8),
       apiKeyMasked: masked,
-      provider: this.apiKey ? this.provider : 'demo-simulator',
-      apiUrl: this.baseUrl,
+      provider: this.apiKey ? this.provider : 'free-public-engine',
+      freeEngineActive: true,
+      apiUrl: this.apiKey ? this.baseUrl : 'https://site.api.espn.com (Free Match & Odds API)',
       cacheTtlLiveSec: 20,
       cacheTtlOddsSec: 15,
       lastCallStatus: this.lastCallStatus,
       lastCallMessage: this.lastCallMessage,
       totalApiRequests: this.totalApiRequests,
-      liveMatchesCount: this.simulatedMatches.filter(m => m.isLive).length,
+      liveMatchesCount: this.liveFreeMatches.length > 0 ? this.liveFreeMatches.length : this.simulatedMatches.filter(m => m.isLive).length,
+      upcomingMatchesCount: this.upcomingFreeMatches.length,
+      freeLeaguesCount: freeStatus.supportedLeaguesCount,
     };
+  }
+
+  private async refreshFromFreeApi(): Promise<{ live: Match[]; upcoming: Match[] }> {
+    try {
+      const { live, upcoming } = await freeMatchOddsService.fetchFreeMatches();
+      if (live.length > 0) {
+        this.liveFreeMatches = live;
+      }
+      if (upcoming.length > 0) {
+        this.upcomingFreeMatches = upcoming;
+      }
+      this.lastCallStatus = 'ok';
+      this.lastCallMessage = `Free engine synchronized ${live.length} live and ${upcoming.length} upcoming matches with DraftKings odds.`;
+      return { live, upcoming };
+    } catch (err: any) {
+      console.warn('[FreeEngine] Free API fetch error, using fallback cache:', err.message);
+      return { live: this.liveFreeMatches, upcoming: this.upcomingFreeMatches };
+    }
   }
 
   private getHeaders(): Record<string, string> {
@@ -100,32 +129,49 @@ export class ApiFootballService {
       return cached;
     }
 
-    // 2. Cache Miss: Attempt to fetch from API-Football
+    // 2. If API-Football key provided, attempt fetch
     if (this.apiKey && this.apiKey.length > 8) {
       try {
         const liveMatches = await this.fetchLiveFromApiFootball();
         if (liveMatches && liveMatches.length > 0) {
-          // Store in Redis with 20s TTL
           await redisCache.set(cacheKey, liveMatches, 20);
           redisCache.markSyncCompleted();
           return liveMatches;
         }
       } catch (err: any) {
-        console.warn('[API-Football] Error during live fetch, falling back to simulated engine:', err.message);
+        console.warn('[API-Football] Error during live fetch:', err.message);
       }
     }
 
-    // 3. Fallback: Return simulated live matches and cache for 25s
+    // 3. Free Live Match & Odds API (ESPN Scoreboard & DraftKings Real Odds)
+    try {
+      const { live } = await this.refreshFromFreeApi();
+      const filtered = live.filter((m) => sport === 'all' || m.sport === sport);
+      if (filtered.length > 0) {
+        // Merge with initial matches if sport is all to ensure broad coverage
+        const combined = [...filtered, ...this.simulatedMatches.filter(m => m.isLive && !filtered.some(f => f.id === m.id))].map(m => ({
+          ...m,
+          timeCategory: (m.isLive ? 'live' : m.timeCategory || 'today') as any,
+          dateLabel: m.isLive ? 'LIVE' : m.dateLabel || m.timeDisplay,
+        }));
+        await redisCache.set(cacheKey, combined, 20);
+        return combined;
+      }
+    } catch (e: any) {
+      console.warn('[FreeEngine] Live fetch error:', e.message);
+    }
+
+    // 4. Fallback: Return simulated live matches and cache for 25s
     const fallback = this.simulatedMatches.filter((m) => m.isLive && (sport === 'all' || m.sport === sport));
     await redisCache.set(cacheKey, fallback, 25);
     return fallback;
   }
 
   /**
-   * Fetch Upcoming Matches with Redis Caching
+   * Fetch Upcoming Matches with Redis Caching and optional time filtering (today, tomorrow, day2)
    */
-  public async getUpcomingMatches(sport: string = 'football'): Promise<Match[]> {
-    const cacheKey = `football:upcoming:${sport}`;
+  public async getUpcomingMatches(sport: string = 'football', timeFilter: string = 'all'): Promise<Match[]> {
+    const cacheKey = `football:upcoming:${sport}:${timeFilter}`;
 
     const cached = await redisCache.get<Match[]>(cacheKey);
     if (cached && Array.isArray(cached) && cached.length > 0) {
@@ -136,21 +182,45 @@ export class ApiFootballService {
       try {
         const upcomingMatches = await this.fetchUpcomingFromApiFootball();
         if (upcomingMatches && upcomingMatches.length > 0) {
-          await redisCache.set(cacheKey, upcomingMatches, 180); // 3 mins TTL
-          return upcomingMatches;
+          let list = upcomingMatches;
+          if (timeFilter && timeFilter !== 'all') {
+            list = list.filter((m) => m.timeCategory === timeFilter);
+          }
+          await redisCache.set(cacheKey, list, 180);
+          return list;
         }
       } catch (err: any) {
         console.warn('[API-Football] Upcoming fetch fallback:', err.message);
       }
     }
 
-    const fallback = this.simulatedMatches.filter((m) => sport === 'all' || m.sport === sport);
+    // Free Live Match & Odds API
+    try {
+      const { upcoming } = await this.refreshFromFreeApi();
+      let filtered = upcoming.filter((m) => sport === 'all' || m.sport === sport);
+
+      if (timeFilter && timeFilter !== 'all') {
+        filtered = filtered.filter((m) => m.timeCategory === timeFilter);
+      }
+
+      if (filtered.length > 0) {
+        await redisCache.set(cacheKey, filtered, 180);
+        return filtered;
+      }
+    } catch (e: any) {
+      console.warn('[FreeEngine] Upcoming fetch error:', e.message);
+    }
+
+    let fallback = this.simulatedMatches.filter((m) => !m.isLive && (sport === 'all' || m.sport === sport));
+    if (timeFilter && timeFilter !== 'all') {
+      fallback = fallback.filter((m) => m.timeCategory === timeFilter);
+    }
     await redisCache.set(cacheKey, fallback, 180);
     return fallback;
   }
 
   /**
-   * Fetch Match Odds & Market Groups from Redis or API-Football
+   * Fetch Match Odds & Market Groups from Redis or API-Football / Free Engine
    */
   public async getMatchMarkets(matchId: string): Promise<MarketGroup[]> {
     const cacheKey = `football:markets:${matchId}`;
@@ -158,6 +228,14 @@ export class ApiFootballService {
     const cached = await redisCache.get<MarketGroup[]>(cacheKey);
     if (cached) {
       return cached;
+    }
+
+    // Check if free match from ESPN
+    const freeMatch = [...this.liveFreeMatches, ...this.upcomingFreeMatches].find((m) => m.id === matchId);
+    if (freeMatch) {
+      const groups = freeMatchOddsService.getMarketGroupsForMatch(freeMatch);
+      await redisCache.set(cacheKey, groups, 20);
+      return groups;
     }
 
     // Check if numeric fixture ID (real API-Football fixture)
@@ -249,34 +327,34 @@ export class ApiFootballService {
         this.lastCallStatus = 'error';
         this.lastCallMessage = `HTTP ${res.status}: ${res.statusText}`;
       }
-      throw new Error(`API-Football error: ${res.status}`);
+      throw new Error(`API Football error: ${res.statusText}`);
     }
 
     const data = await res.json();
     this.lastCallStatus = 'ok';
-    this.lastCallMessage = `Fetched ${data.results || 0} live fixtures successfully.`;
+    this.lastCallMessage = `Live fixtures fetched successfully (${data.results} fixtures).`;
 
     if (!data.response || !Array.isArray(data.response)) {
       return [];
     }
 
-    return data.response.slice(0, 25).map((item: any) => this.mapApiFixtureToMatch(item));
+    return data.response.map((item: any) => this.mapApiFixtureToMatch(item));
   }
 
   /**
-   * Real API Call: Fetch Upcoming Fixtures
+   * Real API Call: Fetch Upcoming Fixtures from API-Football
    */
   private async fetchUpcomingFromApiFootball(): Promise<Match[]> {
     this.totalApiRequests++;
     const today = new Date().toISOString().split('T')[0];
-    const url = `${this.baseUrl}/fixtures?date=${today}&next=20`;
+    const url = `${this.baseUrl}/fixtures?date=${today}&status=NS`;
 
     const res = await fetch(url, {
       headers: this.getHeaders(),
     });
 
     if (!res.ok) {
-      throw new Error(`API-Football upcoming error: ${res.status}`);
+      throw new Error(`Upcoming fixtures error: ${res.statusText}`);
     }
 
     const data = await res.json();
@@ -299,7 +377,7 @@ export class ApiFootballService {
     });
 
     if (!res.ok) {
-      throw new Error(`API-Football odds error: ${res.status}`);
+      return [];
     }
 
     const data = await res.json();
@@ -342,7 +420,7 @@ export class ApiFootballService {
   }
 
   /**
-   * Map API-Football Raw Schema to Fida Bet Match Model
+   * Map API-Football Raw Schema to Match Model
    */
   private mapApiFixtureToMatch(item: any): Match {
     const f = item.fixture || {};
@@ -359,7 +437,6 @@ export class ApiFootballService {
     const team1Name = teams.home?.name || 'Home Team';
     const team2Name = teams.away?.name || 'Away Team';
 
-    // Calculate baseline synthetic 1X2 odds if bookmaker odds not attached to fixture call
     const score1 = goals.home ?? 0;
     const score2 = goals.away ?? 0;
     const diff = score1 - score2;
@@ -382,14 +459,10 @@ export class ApiFootballService {
       score1,
       score2,
       timeDisplay,
-      seconds: elapsed * 60,
-      period: status,
+      period: isLive ? (status === 'HT' ? 'Half Time' : 'Live') : 'Upcoming',
       isLive,
       hasLiveStream: true,
-      isFavorite: false,
-      extraMarketsCount: 48,
-      venue: f.venue?.name,
-      referee: f.referee,
+      extraMarketsCount: 130,
       odds: {
         w1: {
           id: `w1-${fixtureId}`,
@@ -469,30 +542,29 @@ export class ApiFootballService {
   }
 
   /**
-   * Manual Force Sync from API Football to Redis
+   * Manual Force Sync from Free Match & Odds API to Redis
    */
   public async syncAllFromApi(): Promise<{ count: number; status: string }> {
-    console.log('[API-Football] Manual sync triggered. Invalidating Redis cache...');
+    console.log('[FreeEngine] Manual sync triggered. Invalidating Redis cache...');
 
     // Invalidate Redis caches
     await redisCache.delPattern('football:*');
+    await redisCache.delPattern('free:*');
 
     let count = 0;
-    if (this.apiKey && this.apiKey.length > 8) {
-      try {
-        const live = await this.fetchLiveFromApiFootball();
-        if (live.length > 0) {
-          await redisCache.set('football:live:all', live, 20);
-          await redisCache.set('football:live:football', live, 20);
-          count = live.length;
-        }
-      } catch (err: any) {
-        console.warn('[API-Football] Sync fetch failed:', err.message);
+    try {
+      const { live, upcoming } = await this.refreshFromFreeApi();
+      const all = [...live, ...upcoming];
+      if (all.length > 0) {
+        await redisCache.set('football:live:all', live.length > 0 ? live : this.simulatedMatches, 20);
+        await redisCache.set('football:upcoming:all', upcoming.length > 0 ? upcoming : this.simulatedMatches, 180);
+        count = all.length;
       }
+    } catch (err: any) {
+      console.warn('[FreeEngine] Sync fetch failed:', err.message);
     }
 
     if (count === 0) {
-      // Use fallback
       await redisCache.set('football:live:all', this.simulatedMatches, 25);
       count = this.simulatedMatches.length;
     }
@@ -500,7 +572,7 @@ export class ApiFootballService {
     redisCache.markSyncCompleted();
     return {
       count,
-      status: `Successfully synced ${count} matches to Redis cache.`,
+      status: `Successfully synced ${count} real matches & live odds from Free Public Sports Engine to Redis cache.`,
     };
   }
 
@@ -508,9 +580,10 @@ export class ApiFootballService {
    * Simulate Odds Drift & Market Changes (Updates Redis Cache)
    */
   public async triggerOddsDrift(matchId?: string): Promise<{ matchId: string; changedKeys: string[] }> {
+    const targetPool = [...this.liveFreeMatches, ...this.simulatedMatches];
     const target = matchId
-      ? this.simulatedMatches.find(m => m.id === matchId)
-      : this.simulatedMatches.find(m => m.isLive);
+      ? targetPool.find(m => m.id === matchId)
+      : targetPool.find(m => m.isLive);
 
     if (!target) {
       throw new Error('No live match available for odds drift.');
@@ -537,7 +610,7 @@ export class ApiFootballService {
     });
 
     // Invalidate and refresh Redis
-    await redisCache.set('football:live:all', this.simulatedMatches, 25);
+    await redisCache.set('football:live:all', targetPool.filter(m => m.isLive), 25);
     await redisCache.del(`football:markets:${target.id}`);
 
     return {

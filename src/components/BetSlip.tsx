@@ -45,6 +45,15 @@ export const BetSlip: React.FC = () => {
     <aside
       id="bet-slip-panel"
       className="w-full lg:w-80 xl:w-96 bg-white border-l border-neutral-200 flex flex-col shrink-0 select-none shadow-xs h-full min-h-[500px]"
+      style={{
+        marginLeft: '2px',
+        paddingTop: '0px',
+        paddingBottom: '5px',
+        paddingRight: '0px',
+        paddingLeft: '1px',
+        marginTop: '0px',
+        marginBottom: '-3px',
+      }}
     >
       {/* Top Tabs: Bet Slip & My Bets */}
       <div className="flex items-center border-b border-neutral-200 bg-[#fbfcfd]">
@@ -64,7 +73,10 @@ export const BetSlip: React.FC = () => {
             </span>
           )}
           {activeTabSlip === 'slip' && (
-            <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#ffc600]" />
+            <div
+              className="absolute bottom-0 left-0 right-0 h-[2.5px]"
+              style={{ backgroundColor: '#1b2838' }}
+            />
           )}
         </button>
 
@@ -90,7 +102,13 @@ export const BetSlip: React.FC = () => {
       </div>
 
       {activeTabSlip === 'slip' ? (
-        <div className="flex-1 flex flex-col justify-between p-3 overflow-y-auto">
+        <div
+          className="flex-1 flex flex-col justify-between p-3 overflow-y-auto"
+          style={{
+            marginRight: '0px',
+            marginLeft: '8px',
+          }}
+        >
           {/* Top Header of Bets list */}
           <div>
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
@@ -337,7 +355,13 @@ export const BetSlip: React.FC = () => {
         </div>
       ) : (
         /* My Bets View */
-        <div className="flex-1 p-3 overflow-y-auto space-y-3">
+        <div
+          className="flex-1 p-3 overflow-y-auto space-y-3"
+          style={{
+            marginRight: '0px',
+            marginLeft: '8px',
+          }}
+        >
           <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
             <span className="text-xs font-bold text-neutral-800 uppercase">
               Placed Bets History ({placedBets.length})

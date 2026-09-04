@@ -12,22 +12,10 @@ export default defineConfig(() => {
       },
     },
     server: {
+      host: '0.0.0.0',
+      port: 3000,
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
-      proxy: {
-        '/api': {
-          target: 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/webhook': {
-          target: 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/ws': {
-          target: 'ws://localhost:8080',
-          ws: true,
-        },
-      },
     },
   };
 });

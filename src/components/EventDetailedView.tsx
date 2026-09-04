@@ -115,7 +115,16 @@ export const EventDetailedView: React.FC = () => {
           <div className="flex items-center gap-1 font-semibold text-neutral-200 text-xs">
             <span>{match.league}</span>
             <span className="text-neutral-400">·</span>
-            <span className="text-neutral-300">{match.period}</span>
+            {match.isLive ? (
+              <span className="text-rose-400 font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" />
+                {match.period} {match.timeDisplay}
+              </span>
+            ) : (
+              <span className="text-emerald-300 font-bold">
+                📅 {match.dateLabel || match.timeDisplay}
+              </span>
+            )}
           </div>
 
           {/* Sibling Matches selector */}
@@ -131,7 +140,7 @@ export const EventDetailedView: React.FC = () => {
               >
                 {siblingMatches.map((m) => (
                   <option key={m.id} value={m.id} className="bg-[#1b4470] text-white">
-                    {m.team1} vs {m.team2} ({m.score1}:{m.score2})
+                    {m.team1} vs {m.team2} {m.isLive ? `(${m.score1}:${m.score2})` : `(${m.dateLabel || m.timeDisplay})`}
                   </option>
                 ))}
               </select>

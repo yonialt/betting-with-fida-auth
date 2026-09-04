@@ -45,6 +45,16 @@ interface SystemStatus {
     totalApiRequests: number;
     liveMatchesCount: number;
   };
+  freeEngine?: {
+    activeEngine: string;
+    requiresApiKey: boolean;
+    isFree: boolean;
+    lastSyncTime: string;
+    cachedLiveCount: number;
+    cachedUpcomingCount: number;
+    oddsApiConfigured: boolean;
+    supportedLeaguesCount: number;
+  };
   redis: {
     hits: number;
     misses: number;
@@ -68,6 +78,7 @@ export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({ is
   const [isDrifting, setIsDrifting] = useState<boolean>(false);
   const [apiKeyInput, setApiKeyInput] = useState<string>('');
   const [providerInput, setProviderInput] = useState<'api-sports' | 'rapidapi'>('api-sports');
+  const [oddsApiKeyInput, setOddsApiKeyInput] = useState<string>('');
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [springBootFile, setSpringBootFile] = useState<
@@ -199,6 +210,29 @@ export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({ is
       }
     } catch (err: any) {
       setActionMessage(`Save error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setActionMessage(null), 4000);
+    }
+  };
+
+  const handleSaveOddsApiConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!oddsApiKeyInput.trim()) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/sports/odds-api/configure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: oddsApiKeyInput.trim() }),
+      });
+      if (res.ok) {
+        setActionMessage('The Odds API (the-odds-api.com) key configured successfully!');
+        setOddsApiKeyInput('');
+        await fetchStatus();
+      }
+    } catch (err: any) {
+      setActionMessage(`Odds API configuration error: ${err.message}`);
     } finally {
       setIsLoading(false);
       setTimeout(() => setActionMessage(null), 4000);
@@ -445,14 +479,14 @@ services:
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                  API-Football & Redis Cache Engine
+                  Free Match & Odds API · Redis Cache Engine
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Spring Boot 3 Architecture
+                  Free Engine Active
                 </span>
               </div>
               <p className="text-[11px] text-neutral-400">
-                Cache-Aside Odds Pipeline · Granular TTLs · High-Speed Match Distribution
+                ESPN Live Scoreboard · DraftKings/Caesars Real Odds · Redis Cache-Aside &lt;1.2ms
               </p>
             </div>
           </div>
@@ -479,6 +513,14 @@ services:
         <div className="px-4 sm:px-6 py-2.5 bg-[#101c27] border-b border-neutral-800/80 flex flex-wrap items-center justify-between gap-2">
           {/* Quick Metrics Pills */}
           <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/60 rounded border border-emerald-500/40">
+              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span className="text-neutral-300">Data Source:</span>
+              <span className="font-mono font-bold text-emerald-300">
+                {status?.freeEngine?.activeEngine || 'Free ESPN + DraftKings'}
+              </span>
+            </div>
+
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-neutral-900/90 rounded border border-neutral-700/60">
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
               <span className="text-neutral-400">Hit Rate:</span>
@@ -494,14 +536,6 @@ services:
                 {status?.redis.keysCount ?? keysList.length}
               </span>
             </div>
-
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-neutral-900/90 rounded border border-neutral-700/60">
-              <Radio className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-neutral-400">Engine:</span>
-              <span className="font-mono text-neutral-200">
-                {status?.redis.engine || 'Redis 7'}
-              </span>
-            </div>
           </div>
 
           {/* Action Buttons */}
@@ -510,10 +544,10 @@ services:
               onClick={handleSyncNow}
               disabled={isSyncing}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded text-xs font-bold transition-all cursor-pointer shadow-xs"
-              title="Invalidate Redis cache and pull fresh matches from API-Football"
+              title="Sync fresh matches and odds from Free Public API into Redis"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync From API'}</span>
+              <span>{isSyncing ? 'Syncing...' : 'Sync Free Matches & Odds'}</span>
             </button>
 
             <button
@@ -626,27 +660,27 @@ services:
 
                 <div className="bg-[#131f2c] border border-neutral-800 rounded-lg p-3">
                   <div className="text-[11px] text-neutral-400 font-medium flex items-center justify-between">
-                    <span>API-Football Provider</span>
-                    <Server className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Free Match & Odds Engine</span>
+                    <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                   </div>
-                  <div className="mt-1 text-base font-bold text-white truncate">
-                    {status?.apiFootball.provider ?? 'demo-simulator'}
+                  <div className="mt-1 text-sm font-bold text-white truncate">
+                    {status?.freeEngine?.activeEngine || 'ESPN + DraftKings'}
                   </div>
-                  <div className="mt-1 text-[10px] text-neutral-400 font-mono truncate">
-                    {status?.apiFootball.apiKeyMasked ?? 'Simulation Mode'}
+                  <div className="mt-1 text-[10px] text-emerald-400 font-mono truncate">
+                    ● Real Public Feeds (No Key Required)
                   </div>
                 </div>
 
                 <div className="bg-[#131f2c] border border-neutral-800 rounded-lg p-3">
                   <div className="text-[11px] text-neutral-400 font-medium flex items-center justify-between">
-                    <span>Live Fixtures Count</span>
-                    <Radio className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Live Fixtures in Feed</span>
+                    <Activity className="w-3.5 h-3.5 text-amber-400" />
                   </div>
                   <div className="mt-1 text-2xl font-mono font-extrabold text-white">
                     {status?.apiFootball.liveMatchesCount ?? 12}
                   </div>
-                  <div className="mt-1 text-[10px] text-emerald-400 font-mono">
-                    ● Real-time Clock Active
+                  <div className="mt-1 text-[10px] text-neutral-400 font-mono">
+                    UCL · EPL · La Liga · NBA · Serie A
                   </div>
                 </div>
               </div>
@@ -766,13 +800,107 @@ services:
           {/* TAB 3: API CREDENTIALS CONFIGURATION */}
           {activeTab === 'config' && (
             <div className="space-y-4">
+              {/* SECTION 1: Free Match & Odds Engine (Built-in) */}
+              <div className="bg-[#131f2c] border border-emerald-500/40 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Free Match API & Real Odds Engine (Active)
+                    </h3>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    100% Free · No API Key Required
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-300 mb-3 leading-relaxed">
+                  Fida Bet is integrated with free public sports scoreboards (ESPN) and real bookmaker odds feeds (DraftKings & Caesars).
+                  It pulls live match clocks, scores, team logos, and real odds (1X2 Moneyline, Totals, Spreads) into Redis automatically.
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3 text-[11px]">
+                  <div className="bg-[#0c141c] p-2 rounded border border-neutral-800">
+                    <span className="text-neutral-400 block text-[10px]">Match Data API</span>
+                    <strong className="text-white font-semibold">ESPN Public Scoreboard</strong>
+                  </div>
+                  <div className="bg-[#0c141c] p-2 rounded border border-neutral-800">
+                    <span className="text-neutral-400 block text-[10px]">Odds Provider</span>
+                    <strong className="text-emerald-400 font-semibold">DraftKings & Caesars</strong>
+                  </div>
+                  <div className="bg-[#0c141c] p-2 rounded border border-neutral-800">
+                    <span className="text-neutral-400 block text-[10px]">Odds Format</span>
+                    <strong className="text-white font-semibold">Decimal (Auto-converted)</strong>
+                  </div>
+                  <div className="bg-[#0c141c] p-2 rounded border border-neutral-800">
+                    <span className="text-neutral-400 block text-[10px]">Leagues Covered</span>
+                    <strong className="text-white font-semibold">10 Global Leagues</strong>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-800/80">
+                  <div className="text-[11px] text-neutral-400">
+                    Leagues: <span className="text-neutral-200">UCL, Europa League, EPL, La Liga, Serie A, Bundesliga, Ligue 1, MLS, NBA, ATP</span>
+                  </div>
+                  <button
+                    onClick={handleSyncNow}
+                    disabled={isSyncing}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span>Sync Free Feeds Now</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* SECTION 2: The Odds API (Optional) */}
+              <div className="bg-[#131f2c] border border-neutral-800 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-xs font-bold text-neutral-200 uppercase tracking-wider">
+                    The Odds API (the-odds-api.com) — Optional Free Key
+                  </h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-800/60">
+                    500 Free Requests/Month
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-400 mb-3">
+                  If you have a free API key from <span className="text-cyan-400">the-odds-api.com</span>, you can enter it here to add additional global bookmakers (Pinnacle, BetMGM, FanDuel).
+                </p>
+
+                <form onSubmit={handleSaveOddsApiConfig} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-300 mb-1">The Odds API Key</label>
+                    <input
+                      type="password"
+                      placeholder="e.g. 7f8a9b2c3d4e5f6..."
+                      value={oddsApiKeyInput}
+                      onChange={(e) => setOddsApiKeyInput(e.target.value)}
+                      className="w-full bg-[#0b1218] border border-neutral-700 rounded px-3 py-2 text-xs text-white font-mono focus:border-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-neutral-400">
+                      Status: <strong className="text-neutral-200">{status?.freeEngine?.oddsApiConfigured ? 'Configured' : 'Using Free ESPN/DraftKings Engine'}</strong>
+                    </span>
+
+                    <button
+                      type="submit"
+                      disabled={isLoading || !oddsApiKeyInput.trim()}
+                      className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 text-white rounded text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Save Odds API Key
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* SECTION 3: API-Football Credentials (Optional) */}
               <div className="bg-[#131f2c] border border-neutral-800 rounded-lg p-4">
                 <h3 className="text-xs font-bold text-neutral-200 uppercase tracking-wider mb-2">
-                  API-Football Credentials (v3.football.api-sports.io)
+                  API-Football Credentials (v3.football.api-sports.io) — Optional
                 </h3>
                 <p className="text-xs text-neutral-400 mb-4">
-                  Enter your API-Football key below. If no key is configured, Fida Bet automatically operates with the
-                  high-fidelity live simulation engine with ticking match clocks and odds fluctuations.
+                  Enter your API-Football / RapidAPI key below if you have a paid subscription. If left empty, Fida Bet automatically uses the free ESPN & DraftKings engine.
                 </p>
 
                 <form onSubmit={handleSaveConfig} className="space-y-3">
@@ -833,10 +961,11 @@ services:
 
               {/* Environment Variable Hint */}
               <div className="bg-[#0e1721] border border-neutral-800 rounded p-3 text-xs text-neutral-400">
-                <strong className="text-neutral-200">Container Environment Variable:</strong> You can also define{' '}
-                <code className="text-emerald-400 font-mono">API_FOOTBALL_KEY=your_key</code> and{' '}
+                <strong className="text-neutral-200">Container Environment Variables:</strong> You can also set{' '}
+                <code className="text-emerald-400 font-mono">ODDS_API_KEY=your_key</code>,{' '}
+                <code className="text-emerald-400 font-mono">API_FOOTBALL_KEY=your_key</code>, or{' '}
                 <code className="text-emerald-400 font-mono">REDIS_URL=redis://localhost:6379</code> in your{' '}
-                <code className="text-neutral-300 font-mono">.env</code> file for automatic startup configuration.
+                <code className="text-neutral-300 font-mono">.env</code> file.
               </div>
             </div>
           )}

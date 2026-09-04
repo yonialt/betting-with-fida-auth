@@ -11,11 +11,17 @@ export type SportId =
 
 export type SubTabId =
   | 'matches'
-  | 'recommended'
+  | 'live'
+  | 'today'
+  | 'tomorrow'
+  | 'day2'
   | 'upcoming'
+  | 'recommended'
   | '1st-period'
   | '2nd-period'
   | string;
+
+export type TimeFilter = 'all' | 'live' | 'today' | 'tomorrow' | 'day2' | 'upcoming';
 
 export type BetType = 'single' | 'accumulator' | 'system' | string;
 
@@ -67,12 +73,24 @@ export interface Match {
   seconds?: number;
   period: string;
   isLive: boolean;
+  startTime?: string;
+  timeCategory?: 'live' | 'today' | 'tomorrow' | 'day2' | 'later';
+  dateLabel?: string;
   hasLiveStream?: boolean;
   isFavorite?: boolean;
   extraMarketsCount: number;
   venue?: string;
   referee?: string;
   currentAction?: string;
+  servingTeam?: 1 | 2;
+  totalLine?: string;
+  handicapLine?: string;
+  tennisScores?: {
+    p1Sets: (number | string)[];
+    p2Sets: (number | string)[];
+    p1Points?: string;
+    p2Points?: string;
+  };
   periodScores?: { [key: string]: any } | string[] | number[] | [number, number][];
   events?: MatchEvent[];
   stats?: {

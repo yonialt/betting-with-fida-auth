@@ -167,12 +167,16 @@ class FidaBetApiClient {
   }
 
   // --- Matches & Odds API ---
+  public async getAllMatches(sport: string = 'all', status: string = 'all', timeFilter: string = 'all'): Promise<Match[]> {
+    return this.request<Match[]>(`/matches?sport=${sport}&status=${status}&timeFilter=${timeFilter}`);
+  }
+
   public async getLiveMatches(sport: string = 'all'): Promise<Match[]> {
     return this.request<Match[]>(`/matches/live?sport=${sport}`);
   }
 
-  public async getUpcomingMatches(sport: string = 'all', page: number = 0, size: number = 20) {
-    return this.request<any>(`/matches/upcoming?sport=${sport}&page=${page}&size=${size}`);
+  public async getUpcomingMatches(sport: string = 'all', timeFilter: string = 'all', page: number = 0, size: number = 50) {
+    return this.request<any>(`/matches/upcoming?sport=${sport}&timeFilter=${timeFilter}&page=${page}&size=${size}`);
   }
 
   public async getMatchDetails(matchId: string): Promise<Match> {

@@ -19,23 +19,32 @@ export const SubHeader: React.FC = () => {
     setActiveCenterView,
   } = useBetting();
 
-  const tabs: { id: SubTabId; label: string }[] = [
-    { id: 'matches', label: 'Matches' },
-    { id: 'recommended', label: 'Recommended' },
-    { id: 'upcoming', label: 'Upcoming events' },
-    { id: '1st-period', label: '1st period' },
-    { id: '2nd-period', label: '2nd period' },
+  const tabs: { id: SubTabId; label: string; icon?: string }[] = [
+    { id: 'matches', label: 'All Matches' },
+    { id: 'live', label: 'In-Play Live', icon: '🔴' },
+    { id: 'today', label: 'Today' },
+    { id: 'tomorrow', label: 'Tomorrow (1 Day)' },
+    { id: 'day2', label: 'In 2 Days (+48h)' },
+    { id: 'upcoming', label: 'All Upcoming' },
+    { id: 'recommended', label: 'Favorites' },
   ];
 
   return (
     <div
       id="sub-header"
       className="w-full bg-[#13355a] border-b border-[#0f2946] px-1 py-0 flex items-center justify-between gap-1 text-xs select-none"
+      style={{
+        marginTop: '0px',
+        marginLeft: '0px',
+      }}
     >
       {/* Left: Breadcrumbs & Navigation Tabs */}
       <div className="flex items-center gap-0.5 min-w-0">
         {/* Breadcrumb Trail */}
-        <div className="flex items-center gap-0.5 text-neutral-300 shrink-0 pr-1 border-r border-[#204975]">
+        <div
+          className="flex items-center gap-0.5 text-neutral-300 shrink-0 pr-1 border-r border-[#204975]"
+          style={{ marginTop: '6px' }}
+        >
           <button
             id="breadcrumb-home"
             className="w-6 h-6 bg-[#1c4878] hover:bg-[#255c96] rounded flex items-center justify-center text-white transition-colors cursor-pointer shrink-0"
@@ -108,6 +117,10 @@ export const SubHeader: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-6 bg-[#0d2238] border border-[#204975] text-white rounded-full pl-2.5 pr-8 py-0.5 text-xs placeholder-neutral-400 focus:outline-none focus:border-[#0091ff] transition-all"
+            style={{
+              borderWidth: '3px',
+              marginLeft: '37px',
+            }}
           />
 
           <Search className="w-3.5 h-3.5 absolute right-2.5 text-neutral-400 pointer-events-none" />

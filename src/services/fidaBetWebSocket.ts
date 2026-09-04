@@ -5,16 +5,26 @@ class FidaBetWebSocketClient {
   private subscriptions: Map<string, Set<MessageCallback>> = new Map();
   private isConnected: boolean = false;
   private reconnectTimeout: any = null;
+  private reconnectAttempts: number = 0;
+  private maxReconnectAttempts: number = 2;
   private wsUrl: string;
 
   constructor() {
-    // Use relative path — Vite proxy handles the routing
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    this.wsUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}/ws`;
+    if (typeof window !== 'undefined') {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      this.wsUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}/ws`;
+    } else {
+      this.wsUrl = '';
+    }
   }
 
   public connect() {
+    if (typeof window === 'undefined' || !window.WebSocket) return;
     if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      // Graceful fallback to client simulation mode without console errors
       return;
     }
 
@@ -23,6 +33,7 @@ class FidaBetWebSocketClient {
 
       this.socket.onopen = () => {
         this.isConnected = true;
+        this.reconnectAttempts = 0;
         // Resubscribe to all active topics
         this.subscriptions.forEach((_, topic) => {
           this.sendSubscribeFrame(topic);
@@ -55,6 +66,8 @@ class FidaBetWebSocketClient {
   }
 
   private scheduleReconnect() {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) return;
+    this.reconnectAttempts++;
     if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
     this.reconnectTimeout = setTimeout(() => {
       this.connect();
