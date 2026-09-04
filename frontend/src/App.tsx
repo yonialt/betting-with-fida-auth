@@ -16,6 +16,7 @@ import { BetSlip } from './components/BetSlip';
 import { MarketDetailsModal } from './components/MarketDetailsModal';
 import { LiveMatchTrackerModal } from './components/LiveMatchTrackerModal';
 import { LoginModal } from './components/LoginModal';
+import { AuthModal } from './components/AuthModal';
 import { BonusesModal } from './components/BonusesModal';
 import { SettingsModal } from './components/SettingsModal';
 import { TelebirrDepositModal } from './components/TelebirrDepositModal';
@@ -56,6 +57,7 @@ const BettingAppContent: React.FC = () => {
     return (
       <>
         <PolymarketPage />
+        <AuthModal />
         <ToastNotification />
       </>
     );
@@ -110,6 +112,7 @@ const BettingAppContent: React.FC = () => {
       <MarketDetailsModal />
       <LiveMatchTrackerModal />
       <LoginModal />
+      <AuthModal />
       <BonusesModal />
       <SettingsModal />
       <TelebirrDepositModal />

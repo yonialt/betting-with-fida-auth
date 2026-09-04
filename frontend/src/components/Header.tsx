@@ -12,6 +12,7 @@ import {
   ChevronDown,
   User,
   Wallet,
+  LogOut,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
@@ -21,7 +22,8 @@ export const Header: React.FC = () => {
     setLoginModalOpen,
     setSettingsModalOpen,
     setDepositModalOpen,
-
+    openAuthModal,
+    logout,
     setAppMode,
   } = useBetting();
 
@@ -40,23 +42,33 @@ export const Header: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <header id="main-header" className="w-full bg-white border-b border-neutral-200 select-none sticky top-0 z-40 shadow-xs">
-      {/* ========================================================
-          NAVBAR 1 (TOP NAVBAR): Brand, Account & Utilities
-         ======================================================== */}
-      <div className="w-full bg-[#1b2838] text-white px-3 sm:px-4 py-2 flex items-center justify-between gap-3 border-b border-neutral-800">
-        {/* Left: 1xBET Logo */}
-        <div className="flex items-center gap-4 lg:gap-6">
-          <div
-            id="brand-logo"
-            className="flex items-center cursor-pointer transition-transform active:scale-95 select-none"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          >
-            <img src="/hagerawi-logo.svg" alt="Hagerawi Logo" className="h-10 w-auto object-contain" />
-          </div>
-        </div>
+  // Shared presentation for the top-level category items: uniform type,
+  // single-color icons, one accent for active/hover (no per-category colors).
+  const categoryLinkClass = (isActive: boolean) =>
+    `group flex items-center gap-1 px-2 py-1.5 rounded-md uppercase tracking-wide transition-colors cursor-pointer text-xs sm:text-[13px] font-extrabold ${
+      isActive
+        ? 'text-emerald-600'
+        : 'text-neutral-700 hover:text-emerald-600 hover:bg-neutral-100/70'
+    }`;
 
+  const categoryIconClass = (isActive: boolean) =>
+    `w-4 h-4 transition-colors ${
+      isActive ? 'text-emerald-600' : 'text-slate-400 group-hover:text-emerald-600'
+    }`;
+
+  const isNavActive = (tab: string) => activeNavTab === tab;
+
+  return (
+    <header
+      id="main-header"
+      className="relative w-full bg-white border-b border-neutral-200 select-none sticky top-0 z-40 shadow-xs"
+    >
+      {/* ========================================================
+          NAVBAR 1 (TOP): dark navy bar. Account utilities sit at
+          the right; the left stays plain navy — the white logo
+          circle (below) is centered on the seam with this bar.
+         ======================================================== */}
+      <div className="top-navbar-cutout w-full bg-[#1b2838] text-white h-[36px] sm:h-[40px] lg:h-[47px] px-3 sm:px-4 flex items-center justify-end gap-3 border-b border-neutral-800">
         {/* Right: Tools, Wallet, Login, Settings, Clock */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* User Account / LOG IN Button */}
@@ -83,15 +95,35 @@ export const Header: React.FC = () => {
                   <img src="/profile-avatar.png" alt="Profile" className="w-7 h-7 rounded-full object-cover" />
                 </div>
               </div>
+
+              {/* Log out / switch account */}
+              <button
+                id="btn-logout"
+                onClick={logout}
+                title="Log out"
+                className="flex items-center gap-1.5 text-xs font-bold text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-md hover:bg-neutral-800 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Log out</span>
+              </button>
             </>
           ) : (
-            <button
-              id="btn-login"
-              onClick={() => setLoginModalOpen(true)}
-              className="px-4 py-1.5 bg-[#ffc600] hover:bg-[#f0ba00] text-black text-xs font-black rounded uppercase tracking-wider transition-all cursor-pointer shadow-xs"
-            >
-              LOG IN
-            </button>
+            <>
+              <button
+                id="btn-login"
+                onClick={() => openAuthModal('login')}
+                className="px-4 py-1.5 text-white text-xs font-black rounded uppercase tracking-wider transition-all cursor-pointer border border-neutral-600 hover:bg-neutral-800"
+              >
+                LOG IN
+              </button>
+              <button
+                id="btn-signup"
+                onClick={() => openAuthModal('signup')}
+                className="px-4 py-1.5 bg-[#ffc600] hover:bg-[#f0ba00] text-black text-xs font-black rounded uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+              >
+                SIGN UP
+              </button>
+            </>
           )}
 
           {/* Settings Gear */}
@@ -118,121 +150,89 @@ export const Header: React.FC = () => {
       </div>
 
       {/* ========================================================
-          NAVBAR 2 (SECOND NAVBAR ON TOP OF EVERYTHING):
-          Full Categories & Products Navigation Bar (In-Frame)
+          NAVBAR 2 (SECOND NAVBAR): Full Categories & Products
+          Navigation Bar (In-Frame) — light bar below the navy strip.
+          Its left padding aligns flush with the white logo zone.
          ======================================================== */}
-      <div className="w-full bg-white border-b border-neutral-200 px-3 sm:px-4 lg:px-6 py-1.5">
-        <nav className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold text-[#222]">
+      <div className="w-full bg-white border-b border-neutral-200 pl-[90px] sm:pl-[98px] lg:pl-[106px] pr-3 sm:pr-4 lg:pr-6 py-1.5">
+        <nav className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold">
           {/* Left Category Pillar Links */}
           <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap">
-            {/* 1xBET Mini Brand Accent */}
-            <div
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="flex items-center pr-2.5 mr-1 border-r border-neutral-300 cursor-pointer select-none"
-            >
-              <img src="/hagerawi-logo.svg" alt="Hagerawi Logo" className="h-6 w-auto object-contain" />
-            </div>
-
             {/* TOP-EVENTS */}
             <button
               id="nav-top-events"
               onClick={() => setActiveNavTab('top-events')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'top-events'
-                ? 'bg-neutral-100 text-[#ff5722]'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('top-events'))}
             >
-              <Flame className="w-4 h-4 text-[#ff5722]" />
+              <Flame className={categoryIconClass(isNavActive('top-events'))} />
               <span>TOP-EVENTS</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {/* SPORTS */}
             <button
               id="nav-sports"
               onClick={() => setActiveNavTab('sports')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'sports'
-                ? 'bg-neutral-100 text-[#0091ff]'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('sports'))}
             >
-              <Zap className="w-4 h-4 text-[#0091ff]" />
+              <Zap className={categoryIconClass(isNavActive('sports'))} />
               <span>SPORTS</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
-            {/* LIVE (Highlighted Active Style with Pulsing Dot) */}
+            {/* LIVE */}
             <button
               id="nav-live"
               onClick={() => setActiveNavTab('live')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all uppercase tracking-tight font-black cursor-pointer ${activeNavTab === 'live'
-                ? 'bg-neutral-100 text-black shadow-2xs border border-neutral-200/80'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('live'))}
             >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-              </span>
-              <Radio className="w-3.5 h-3.5 text-red-600" />
-              <span className="text-black font-black">LIVE</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <Radio className={categoryIconClass(isNavActive('live'))} />
+              <span>LIVE</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {/* 1XGAMES */}
             <button
               id="nav-1xgames"
               onClick={() => setActiveNavTab('1xgames')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === '1xgames'
-                ? 'bg-neutral-100 text-emerald-600'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('1xgames'))}
             >
-              <Gamepad2 className="w-4 h-4 text-emerald-600" />
+              <Gamepad2 className={categoryIconClass(isNavActive('1xgames'))} />
               <span>1XGAMES</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {/* CASINO */}
             <button
               id="nav-casino"
               onClick={() => setActiveNavTab('casino')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'casino'
-                ? 'bg-neutral-100 text-purple-600'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('casino'))}
             >
-              <Spade className="w-4 h-4 text-purple-600" />
+              <Spade className={categoryIconClass(isNavActive('casino'))} />
               <span>CASINO</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {/* LIVE CASINO */}
             <button
               id="nav-live-casino"
               onClick={() => setActiveNavTab('live-casino')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'live-casino'
-                ? 'bg-neutral-100 text-pink-600'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('live-casino'))}
             >
-              <Tv className="w-4 h-4 text-pink-600" />
+              <Tv className={categoryIconClass(isNavActive('live-casino'))} />
               <span>LIVE CASINO</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {/* ESPORTS */}
             <button
               id="nav-esports"
               onClick={() => setActiveNavTab('esports')}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors uppercase tracking-tight cursor-pointer ${activeNavTab === 'esports'
-                ? 'bg-neutral-100 text-amber-600'
-                : 'text-[#222] hover:bg-neutral-100'
-                }`}
+              className={categoryLinkClass(isNavActive('esports'))}
             >
-              <Tv className="w-4 h-4 text-amber-600" />
+              <Tv className={categoryIconClass(isNavActive('esports'))} />
               <span>ESPORTS</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>
 
@@ -252,7 +252,43 @@ export const Header: React.FC = () => {
           </button>
         </nav>
       </div>
+
+      {/* ========================================================
+          LARGE WHITE LOGO AREA — spans the full header height on
+          the left (same pure white as the second nav below, so the
+          two read as one continuous white surface). It holds a
+          single large logo whose center sits exactly on the seam
+          (the top navbar's bottom edge) — the "wheel" position the
+          fender arch below is carved around.
+         ======================================================== */}
+      <div className="absolute inset-y-0 left-0 w-[90px] sm:w-[98px] lg:w-[106px] bg-white z-[6] flex items-center justify-center">
+        <div
+          id="brand-logo"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="absolute left-[15px] sm:left-[13px] lg:left-[11px] top-[42px] sm:top-[46px] lg:top-[50px] -translate-y-1/2 w-[86px] h-[86px] sm:w-[98px] sm:h-[98px] lg:w-[110px] lg:h-[110px] overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform active:scale-95"
+        >
+          {/* Rasterized badge (square PNG with a transparent
+              background). The badge circle fills ~91.2% of the
+              image, so the image renders at ~89.7% of the box to
+              keep the badge at exactly the size the SVG badge had,
+              centered in the box. */}
+          <img
+            src="/hagerawi-logo.png"
+            alt="Hagerawi Logo"
+            className="absolute block select-none pointer-events-none"
+            style={{ width: '89.7%', maxWidth: 'none', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+          />
+        </div>
+      </div>
+
+      {/* ========================================================
+          CURVED BOUNDARY — fender / wheel-arch effect handled by
+          the `.top-navbar-cutout` mask (see index.css): the mask
+          carves a circular cutout from the dark bar's left edge,
+          concentric with the logo badge (same center), so the navy
+          cups the wheel with a smooth, even concave curve and can
+          never cover it.
+         ======================================================== */}
     </header>
   );
 };
-

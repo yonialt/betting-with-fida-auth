@@ -4,6 +4,7 @@ import {
   Info,
   Menu,
   ChevronLeft,
+  LogOut,
 } from 'lucide-react';
 import { useBetting } from '../../context/BettingContext';
 
@@ -24,7 +25,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   onToggleChat,
   chatOpen,
 }) => {
-  const { setAppMode } = useBetting();
+  const { user, setAppMode, openAuthModal, logout } = useBetting();
 
   return (
     <header className="w-full bg-[#0d121c] border-b border-[#1e2638] text-white select-none sticky top-0 z-40 shadow-md">
@@ -134,13 +135,44 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
             <span>How it works</span>
           </button>
 
-          <button className="text-xs font-bold text-neutral-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-[#1a2334] transition-colors cursor-pointer">
-            Log in
-          </button>
+          {user.isLoggedIn ? (
+            <>
+              {/* Logged-in user chip (shared account) */}
+              <div className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-[#121824] border border-[#243044]">
+                <div className="w-6 h-6 rounded-full bg-[#0084ff] text-white flex items-center justify-center text-[10px] font-black uppercase">
+                  {user.username.charAt(0)}
+                </div>
+                <span className="text-xs font-bold text-neutral-100">{user.username}</span>
+              </div>
+              <button
+                id="btn-polymarket-logout"
+                onClick={logout}
+                className="flex items-center gap-1.5 text-xs font-bold text-neutral-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-[#1a2334] transition-colors cursor-pointer"
+                title="Log out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Log out</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                id="btn-polymarket-login"
+                onClick={() => openAuthModal('login')}
+                className="text-xs font-bold text-neutral-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-[#1a2334] transition-colors cursor-pointer"
+              >
+                Log in
+              </button>
 
-          <button className="text-xs font-bold bg-[#0084ff] hover:bg-[#0070db] text-white px-4 py-2 rounded-lg transition-all shadow-md shadow-blue-900/30 active:scale-95 cursor-pointer">
-            Sign up
-          </button>
+              <button
+                id="btn-polymarket-signup"
+                onClick={() => openAuthModal('signup')}
+                className="text-xs font-bold bg-[#0084ff] hover:bg-[#0070db] text-white px-4 py-2 rounded-lg transition-all shadow-md shadow-blue-900/30 active:scale-95 cursor-pointer"
+              >
+                Sign up
+              </button>
+            </>
+          )}
 
           <button className="p-2 text-neutral-400 hover:text-white hover:bg-[#1a2334] rounded-lg transition-colors cursor-pointer">
             <Menu className="w-5 h-5" />

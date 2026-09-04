@@ -69,6 +69,14 @@ interface BettingContextType {
   setSettingsModalOpen: (open: boolean) => void;
   setDepositModalOpen: (open: boolean) => void;
   setNotification: (n: { message: string; type: 'success' | 'info' | 'warning' } | null) => void;
+  authModalOpen: boolean;
+  setAuthModalOpen: (open: boolean) => void;
+  authModalMode: 'login' | 'signup';
+  setAuthModalMode: (mode: 'login' | 'signup') => void;
+  openAuthModal: (mode?: 'login' | 'signup') => void;
+  loginUser: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  registerUser: (payload: { username: string; phone: string; email?: string; password: string }) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => void;
   placeBet: () => boolean;
   cashoutBet: (betId: string) => void;
   isOddsSelected: (oddsId: string) => boolean;
@@ -78,6 +86,17 @@ interface BettingContextType {
 }
 
 const BettingContext = createContext<BettingContextType | undefined>(undefined);
+
+// Signed-out visitor profile (used when the user logs out / switches account)
+const GUEST_USER: UserProfile = {
+  isLoggedIn: false,
+  username: 'Guest',
+  userId: '',
+  balance: 0,
+  currency: 'ETB',
+  bonusBalance: 0,
+  phone: '',
+};
 
 // Preload initial bet slip item to match user screenshot precisely:
 const INITIAL_SLIP: BetSlipItem[] = [
@@ -159,6 +178,8 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
 
   // Backend Integration: Fetch initial matches from backend if available
   useEffect(() => {
@@ -421,6 +442,12 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       setNotification({ message: 'Please enter a valid stake amount', type: 'warning' });
       return false;
     }
+    if (!user.isLoggedIn) {
+      setNotification({ message: 'Please log in or sign up to place a bet', type: 'warning' });
+      setAuthModalMode('login');
+      setAuthModalOpen(true);
+      return false;
+    }
     if (user.balance < stakeAmount) {
       setNotification({ message: 'Insufficient balance! Please deposit funds.', type: 'warning' });
       setLoginModalOpen(true);
@@ -516,6 +543,61 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
   };
 
+  // ---- Shared Sign up / Log in (one account across sport betting & Polymarket) ----
+  const applyAuthUser = (rawUser: any) => {
+    setUser({
+      isLoggedIn: true,
+      username: rawUser?.username || 'Player',
+      userId: rawUser?.userId || rawUser?.id || '',
+      balance: Number(rawUser?.balance) || 0,
+      currency: rawUser?.currency || 'ETB',
+      bonusBalance: Number(rawUser?.bonusBalance) || 0,
+      phone: rawUser?.phone || '',
+    });
+  };
+
+  const openAuthModal = (mode: 'login' | 'signup' = 'login') => {
+    setAuthModalMode(mode);
+    setAuthModalOpen(true);
+  };
+
+  const loginUser = async (username: string, password: string) => {
+    try {
+      const data = await fidaBetApi.login(username.trim(), password);
+      if (data?.token && data?.user) {
+        applyAuthUser(data.user);
+        setAuthModalOpen(false);
+        setNotification({ message: `Welcome back, ${data.user.username}!`, type: 'success' });
+        return { ok: true };
+      }
+      return { ok: false, error: (data && (data.message || data.error)) || 'Login failed' };
+    } catch (err: any) {
+      return { ok: false, error: err?.message || 'Unable to reach server. Please try again.' };
+    }
+  };
+
+  const registerUser = async (payload: { username: string; phone: string; email?: string; password: string }) => {
+    try {
+      const data = await fidaBetApi.register(payload);
+      if (data?.token && data?.user) {
+        applyAuthUser(data.user);
+        setAuthModalOpen(false);
+        setNotification({ message: `Account created — welcome, ${data.user.username}!`, type: 'success' });
+        return { ok: true };
+      }
+      return { ok: false, error: (data && (data.message || data.error)) || 'Registration failed' };
+    } catch (err: any) {
+      return { ok: false, error: err?.message || 'Unable to reach server. Please try again.' };
+    }
+  };
+
+  const logout = () => {
+    fidaBetApi.clearTokens();
+    setUser(GUEST_USER);
+    setLoginModalOpen(false);
+    setNotification({ message: 'Logged out. See you soon!', type: 'info' });
+  };
+
   return (
     <BettingContext.Provider
       value={{
@@ -570,6 +652,14 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setSettingsModalOpen,
         setDepositModalOpen,
         setNotification,
+        authModalOpen,
+        setAuthModalOpen,
+        authModalMode,
+        setAuthModalMode,
+        openAuthModal,
+        loginUser,
+        registerUser,
+        logout,
         placeBet,
         cashoutBet,
         isOddsSelected,
