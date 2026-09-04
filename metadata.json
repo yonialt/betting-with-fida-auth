@@ -1,0 +1,6 @@
+{
+  "name": "1xBET Live Sports & Polymarket Predictions",
+  "description": "Interactive sports betting and Polymarket platform powered by API-Football v3, Spring Boot 3 microservice architecture, and Redis Cache-Aside odds and match pipeline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
