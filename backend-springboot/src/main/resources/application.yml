@@ -1,0 +1,68 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: fidabet-backend
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 1000ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60s
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "fidabet:"
+
+# API-Football Integration Settings
+api-football:
+  base-url: ${API_FOOTBALL_URL:https://v3.football.api-sports.io}
+  api-key: ${API_FOOTBALL_KEY:}
+  provider: ${API_FOOTBALL_PROVIDER:api-sports} # api-sports or rapidapi
+  rapidapi-host: api-football-v1.p.rapidapi.com
+  timeout-ms: 5000
+  cache:
+    ttl-live-seconds: 20
+    ttl-odds-seconds: 15
+    ttl-upcoming-seconds: 180
+    ttl-markets-seconds: 60
+  sync:
+    enabled: true
+    interval-ms: 20000
+
+# Resilience4j Circuit Breaker & Rate Limiter for external sports feeds
+resilience4j:
+  circuitbreaker:
+    instances:
+      apiFootball:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30000ms
+        permitted-number-of-calls-in-half-open-state: 3
+  ratelimiter:
+    instances:
+      apiFootball:
+        limit-for-period: 10
+        limit-refresh-period: 60s
+        timeout-duration: 500ms
+
+# Management & Observability
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
