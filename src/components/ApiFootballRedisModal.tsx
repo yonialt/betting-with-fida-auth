@@ -19,8 +19,8 @@ import {
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
-export interface ApiFootballRedisModalProps {
-  isOpen?: boolean;
+interface ApiFootballRedisModalProps {
+  isOpen: boolean;
   onClose?: () => void;
   isEmbedded?: boolean;
 }
@@ -70,7 +70,7 @@ interface SystemStatus {
 }
 
 export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({
-  isOpen = false,
+  isOpen,
   onClose,
   isEmbedded = false,
 }) => {
@@ -469,12 +469,12 @@ services:
     },
   };
 
-  const modalBody = (
+  const modalContent = (
     <div
-      id={isEmbedded ? 'api-football-redis-console' : 'api-football-redis-modal'}
-      className={`relative w-full bg-[#0f1923] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden flex flex-col text-neutral-200 ${
-        isEmbedded ? 'max-w-7xl mx-auto' : 'max-w-4xl max-h-[92vh]'
-      }`}
+      id="api-football-redis-modal"
+      className={`relative w-full ${
+        isEmbedded ? 'max-w-6xl mx-auto' : 'max-w-4xl max-h-[92vh]'
+      } bg-[#0f1923] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden flex flex-col text-neutral-200`}
     >
       {/* Top Header Bar */}
       <div className="px-4 sm:px-6 py-3.5 bg-[#142230] border-b border-neutral-800 flex items-center justify-between">
@@ -488,7 +488,7 @@ services:
                 Free Match & Odds API · Redis Cache Engine
               </h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                Free Engine Active
+                {isEmbedded ? 'Admin Console Active' : 'Free Engine Active'}
               </span>
             </div>
             <p className="text-[11px] text-neutral-400">
@@ -1057,12 +1057,12 @@ services:
   );
 
   if (isEmbedded) {
-    return modalBody;
+    return modalContent;
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-fadeIn">
-      {modalBody}
+      {modalContent}
     </div>
   );
 };

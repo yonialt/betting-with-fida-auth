@@ -61,11 +61,7 @@ export const Header: React.FC = () => {
   return (
     <header
       id="main-header"
-      className="relative w-full bg-white border-b select-none sticky top-0 z-40 shadow-xs"
-      style={{
-        backgroundColor: '#1b2838',
-        borderColor: '#1b2838',
-      }}
+      className="relative w-full bg-white border-b border-neutral-200 select-none sticky top-0 z-40 shadow-xs"
     >
       {/* ========================================================
           NAVBAR 1 (TOP): dark navy bar. Account utilities sit at
@@ -170,11 +166,8 @@ export const Header: React.FC = () => {
           fender arch so TOP-EVENTS and categories start cleanly to the right.
          ======================================================== */}
       <div
-        className="w-full bg-white border-b pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5"
-        style={{
-          backgroundColor: '#ffffff',
-          borderColor: '#1b2838',
-        }}
+        className="w-full bg-white border-b border-neutral-200 pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5"
+        style={{ backgroundColor: '#ffffff' }}
       >
         <nav
           className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold"
@@ -210,30 +203,19 @@ export const Header: React.FC = () => {
               onClick={() => setActiveNavTab('live')}
               className={categoryLinkClass(isNavActive('live'))}
             >
-              <Radio
-                className={categoryIconClass(isNavActive('live'))}
-                style={{ color: '#ff0404' }}
-              />
-              <span style={{ color: '#000000' }}>LIVE</span>
+              <Radio className={categoryIconClass(isNavActive('live'))} />
+              <span>LIVE</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
-            {/* ESPORTS */}
+            {/* 1XGAMES */}
             <button
-              id="nav-esports"
-              onClick={() => setActiveNavTab('esports')}
-              className={categoryLinkClass(isNavActive('esports'))}
+              id="nav-1xgames"
+              onClick={() => setActiveNavTab('1xgames')}
+              className={categoryLinkClass(isNavActive('1xgames'))}
             >
-              <Gamepad2 className={categoryIconClass(isNavActive('esports'))} />
-              <span
-                style={{
-                  backgroundColor: '#ffffff',
-                  color: '#000000',
-                  borderColor: '#ffffff',
-                }}
-              >
-                ESPORTS
-              </span>
+              <Gamepad2 className={categoryIconClass(isNavActive('1xgames'))} />
+              <span>1XGAMES</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
@@ -256,6 +238,17 @@ export const Header: React.FC = () => {
             >
               <Tv className={categoryIconClass(isNavActive('live-casino'))} />
               <span>LIVE CASINO</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+
+            {/* ESPORTS */}
+            <button
+              id="nav-esports"
+              onClick={() => setActiveNavTab('esports')}
+              className={categoryLinkClass(isNavActive('esports'))}
+            >
+              <Tv className={categoryIconClass(isNavActive('esports'))} />
+              <span>ESPORTS</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>
@@ -285,26 +278,16 @@ export const Header: React.FC = () => {
           (the top navbar's bottom edge) — the "wheel" position the
           fender arch below is carved around.
          ======================================================== */}
-      <div
-        className="absolute inset-y-0 left-0 w-[88px] sm:w-[97px] lg:w-[107px] bg-white z-[6] flex items-center justify-center"
-        style={{ borderRadius: '66px' }}
-      >
+      <div className="absolute inset-y-0 left-0 w-[88px] sm:w-[97px] lg:w-[107px] bg-white z-[6] flex items-center justify-center">
         <div
           id="brand-logo"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="absolute left-[15px] sm:left-[13px] lg:left-[11px] top-[42px] sm:top-[46px] lg:top-[50px] -translate-y-1/2 w-[86px] h-[86px] sm:w-[98px] sm:h-[98px] lg:w-[110px] lg:h-[110px] overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform active:scale-95"
           style={{
             borderRadius: '192px',
-            marginLeft: '-12px',
-            marginRight: '7px',
-            marginTop: '-3px',
-            marginBottom: '-7px',
-            height: '115px',
-            width: '110px',
-            paddingTop: '-10px',
-            paddingLeft: '-12px',
-            paddingRight: '-13px',
-            paddingBottom: '-10px',
+            paddingLeft: '0px',
+            marginLeft: '0px',
+            marginTop: '-2px',
           }}
         >
           {/* Rasterized badge (square PNG with a transparent

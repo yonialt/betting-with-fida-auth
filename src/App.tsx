@@ -20,12 +20,11 @@ import { AuthModal } from './components/AuthModal';
 import { BonusesModal } from './components/BonusesModal';
 import { SettingsModal } from './components/SettingsModal';
 import { TelebirrDepositModal } from './components/TelebirrDepositModal';
-import { ApiFootballRedisModal } from './components/ApiFootballRedisModal';
+import { AdminPage } from './components/admin/AdminPage';
 import { AgeVerificationGate } from './components/AgeVerificationGate';
 import { PartnersPanel } from './components/PartnersPanel';
 import { Footer } from './components/Footer';
 import { PolymarketPage } from './components/polymarket/PolymarketPage';
-import { AdminPage } from './components/admin/AdminPage';
 import { CheckCircle, Info, AlertTriangle } from 'lucide-react';
 
 const ToastNotification: React.FC = () => {
@@ -53,54 +52,13 @@ const ToastNotification: React.FC = () => {
 };
 
 const BettingAppContent: React.FC = () => {
-  const {
-    activeCenterView,
-    appMode,
-    apiFootballModalOpen,
-    setApiFootballModalOpen,
-    isBetSlipCollapsed,
-  } = useBetting();
-
-  const [currentPath, setCurrentPath] = React.useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return window.location.pathname;
-    }
-    return '/';
-  });
-
-  React.useEffect(() => {
-    const onLocationChange = () => {
-      setCurrentPath(window.location.pathname);
-    };
-    window.addEventListener('popstate', onLocationChange);
-    return () => window.removeEventListener('popstate', onLocationChange);
-  }, []);
-
-  const navigateTo = (path: string) => {
-    window.history.pushState({}, '', path);
-    setCurrentPath(path);
-    window.scrollTo(0, 0);
-  };
-
-  // Dedicated /admin route hosting the Free Match & Odds API · Redis Cache Engine
-  if (currentPath === '/admin' || currentPath.startsWith('/admin')) {
-    return (
-      <>
-        <AdminPage onBack={() => navigateTo('/')} />
-        <ToastNotification />
-      </>
-    );
-  }
+  const { activeCenterView, appMode } = useBetting();
 
   if (appMode === 'polymarket') {
     return (
       <>
         <PolymarketPage />
         <AuthModal />
-        <ApiFootballRedisModal
-          isOpen={apiFootballModalOpen}
-          onClose={() => setApiFootballModalOpen(false)}
-        />
         <ToastNotification />
       </>
     );
@@ -121,10 +79,10 @@ const BettingAppContent: React.FC = () => {
 
         {/* Center Live Matches Area / Event Detailed View */}
         <main
-          className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5 transition-all duration-200"
+          className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5"
           style={{
             marginLeft: '0px',
-            marginRight: isBetSlipCollapsed ? '45px' : '0px',
+            marginRight: '0px',
           }}
         >
           {activeCenterView === 'event' ? (
@@ -165,21 +123,42 @@ const BettingAppContent: React.FC = () => {
       <BonusesModal />
       <SettingsModal />
       <TelebirrDepositModal />
-      <ApiFootballRedisModal
-        isOpen={apiFootballModalOpen}
-        onClose={() => setApiFootballModalOpen(false)}
-      />
       <ToastNotification />
     </div>
   );
 };
 
 export default function App() {
+  const [currentPath, setCurrentPath] = React.useState<string>(() => {
+    return typeof window !== 'undefined' ? window.location.pathname : '/';
+  });
+
+  React.useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = (path: string) => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', path);
+      setCurrentPath(path);
+    }
+  };
+
+  const isAdminRoute = currentPath === '/admin' || currentPath.startsWith('/admin/');
+
   return (
     <BettingProvider>
-      <AgeVerificationGate>
-        <BettingAppContent />
-      </AgeVerificationGate>
+      {isAdminRoute ? (
+        <AdminPage onBack={() => navigate('/')} />
+      ) : (
+        <AgeVerificationGate>
+          <BettingAppContent />
+        </AgeVerificationGate>
+      )}
     </BettingProvider>
   );
 }

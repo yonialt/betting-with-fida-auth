@@ -21,8 +21,8 @@ let currentUser: UserProfile = {
   currency: 'ETB',
   bonusBalance: 250.0,
   phone: '+251911223344',
-  isAgeVerified: true,
-  ageVerificationStatus: 'verified',
+  isAgeVerified: false,
+  ageVerificationStatus: 'unverified',
 };
 
 let matches: Match[] = [...INITIAL_MATCHES];
