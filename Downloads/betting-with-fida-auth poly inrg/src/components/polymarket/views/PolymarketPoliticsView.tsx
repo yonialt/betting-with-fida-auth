@@ -1,0 +1,330 @@
+import React, { useState } from 'react';
+import { PolymarketTradeState } from '../../../types/polymarket';
+import {
+  Search,
+  Filter,
+  Bookmark,
+  Repeat2,
+  Gift,
+  ChevronRight,
+  TrendingUp,
+  Landmark,
+  Shield,
+  Layers,
+} from 'lucide-react';
+
+interface PolymarketPoliticsViewProps {
+  onSelectOutcome: (trade: PolymarketTradeState) => void;
+  onOpenMidterms: () => void;
+  isDarkMode?: boolean;
+}
+
+export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
+  onSelectOutcome,
+  onOpenMidterms,
+  isDarkMode = true,
+}) => {
+  const [activeSubcat, setActiveSubcat] = useState<string>('All');
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
+
+  const toggleBookmark = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = new Set(bookmarkedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setBookmarkedIds(next);
+  };
+
+  const politicsSubcategories = [
+    { name: 'All', count: '3.5K' },
+    { name: 'Trump', count: '306' },
+    { name: 'Midterms', count: '1.2K' },
+    { name: 'Global Elections', count: '661' },
+    { name: 'Primaries', count: '28' },
+    { name: 'Congress', count: '35' },
+    { name: 'Courts', count: '23' },
+    { name: 'Trump Daily', count: '3' },
+    { name: 'Russia Election', count: '12' },
+    { name: 'UK Elections', count: '1' },
+    { name: 'Israel Election', count: '37' },
+    { name: 'Sweden Elections', count: '54' },
+    { name: 'German Elections', count: '88' },
+    { name: 'French Elections', count: '6' },
+    { name: 'US Election', count: '673' },
+  ];
+
+  const politicsCards = [
+    {
+      id: 'pol-balance-power',
+      title: 'Balance of Power: 2026 Midterms',
+      volume: '$11M Vol.',
+      options: [
+        { name: 'Democrats Sweep', probability: 51, yesPrice: 51, noPrice: 49 },
+        { name: 'R Senate, D House', probability: 36, yesPrice: 36, noPrice: 64 },
+        { name: 'Republicans Sweep', probability: 12, yesPrice: 12, noPrice: 88 },
+        { name: 'D Senate, R House', probability: 1, yesPrice: 1, noPrice: 99 },
+      ],
+    },
+    {
+      id: 'pol-french-presidential',
+      title: 'Next French Presidential Election Winner',
+      volume: '$4M Vol.',
+      options: [
+        { name: 'Marine Le Pen', probability: 42, yesPrice: 42, noPrice: 58 },
+        { name: 'Jordan Bardella', probability: 28, yesPrice: 28, noPrice: 72 },
+        { name: 'Gabriel Attal', probability: 12, yesPrice: 12, noPrice: 88 },
+        { name: 'Édouard Philippe', probability: 8, yesPrice: 8, noPrice: 92 },
+      ],
+    },
+    {
+      id: 'pol-gop-2028',
+      title: 'Republican Presidential Nominee 2028',
+      volume: '$8.2M Vol.',
+      options: [
+        { name: 'JD Vance', probability: 54, yesPrice: 54, noPrice: 46 },
+        { name: 'Nikki Haley', probability: 14, yesPrice: 14, noPrice: 86 },
+        { name: 'Ron DeSantis', probability: 9, yesPrice: 9, noPrice: 91 },
+        { name: 'Vivek Ramaswamy', probability: 7, yesPrice: 7, noPrice: 93 },
+      ],
+    },
+    {
+      id: 'pol-israel-pm',
+      title: 'Next Prime Minister of Israel',
+      volume: '$6.5M Vol.',
+      options: [
+        { name: 'Benjamin Netanyahu', probability: 48, yesPrice: 48, noPrice: 52 },
+        { name: 'Naftali Bennett', probability: 31, yesPrice: 31, noPrice: 69 },
+        { name: 'Benny Gantz', probability: 12, yesPrice: 12, noPrice: 88 },
+        { name: 'Yair Lapid', probability: 5, yesPrice: 5, noPrice: 95 },
+      ],
+    },
+    {
+      id: 'pol-dem-2028',
+      title: 'Democratic Presidential Nominee 2028',
+      volume: '$7.4M Vol.',
+      options: [
+        { name: 'Kamala Harris', probability: 38, yesPrice: 38, noPrice: 62 },
+        { name: 'Gavin Newsom', probability: 24, yesPrice: 24, noPrice: 76 },
+        { name: 'Josh Shapiro', probability: 17, yesPrice: 17, noPrice: 83 },
+        { name: 'Gretchen Whitmer', probability: 9, yesPrice: 9, noPrice: 91 },
+      ],
+    },
+    {
+      id: 'pol-brazil-election',
+      title: 'Brazil Presidential Election 2026',
+      volume: '$1.8M Vol.',
+      options: [
+        { name: 'Lula da Silva', probability: 55, yesPrice: 55, noPrice: 45 },
+        { name: 'Tarcísio de Freitas', probability: 29, yesPrice: 29, noPrice: 71 },
+        { name: 'Jair Bolsonaro', probability: 8, yesPrice: 8, noPrice: 92 },
+      ],
+    },
+    {
+      id: 'pol-us-iran-blockade',
+      title: 'US announces end of Iranian naval blockade by September 30?',
+      volume: '$3.2M Vol.',
+      chance: '34% chance',
+    },
+    {
+      id: 'pol-china-taiwan',
+      title: 'Will China invade Taiwan by end of 2026?',
+      volume: '$4.1M Vol.',
+      chance: '4% chance',
+    },
+    {
+      id: 'pol-putin-out',
+      title: 'Vladimir Putin out as President of Russia by December 31, 2026?',
+      volume: '$2.9M Vol.',
+      chance: '14% chance',
+    },
+    {
+      id: 'pol-afd-majority',
+      title: 'Will AfD win an absolute majority in any state election in 2026?',
+      volume: '$890K Vol.',
+      chance: '19% chance',
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Left Sidebar: Categories (from video 00:52) */}
+        <aside className="w-full lg:w-56 shrink-0 space-y-1">
+          <div className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2 px-3">
+            Politics
+          </div>
+
+          <div className="space-y-0.5">
+            {politicsSubcategories.map((sub) => {
+              const isActive = activeSubcat === sub.name;
+              return (
+                <button
+                  key={sub.name}
+                  onClick={() => setActiveSubcat(sub.name)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    isActive
+                      ? 'bg-[#1a2536] text-white font-bold'
+                      : 'text-neutral-400 hover:text-white hover:bg-[#121926]'
+                  }`}
+                >
+                  <span>{sub.name}</span>
+                  <span
+                    className={`text-[11px] font-mono px-1.5 py-0.5 rounded-md ${
+                      isActive ? 'bg-[#223147] text-neutral-200' : 'text-neutral-500'
+                    }`}
+                  >
+                    {sub.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <div className="flex-1 w-full space-y-5">
+          {/* Hero Feature: 2026 Midterms Predictions Card (from video 00:54) */}
+          <div
+            onClick={onOpenMidterms}
+            className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-[#121b2a] via-[#152033] to-[#121c2d] border border-[#23334d] hover:border-blue-500/50 transition-all cursor-pointer shadow-xl group relative overflow-hidden"
+          >
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-mono text-blue-400 font-bold">
+                  <span>FEATURED PREDICTION</span>
+                  <span>·</span>
+                  <span className="text-emerald-400">UPDATED DAILY</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white group-hover:text-blue-300 transition-colors flex items-center gap-2">
+                  <span>2026 Midterms Predictions</span>
+                  <ChevronRight className="w-5 h-5 text-blue-400 group-hover:translate-x-1 transition-transform" />
+                </h2>
+                <p className="text-xs text-neutral-300 max-w-xl">
+                  Interactive state-by-state race forecast, Senate and House chamber seat
+                  projections, live candidate odds, and battleground margins.
+                </p>
+              </div>
+
+              {/* Graphic stats preview */}
+              <div className="flex items-center gap-3 bg-[#0a0f18]/80 p-3 rounded-2xl border border-[#1e2a3c] shrink-0">
+                <div className="text-center px-3 border-r border-[#1e2a3c]">
+                  <div className="font-mono font-extrabold text-blue-400 text-lg">52%</div>
+                  <div className="text-[10px] text-neutral-400 font-medium">Dem Senate</div>
+                </div>
+                <div className="text-center px-3">
+                  <div className="font-mono font-extrabold text-blue-400 text-lg">88%</div>
+                  <div className="text-[10px] text-neutral-400 font-medium">Dem House</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Politics Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {politicsCards.map((card) => {
+              const isBookmarked = bookmarkedIds.has(card.id);
+              return (
+                <div
+                  key={card.id}
+                  className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-3">
+                      {card.title}
+                    </h3>
+
+                    {card.chance ? (
+                      <div className="my-2">
+                        <div className="text-xl font-bold font-mono text-emerald-400">
+                          {card.chance}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <button
+                            onClick={() =>
+                              onSelectOutcome({
+                                marketId: card.id,
+                                outcomeName: 'Yes',
+                                price: parseInt(card.chance || '50'),
+                                side: 'yes',
+                              })
+                            }
+                            className="py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() =>
+                              onSelectOutcome({
+                                marketId: card.id,
+                                outcomeName: 'No',
+                                price: 100 - parseInt(card.chance || '50'),
+                                side: 'no',
+                              })
+                            }
+                            className="py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
+                          >
+                            No
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 my-2">
+                        {card.options?.map((opt, i) => (
+                          <div
+                            key={i}
+                            className="p-2 rounded-xl bg-[#141b27] border border-[#1e2838] flex items-center justify-between text-xs"
+                          >
+                            <span className="text-neutral-300 font-medium truncate">
+                              {opt.name}
+                            </span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="font-mono font-bold text-white">
+                                {opt.probability}%
+                              </span>
+                              <button
+                                onClick={() =>
+                                  onSelectOutcome({
+                                    marketId: card.id,
+                                    outcomeName: opt.name,
+                                    price: opt.yesPrice,
+                                    side: 'yes',
+                                  })
+                                }
+                                className="px-2 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-[11px] cursor-pointer"
+                              >
+                                {opt.yesPrice}¢
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="pt-2.5 mt-2 border-t border-[#1a2333] flex items-center justify-between text-xs text-neutral-400">
+                    <div className="flex items-center gap-1.5 font-mono">
+                      <span>{card.volume}</span>
+                      <Repeat2 className="w-3 h-3 text-neutral-500" />
+                    </div>
+
+                    <button
+                      onClick={(e) => toggleBookmark(card.id, e)}
+                      className="cursor-pointer hover:text-white"
+                    >
+                      <Bookmark
+                        className={`w-3.5 h-3.5 ${
+                          isBookmarked ? 'text-amber-400 fill-amber-400' : 'text-neutral-500'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
