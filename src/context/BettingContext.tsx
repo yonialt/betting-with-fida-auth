@@ -44,6 +44,9 @@ interface BettingContextType {
   settingsModalOpen: boolean;
   depositModalOpen: boolean;
   notification: { message: string; type: 'success' | 'info' | 'warning' } | null;
+  isBetSlipCollapsed: boolean;
+  setIsBetSlipCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleBetSlipCollapsed: () => void;
 
   // Actions
   setActiveSport: (sport: SportId | 'all') => void;
@@ -79,6 +82,8 @@ interface BettingContextType {
   openAuthModal: (mode?: 'login' | 'signup') => void;
   loginUser: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   registerUser: (payload: { username: string; phone: string; email?: string; password: string }) => Promise<{ ok: boolean; error?: string }>;
+  ageVerified: boolean;
+  markAgeVerified: () => void;
   logout: () => void;
   placeBet: () => boolean;
   cashoutBet: (betId: string) => void;
@@ -89,6 +94,10 @@ interface BettingContextType {
 }
 
 const BettingContext = createContext<BettingContextType | undefined>(undefined);
+
+// localStorage key recording that this browser has passed Fayda age verification.
+// Kept while logged in (so a verified user is not asked again), cleared on logout.
+const AGE_VERIFIED_KEY = 'fidabet_age_verified';
 
 // Signed-out visitor profile (used when the user logs out / switches account)
 const GUEST_USER: UserProfile = {
@@ -150,15 +159,9 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     },
   ]);
 
-  const [user, setUser] = useState<UserProfile>({
-    isLoggedIn: true,
-    username: 'Player_8831',
-    userId: 'ID: 88319402',
-    balance: 14500.00,
-    currency: 'ETB',
-    bonusBalance: 250.00,
-    phone: '+251911000000',
-  });
+  // Start signed-out: a session is only restored on reload when the stored
+  // token is still accepted by the backend (see the mount effect below).
+  const [user, setUser] = useState<UserProfile>(GUEST_USER);
 
   const [activeSport, setActiveSport] = useState<SportId | 'all'>('all');
   const [onlyWithStreams, setOnlyWithStreams] = useState<boolean>(false);
@@ -184,6 +187,21 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+  const [isBetSlipCollapsed, setIsBetSlipCollapsed] = useState<boolean>(false);
+  const [ageVerified, setAgeVerified] = useState<boolean>(() => {
+    // Guests must pass the age gate again on every load: the stored flag only
+    // lets a signed-in session skip it, so without a stored token we treat the
+    // visitor as an unverified guest even if a flag was left behind.
+    try {
+      return localStorage.getItem(AGE_VERIFIED_KEY) === '1' && !!localStorage.getItem('fidabet_token');
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleBetSlipCollapsed = () => {
+    setIsBetSlipCollapsed((prev) => !prev);
+  };
 
   // Backend Integration: Fetch initial matches from backend if available (Live + Upcoming)
   useEffect(() => {
@@ -220,76 +238,43 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       fidaBetWebSocket.connect();
     } catch {}
 
-    // Auto-authenticate with backend on load
+    // Restore a session ONLY when a stored token is still accepted by the
+    // backend. No silent auto-login: a visitor with no (or rejected) token
+    // stays a guest, so logout + reload lands back on the guest/age-gate flow.
     (async () => {
-      try {
-        const existingToken = localStorage.getItem('fidabet_token');
-        if (!existingToken) {
-          // Try login with seeded user first, then register if not found
-          try {
-            const loginData = await fidaBetApi.login('Player_8831', 'password123');
-            if (loginData.token) {
-              setUser({
-                isLoggedIn: true,
-                username: loginData.user.username,
-                userId: loginData.user.userId || loginData.user.id || '',
-                balance: loginData.user.balance || 100,
-                currency: loginData.user.currency || 'ETB',
-                bonusBalance: loginData.user.bonusBalance || 50,
-                phone: loginData.user.phone || '',
-              });
-            }
-          } catch {
-            // Register new user if seeded user not found
-            const regData = await fidaBetApi.register({
-              username: 'aderabet_user',
-              password: 'Ad3r@Bet2026!',
-              phone: '+251911000000',
-              email: 'adera@test.com',
-            });
-            if (regData.token) {
-              setUser({
-                isLoggedIn: true,
-                username: regData.user.username,
-                userId: regData.user.userId || regData.user.id || '',
-                balance: regData.user.balance || 100,
-                currency: regData.user.currency || 'ETB',
-                bonusBalance: regData.user.bonusBalance || 50,
-                phone: regData.user.phone || '',
-              });
-            }
+      const existingToken = localStorage.getItem('fidabet_token');
+      if (existingToken) {
+        try {
+          const session = await fidaBetApi.getSession();
+          if (isMounted && session?.user) {
+            applyAuthUser(session.user);
           }
-        } else {
-          // Token exists, try to get balance from backend
-          try {
-            const bal = await fidaBetApi.getBalance();
+        } catch {
+          // getSession() returns 401 (and clears the stored token) when the
+          // backend rejects it: the visitor is a guest again, so the age gate
+          // must show instead of a restored session.
+          if (isMounted) {
+            setAgeVerified(false);
+          }
+        }
+      }
+
+      // Mirror the server's age-verification flag on the restored user.
+      try {
+        const token = localStorage.getItem('fidabet_token');
+        if (token) {
+          const verifyRes = await fetch('/api/age-verification/status', {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          if (verifyRes.ok) {
+            const verifyData = await verifyRes.json();
             setUser((prev) => ({
               ...prev,
-              isLoggedIn: true,
-              balance: bal.balance,
-              bonusBalance: bal.bonusBalance,
-              currency: bal.currency,
+              isAgeVerified: verifyData.verified,
+              ageVerificationStatus: verifyData.verified ? 'verified' : (verifyData.latestVerification?.status === 'REJECTED' ? 'rejected' : 'none'),
             }));
-          } catch {}
-        }
-
-        // Check age verification status
-        try {
-          const token = localStorage.getItem('fidabet_token');
-          if (token) {
-            const verifyRes = await fetch('/api/age-verification/status', {
-              headers: { 'Authorization': `Bearer ${token}` },
-            });
-            if (verifyRes.ok) {
-              const verifyData = await verifyRes.json();
-              setUser((prev) => ({
-                ...prev,
-                isAgeVerified: verifyData.verified,
-                ageVerificationStatus: verifyData.verified ? 'verified' : (verifyData.latestVerification?.status === 'REJECTED' ? 'rejected' : 'none'),
-              }));
-            }
           }
-        } catch {}
+        }
       } catch {}
     })();
 
@@ -609,9 +594,31 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  // Record that this browser/session passed Fayda age verification.
+  // Reset on logout so the age gate shows again for sign-out users.
+  const markAgeVerified = () => {
+    setAgeVerified(true);
+    try {
+      localStorage.setItem(AGE_VERIFIED_KEY, '1');
+    } catch {}
+  };
+
   const logout = () => {
+    // Best-effort: also invalidate the token on the backend so a leftover copy
+    // in another tab cannot restore the session later.
+    const token = localStorage.getItem('fidabet_token');
+    if (token) {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }).catch(() => {});
+    }
     fidaBetApi.clearTokens();
     setUser(GUEST_USER);
+    setAgeVerified(false);
+    try {
+      localStorage.removeItem(AGE_VERIFIED_KEY);
+    } catch {}
     setLoginModalOpen(false);
     setNotification({ message: 'Logged out. See you soon!', type: 'info' });
   };
@@ -679,6 +686,8 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         openAuthModal,
         loginUser,
         registerUser,
+        ageVerified,
+        markAgeVerified,
         logout,
         placeBet,
         cashoutBet,
@@ -686,6 +695,9 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         depositFunds,
         totalOdds,
         potentialWin,
+        isBetSlipCollapsed,
+        setIsBetSlipCollapsed,
+        toggleBetSlipCollapsed,
       }}
     >
       {children}

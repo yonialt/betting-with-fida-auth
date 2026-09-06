@@ -19,9 +19,10 @@ import {
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
-interface ApiFootballRedisModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+export interface ApiFootballRedisModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  isEmbedded?: boolean;
 }
 
 interface CacheKeyItem {
@@ -68,7 +69,11 @@ interface SystemStatus {
   };
 }
 
-export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({ isOpen, onClose }) => {
+export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({
+  isOpen = false,
+  onClose,
+  isEmbedded = false,
+}) => {
   const { setMatches, setSelectedEventMatch } = useBetting();
   const [activeTab, setActiveTab] = useState<'metrics' | 'keys' | 'config' | 'springboot'>('metrics');
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -109,7 +114,7 @@ export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({ is
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen || isEmbedded) {
       fetchStatus();
       fetchKeys();
       const interval = setInterval(() => {
@@ -120,9 +125,9 @@ export const ApiFootballRedisModal: React.FC<ApiFootballRedisModalProps> = ({ is
       }, 4000);
       return () => clearInterval(interval);
     }
-  }, [isOpen, activeTab]);
+  }, [isOpen, isEmbedded, activeTab]);
 
-  if (!isOpen) return null;
+  if (!isOpen && !isEmbedded) return null;
 
   const handleSyncNow = async () => {
     setIsSyncing(true);
@@ -464,40 +469,43 @@ services:
     },
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-fadeIn">
-      <div
-        id="api-football-redis-modal"
-        className="relative w-full max-w-4xl bg-[#0f1923] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-neutral-200"
-      >
-        {/* Top Header Bar */}
-        <div className="px-4 sm:px-6 py-3.5 bg-[#142230] border-b border-neutral-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <Database className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                  Free Match & Odds API · Redis Cache Engine
-                </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Free Engine Active
-                </span>
-              </div>
-              <p className="text-[11px] text-neutral-400">
-                ESPN Live Scoreboard · DraftKings/Caesars Real Odds · Redis Cache-Aside &lt;1.2ms
-              </p>
-            </div>
+  const modalBody = (
+    <div
+      id={isEmbedded ? 'api-football-redis-console' : 'api-football-redis-modal'}
+      className={`relative w-full bg-[#0f1923] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden flex flex-col text-neutral-200 ${
+        isEmbedded ? 'max-w-7xl mx-auto' : 'max-w-4xl max-h-[92vh]'
+      }`}
+    >
+      {/* Top Header Bar */}
+      <div className="px-4 sm:px-6 py-3.5 bg-[#142230] border-b border-neutral-800 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <Database className="w-4 h-4" />
           </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
+                Free Match & Odds API · Redis Cache Engine
+              </h2>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Free Engine Active
+              </span>
+            </div>
+            <p className="text-[11px] text-neutral-400">
+              ESPN Live Scoreboard · DraftKings/Caesars Real Odds · Redis Cache-Aside &lt;1.2ms
+            </p>
+          </div>
+        </div>
 
+        {onClose && (
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-md hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
-        </div>
+        )}
+      </div>
 
         {/* Global Action Banner */}
         {actionMessage && (
@@ -1036,14 +1044,25 @@ services:
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span>Redis Cache Engine Active</span>
           </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-1 bg-neutral-800 hover:bg-neutral-700 text-white rounded font-semibold transition-colors cursor-pointer"
-          >
-            Close
-          </button>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="px-4 py-1 bg-neutral-800 hover:bg-neutral-700 text-white rounded font-semibold transition-colors cursor-pointer"
+            >
+              Close
+            </button>
+          )}
         </div>
       </div>
+  );
+
+  if (isEmbedded) {
+    return modalBody;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-fadeIn">
+      {modalBody}
     </div>
   );
 };

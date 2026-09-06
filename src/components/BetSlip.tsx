@@ -9,6 +9,9 @@ import {
   Clock,
   ArrowUpRight,
   Sparkles,
+  ChevronsLeft,
+  Smartphone,
+  Headphones,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { BetType, OddsAcceptanceMode } from '../types';
@@ -35,11 +38,128 @@ export const BetSlip: React.FC = () => {
     cashoutBet,
     user,
     setLoginModalOpen,
+    isBetSlipCollapsed,
+    setIsBetSlipCollapsed,
+    openAuthModal,
+    setBonusesModalOpen,
+    setNotification,
   } = useBetting();
 
   const handleQuickAddStake = (amount: number) => {
     setStakeAmount((prev) => Math.max(1, +(prev + amount).toFixed(2)));
   };
+
+  if (isBetSlipCollapsed) {
+    return (
+      <aside
+        id="bet-slip-collapsed-rail"
+        className="fixed right-0 top-[88px] border-t-2 border-[#ffb800] border-l border-neutral-800 flex flex-col items-center py-2 gap-2 z-30 select-none shadow-md transition-all"
+        style={{
+          backgroundColor: '#1b2838',
+          width: '45px',
+          height: '700.359px',
+        }}
+      >
+        {/* 1. Expand Block Button « */}
+        <button
+          id="btn-expand-betslip-rail"
+          onClick={() => setIsBetSlipCollapsed(false)}
+          className="w-8 h-8 rounded-md bg-[#2b2f36] hover:bg-[#383d46] text-neutral-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors shadow-xs active:scale-95 group"
+          title="Expand block"
+        >
+          <ChevronsLeft className="w-4 h-4 text-neutral-300 group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* 2. REGISTRATION Button */}
+        <button
+          id="btn-rail-registration"
+          onClick={() => openAuthModal('signup')}
+          className="w-8 py-3.5 px-0.5 rounded-lg text-white font-black flex items-center justify-center cursor-pointer shadow-xs transition-colors hover:brightness-105 active:scale-95"
+          style={{ backgroundColor: '#383d44' }}
+          title="Registration"
+        >
+          <span
+            className="text-[10px] font-black tracking-wider uppercase select-none leading-none text-white"
+            style={{ writingMode: 'vertical-rl', color: '#ffffff' }}
+          >
+            REGISTRATION
+          </span>
+        </button>
+
+        {/* 3. Bet slip Button */}
+        <button
+          id="btn-rail-betslip"
+          onClick={() => setIsBetSlipCollapsed(false)}
+          className="w-8 py-3.5 px-0.5 rounded-lg bg-[#383d44] hover:bg-[#484e57] text-white font-bold flex flex-col items-center justify-center cursor-pointer shadow-xs transition-colors active:scale-95 relative"
+          title="Open Bet Slip"
+        >
+          <span
+            className="text-[11px] font-bold tracking-normal select-none leading-none text-neutral-100"
+            style={{ writingMode: 'vertical-rl' }}
+          >
+            Bet slip
+          </span>
+          {betSlip.length > 0 && (
+            <span className="w-4 h-4 rounded-full bg-[#ffb800] text-black text-[9px] font-black flex items-center justify-center mt-2 shadow-xs">
+              {betSlip.length}
+            </span>
+          )}
+        </button>
+
+        {/* 4. Bonuses / Promotions sparkles icon ✨ */}
+        <button
+          id="btn-rail-bonuses"
+          onClick={() => setBonusesModalOpen(true)}
+          className="w-8 h-8 rounded-md bg-[#2b2f36] hover:bg-[#383d46] flex items-center justify-center cursor-pointer transition-colors shadow-xs active:scale-95 group"
+          title="Bonuses & Promotions"
+        >
+          <Sparkles
+            className="w-4 h-4 group-hover:scale-110 transition-transform"
+            style={{ color: '#ffffff' }}
+          />
+        </button>
+
+        {/* 5. Mobile app button 📱 */}
+        <button
+          id="btn-rail-mobile"
+          onClick={() => {
+            if (setNotification) {
+              setNotification({
+                message: '1xBet Mobile App: Available on Android & iOS',
+                type: 'info',
+              });
+            }
+          }}
+          className="w-8 h-8 rounded-md bg-[#2b2f36] hover:bg-[#383d46] flex items-center justify-center cursor-pointer transition-colors shadow-xs active:scale-95 group"
+          title="Mobile Applications"
+        >
+          <Smartphone
+            className="w-4 h-4 group-hover:scale-110 transition-transform"
+            style={{ color: '#fcfcfc' }}
+          />
+        </button>
+
+        {/* 6. Protruding Semi-Circle Live Support / Headphones tab 🎧 */}
+        <div className="mt-auto mb-6 w-full flex justify-end">
+          <button
+            id="btn-rail-support"
+            onClick={() => {
+              if (setNotification) {
+                setNotification({
+                  message: '24/7 Live Support: Chat agent is standing by',
+                  type: 'info',
+                });
+              }
+            }}
+            className="w-8 h-8 bg-[#cfd3d8] hover:bg-white text-[#1c1f24] rounded-l-full flex items-center justify-center cursor-pointer shadow-md transition-all hover:w-9 active:scale-95 pl-1"
+            title="Customer Support 24/7"
+          >
+            <Headphones className="w-4 h-4 text-[#1c1f24]" />
+          </button>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside
@@ -55,6 +175,19 @@ export const BetSlip: React.FC = () => {
         marginBottom: '-3px',
       }}
     >
+      {/* Collapse Block Header matching 1xBet user screenshot */}
+      <div className="w-full bg-[#1c2024] border-t-2 border-[#ffc600] border-b border-neutral-800">
+        <button
+          id="btn-collapse-betslip"
+          onClick={() => setIsBetSlipCollapsed(true)}
+          className="w-full py-2 px-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-neutral-200 hover:text-white transition-all cursor-pointer group"
+          style={{ backgroundColor: '#1b2838' }}
+          title="Collapse bet slip block"
+        >
+          <span>Collapse block »</span>
+        </button>
+      </div>
+
       {/* Top Tabs: Bet Slip & My Bets */}
       <div className="flex items-center border-b border-neutral-200 bg-[#fbfcfd]">
         <button

@@ -12,6 +12,9 @@ export const Footer: React.FC = () => {
       setLoginModalOpen(true);
     } else if (title === 'About us' || title === 'Terms and Conditions' || title === 'Cookie Policy') {
       setBonusesModalOpen(true);
+    } else if (title === 'Admin Console') {
+      window.history.pushState({}, '', '/admin');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
@@ -64,6 +67,14 @@ export const Footer: React.FC = () => {
                 Contacts
               </button>
             </li>
+            <li>
+              <button
+                onClick={() => handleLinkClick('Admin Console')}
+                className="text-emerald-300 hover:text-emerald-200 hover:underline transition-colors text-left cursor-pointer font-bold flex items-center gap-1"
+              >
+                <span>Admin Console (/admin)</span>
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -83,10 +94,10 @@ export const Footer: React.FC = () => {
             </li>
             <li>
               <button
-                onClick={() => handleLinkClick('1xGames')}
+                onClick={() => handleLinkClick('Esports')}
                 className="hover:text-white hover:underline transition-colors text-left cursor-pointer"
               >
-                1xGames
+                Esports
               </button>
             </li>
             <li>

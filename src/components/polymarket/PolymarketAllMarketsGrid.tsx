@@ -28,11 +28,13 @@ import { SpringBootModal } from './SpringBootModal';
 interface PolymarketAllMarketsGridProps {
   onSelectOutcome: (trade: PolymarketTradeState) => void;
   searchFilter: string;
+  categoryFilter?: string;
 }
 
 export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> = ({
   onSelectOutcome,
   searchFilter,
+  categoryFilter,
 }) => {
   const [activeTag, setActiveTag] = useState<string>('All');
   const [bookmarkedMarkets, setBookmarkedMarkets] = useState<Set<string>>(new Set());
@@ -78,7 +80,7 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
     });
   };
 
-  // Filter markets by search and tag
+  // Filter markets by search, tag, and categoryFilter
   const filteredMarkets = markets.filter((market) => {
     const matchesSearch =
       !searchFilter ||
@@ -89,6 +91,16 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
       );
 
     if (!matchesSearch) return false;
+
+    if (categoryFilter && categoryFilter !== 'trending' && categoryFilter !== 'all') {
+      const cat = categoryFilter.toLowerCase();
+      const matchCat =
+        market.category.toLowerCase() === cat ||
+        market.category.toLowerCase().includes(cat) ||
+        market.title.toLowerCase().includes(cat);
+      if (!matchCat) return false;
+    }
+
     return true;
   });
 

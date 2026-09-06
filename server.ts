@@ -87,6 +87,22 @@ let userSettings = {
   compactView: false,
 };
 
+// --- Mock token registry ---
+// Access tokens the mock backend has issued and still accepts. A reload only
+// restores a session when the stored token is in this set; logout removes it.
+const validTokens = new Set<string>();
+
+function issueAccessToken(): string {
+  const token = 'fidabet_jwt_mock_token_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  validTokens.add(token);
+  return token;
+}
+
+function bearerToken(req: express.Request): string {
+  const header = req.headers.authorization || '';
+  return header.startsWith('Bearer ') ? header.slice('Bearer '.length) : '';
+}
+
 // --- API Routes ---
 
 // Health check
@@ -101,9 +117,10 @@ app.post('/api/auth/login', (req, res) => {
     currentUser.username = username;
   }
   currentUser.isLoggedIn = true;
+  const token = issueAccessToken();
   res.json({
-    token: 'fidabet_jwt_mock_token_88319402',
-    refreshToken: 'fidabet_refresh_mock_token_88319402',
+    token,
+    refreshToken: 'fidabet_refresh_mock_token_' + Date.now(),
     user: currentUser,
   });
 });
@@ -113,8 +130,9 @@ app.post('/api/auth/register', (req, res) => {
   if (username) currentUser.username = username;
   if (phone) currentUser.phone = phone;
   currentUser.isLoggedIn = true;
+  const token = issueAccessToken();
   res.json({
-    token: 'fidabet_jwt_mock_token_' + Date.now(),
+    token,
     refreshToken: 'fidabet_refresh_mock_token_' + Date.now(),
     user: currentUser,
   });
@@ -122,9 +140,27 @@ app.post('/api/auth/register', (req, res) => {
 
 app.post('/api/auth/refresh', (_req, res) => {
   res.json({
-    token: 'fidabet_jwt_mock_token_refreshed_' + Date.now(),
+    token: issueAccessToken(),
     refreshToken: 'fidabet_refresh_mock_token_refreshed_' + Date.now(),
   });
+});
+
+// Session restore on reload — only succeeds when the stored token is valid.
+app.get('/api/auth/session', (req, res) => {
+  const token = bearerToken(req);
+  if (!token || !validTokens.has(token)) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+  res.json({ token, user: currentUser });
+});
+
+// Logout — invalidates the presented access token server-side too.
+app.post('/api/auth/logout', (req, res) => {
+  const token = bearerToken(req);
+  if (token) {
+    validTokens.delete(token);
+  }
+  res.json({ success: true });
 });
 
 app.post('/api/auth/forgot-password', (_req, res) => {
