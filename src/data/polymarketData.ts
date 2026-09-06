@@ -260,24 +260,99 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
       { name: 'No', probability: 18, yesPrice: 18, noPrice: 82 },
     ],
   },
+  {
+    id: 'pm-17',
+    title: 'Iran nuclear negotiations reach framework agreement by...?',
+    category: 'Iran',
+    volume: '$18M Vol.',
+    displayType: 'multi_outcome',
+    outcomes: [
+      { name: 'November 2026', probability: 48, yesPrice: 48, noPrice: 52 },
+      { name: 'December 2026', probability: 67, yesPrice: 67, noPrice: 33 },
+    ],
+  },
+  {
+    id: 'pm-18',
+    title: 'Will 2026 be the hottest year on global record?',
+    category: 'Weather',
+    volume: '$4.2M Vol.',
+    displayType: 'multi_outcome',
+    outcomes: [
+      { name: 'Yes', probability: 74, yesPrice: 74, noPrice: 26 },
+      { name: 'No', probability: 26, yesPrice: 26, noPrice: 74 },
+    ],
+  },
+  {
+    id: 'pm-19',
+    title: 'Jerome Powell mentions "soft landing" in next speech?',
+    category: 'Mentions',
+    volume: '$890K Vol.',
+    displayType: 'multi_outcome',
+    outcomes: [
+      { name: 'Yes', probability: 89, yesPrice: 89, noPrice: 11 },
+      { name: 'No', probability: 11, yesPrice: 11, noPrice: 89 },
+    ],
+  },
+  {
+    id: 'pm-20',
+    title: 'GTA 6 worldwide launch delayed to 2027?',
+    category: 'Culture',
+    volume: '$3.8M Vol.',
+    displayType: 'multi_outcome',
+    outcomes: [
+      { name: 'No (Launches 2026)', probability: 68, yesPrice: 68, noPrice: 32 },
+      { name: 'Yes (Delayed)', probability: 32, yesPrice: 32, noPrice: 68 },
+    ],
+  },
+  {
+    id: 'pm-21',
+    title: 'Global Inflation average below 2.5% in Q4 2026?',
+    category: 'Economy',
+    volume: '$12M Vol.',
+    displayType: 'multi_outcome',
+    outcomes: [
+      { name: 'Yes', probability: 55, yesPrice: 55, noPrice: 45 },
+      { name: 'No', probability: 45, yesPrice: 45, noPrice: 55 },
+    ],
+  },
 ];
 
-export const POLYMARKET_CATEGORIES = [
-  { id: 'trending', name: 'Trending', icon: 'TrendingUp', badge: 'HOT' },
-  { id: 'politics', name: 'Politics', icon: 'Vote' },
-  { id: 'crypto', name: 'Crypto', icon: 'Coins' },
-  { id: 'sports', name: 'Sports', icon: 'Trophy' },
-  { id: 'economy', name: 'Economy & Fed', icon: 'Landmark' },
-  { id: 'tech', name: 'AI & Tech', icon: 'Cpu' },
-  { id: 'breaking', name: 'Breaking', icon: 'Activity' },
-  { id: 'culture', name: 'Culture', icon: 'Tv' },
+export interface PolymarketCategoryItem {
+  id: string;
+  name: string;
+  type?: 'icon' | 'text' | 'divider';
+  iconType?: 'trending' | 'combos' | 'perps';
+}
+
+export const POLYMARKET_CATEGORIES: PolymarketCategoryItem[] = [
+  { id: 'trending', name: 'Trending', type: 'icon', iconType: 'trending' },
+  { id: 'combos', name: 'Combos', type: 'icon', iconType: 'combos' },
+  { id: 'perps', name: 'Perps', type: 'icon', iconType: 'perps' },
+  { id: 'breaking', name: 'Breaking', type: 'text' },
+  { id: 'new', name: 'New', type: 'text' },
+  { id: 'divider-1', name: '|', type: 'divider' },
+  { id: 'politics', name: 'Politics', type: 'text' },
+  { id: 'sports', name: 'Sports', type: 'text' },
+  { id: 'crypto', name: 'Crypto', type: 'text' },
+  { id: 'esports', name: 'Esports', type: 'text' },
+  { id: 'iran', name: 'Iran', type: 'text' },
+  { id: 'finance', name: 'Finance', type: 'text' },
+  { id: 'geopolitics', name: 'Geopolitics', type: 'text' },
+  { id: 'tech', name: 'Tech', type: 'text' },
+  { id: 'culture', name: 'Culture', type: 'text' },
+  { id: 'economy', name: 'Economy', type: 'text' },
+  { id: 'weather', name: 'Weather', type: 'text' },
+  { id: 'mentions', name: 'Mentions', type: 'text' },
 ];
 
 export const POLYMARKET_TAG_PILLS = [
   'All',
   'Politics',
-  'Crypto',
   'Sports',
-  'Fed',
+  'Crypto',
+  'Finance',
   'Tech',
+  'Economy',
+  'Iran',
+  'Weather',
 ];

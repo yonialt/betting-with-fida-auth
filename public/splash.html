@@ -1,0 +1,97 @@
+<!--
+  ሃገራዊ splash screen
+  ---------------------------------------------------------
+  HOW TO USE:
+  1. Copy the <div id="hg-splash">...</div> block and paste it as the
+     very FIRST element inside your <body>, before the rest of your
+     site's content.
+  2. Copy the <style> block into your global stylesheet (or a <style>
+     tag in <head>).
+  3. Copy the <script> block into your page, just before </body>.
+  4. Make sure your actual site content loads normally underneath —
+     the splash sits on top and removes itself automatically.
+
+  The splash auto-dismisses ~3.6s after the page loads. If your site
+  has heavy assets, you can instead call hgDismissSplash() manually
+  once your content is ready (e.g. after your images/fonts load) —
+  see the comment at the bottom of the script.
+-->
+
+<style>
+#hg-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0F1B2A;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#hg-splash .word {
+  font-size: 44px;
+  font-weight: 400;
+  color: #FFFFFF;
+  margin: 8px 0 4px;
+  font-family: sans-serif;
+}
+#hg-splash .sub {
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: #8DC63F;
+  margin: 0;
+  font-family: sans-serif;
+}
+#hg-splash .ring,
+#hg-splash .ballring,
+#hg-splash .lineDraw {
+  stroke-dashoffset: 0;
+}
+#hg-splash .dot { opacity: 1; }
+#hg-splash .word, #hg-splash .sub { opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  #hg-splash .ring { stroke-dasharray: 1445; stroke-dashoffset: 1445; animation: hg-draw 1s ease forwards .1s; }
+  #hg-splash .ballring { stroke-dasharray: 597; stroke-dashoffset: 597; animation: hg-draw .7s ease forwards .9s; }
+  #hg-splash .lineDraw { stroke-dasharray: 260; stroke-dashoffset: 260; animation: hg-draw .6s ease forwards 1.3s; }
+  #hg-splash .dot { opacity: 0; transform: scale(0); transform-box: fill-box; transform-origin: center; animation: hg-pop .3s ease forwards 1.8s; }
+  #hg-splash .word { opacity: 0; transform: translateY(10px); animation: hg-fade-up .6s ease forwards 2s; }
+  #hg-splash .sub { opacity: 0; animation: hg-fade-up .6s ease forwards 2.3s; }
+  #hg-splash.hg-hide { animation: hg-hide .6s ease forwards; }
+  @keyframes hg-draw { to { stroke-dashoffset: 0; } }
+  @keyframes hg-pop { to { opacity: 1; transform: scale(1); } }
+  @keyframes hg-fade-up { to { opacity: 1; transform: translateY(0); } }
+  @keyframes hg-hide { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  #hg-splash.hg-hide { display: none; }
+}
+</style>
+
+<div id="hg-splash">
+  <svg width="220" height="220" viewBox="0 0 680 680">
+    <circle class="ring" cx="340" cy="290" r="230" fill="none" stroke="#8DC63F" stroke-width="2"/>
+    <circle class="ballring" cx="340" cy="290" r="95" fill="none" stroke="#8DC63F" stroke-width="2"/>
+    <path class="lineDraw" d="M255 340 L300 300 L340 290 L400 250 L460 210" fill="none" stroke="#8DC63F" stroke-width="4" stroke-linecap="round"/>
+    <circle class="dot" cx="255" cy="340" r="6" fill="#8DC63F"/>
+    <circle class="dot" cx="340" cy="290" r="6" fill="#8DC63F" style="animation-delay:1.9s"/>
+  </svg>
+  <p class="word">ሃገራዊ</p>
+  <p class="sub">SPORTS &middot; MARKETS</p>
+</div>
+
+<script>
+function hgDismissSplash() {
+  var el = document.getElementById('hg-splash');
+  if (!el) return;
+  el.classList.add('hg-hide');
+  setTimeout(function () { el.remove(); }, 650);
+}
+
+// Auto-dismiss ~3.6s after load (matches the draw-in timing above).
+// If you'd rather dismiss it once your own content/images/fonts are
+// ready, delete this line and call hgDismissSplash() yourself instead.
+window.addEventListener('load', function () {
+  setTimeout(hgDismissSplash, 3600);
+});
+</script>

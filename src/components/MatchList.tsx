@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
   Pin,
@@ -11,10 +12,12 @@ import {
   Users,
   Lock,
   Banknote,
+  Sparkles,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { Match, OddsItem } from '../types';
 import { ActiveStadiumTracker } from './ActiveStadiumTracker';
+import { SecondaryMarketsDrawer } from './SecondaryMarketsDrawer';
 
 const LeagueHeaderDropdown: React.FC<{ label: string; widthClass?: string }> = ({
   label,
@@ -72,13 +75,6 @@ export const MatchList: React.FC = () => {
     return true;
   });
 
-  // Calculate live and future betting counts
-  const liveCount = matches.filter((m) => m.isLive).length;
-  const todayCount = matches.filter((m) => !m.isLive && m.timeCategory === 'today').length;
-  const tomorrowCount = matches.filter((m) => !m.isLive && m.timeCategory === 'tomorrow').length;
-  const day2Count = matches.filter((m) => !m.isLive && m.timeCategory === 'day2').length;
-  const upcomingCount = matches.filter((m) => !m.isLive).length;
-
   // Group matches by league
   const groupedMatches = filteredMatches.reduce<Record<string, Match[]>>(
     (acc, match) => {
@@ -99,64 +95,6 @@ export const MatchList: React.FC = () => {
       id="match-list-container"
       className="w-full bg-[#eaedf1] divide-y divide-[#c9d6e4]"
     >
-      {/* Quick Time Betting Filter Ribbon (Today, Tomorrow 1-Day, 2-Days, In-Play) */}
-      <div className="bg-[#143961] px-2 py-1.5 flex flex-wrap items-center justify-between gap-1.5 text-xs border-b border-[#0f2c4c]">
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="text-neutral-300 font-bold text-[11px] mr-1 hidden sm:inline">
-            Betting Schedule:
-          </span>
-
-          <button
-            id="quick-tab-all"
-            onClick={() => setActiveSubTab('matches')}
-            className={`px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              activeSubTab === 'matches'
-                ? 'bg-[#0091ff] text-white shadow-xs'
-                : 'bg-[#0d253f] text-neutral-300 hover:text-white'
-            }`}
-          >
-            All Matches ({matches.length})
-          </button>
-
-          <button
-            id="quick-tab-live"
-            onClick={() => setActiveSubTab('live')}
-            className={`px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeSubTab === 'live'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'bg-[#0d253f] text-rose-300 hover:text-white'
-            }`}
-          >
-            <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping" />
-            <span>🔴 Live In-Play ({liveCount})</span>
-          </button>
-
-          <button
-            id="quick-tab-today"
-            onClick={() => setActiveSubTab('today')}
-            className={`px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              activeSubTab === 'today'
-                ? 'bg-[#a3e635] text-black font-extrabold shadow-xs'
-                : 'bg-[#0d253f] text-neutral-200 hover:text-white'
-            }`}
-          >
-            Today ({todayCount})
-          </button>
-
-          <button
-            id="quick-tab-upcoming"
-            onClick={() => setActiveSubTab('upcoming')}
-            className={`px-2.5 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              activeSubTab === 'upcoming'
-                ? 'bg-[#0091ff] text-white shadow-xs'
-                : 'bg-[#0d253f] text-neutral-300 hover:text-white'
-            }`}
-          >
-            All Upcoming ({upcomingCount})
-          </button>
-        </div>
-      </div>
-
       {leagues.length === 0 ? (
         <div className="bg-white p-6 text-center">
           <p className="text-neutral-500 text-sm font-semibold">
@@ -325,11 +263,24 @@ const MatchRow: React.FC<MatchRowProps> = ({
   } = useBetting();
 
   const [isPinned, setIsPinned] = useState<boolean>(false);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [subGamesExpanded, setSubGamesExpanded] =
     useState<boolean>(false);
   const [showActiveStadium, setShowActiveStadium] =
     useState<boolean>(false);
   const [quickOddsExpanded, setQuickOddsExpanded] = useState<boolean>(false);
+
+  const handleRowClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('button') ||
+      target.closest('input') ||
+      target.closest('a')
+    ) {
+      return;
+    }
+    setIsExpanded((prev) => !prev);
+  };
 
   const isFav = favorites.has(match.id);
   const isTennis =
@@ -519,7 +470,10 @@ const MatchRow: React.FC<MatchRowProps> = ({
       {/* Primary Match Row matching image.png */}
       <div
         id={`match-row-${match.id}`}
-        className="px-2.5 py-1.5 flex flex-col lg:flex-row lg:items-center justify-between gap-1.5 hover:bg-[#f8fafc] transition-colors"
+        onClick={handleRowClick}
+        className={`px-2.5 py-1.5 flex flex-col lg:flex-row lg:items-center justify-between gap-1.5 transition-colors cursor-pointer select-none ${
+          isExpanded ? 'bg-[#edf3fa]' : 'hover:bg-[#f8fafc]'
+        }`}
       >
         {/* Left Column: Teams, Scores & In-line Metadata */}
         <div className="flex items-start gap-2 flex-1 min-w-0">
@@ -551,8 +505,12 @@ const MatchRow: React.FC<MatchRowProps> = ({
             {/* Team 1 Row */}
             <div className="flex items-center justify-between gap-2 py-0.5">
               <div
-                onClick={() => openDetailedEvent(match)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded((prev) => !prev);
+                }}
                 className="flex items-center gap-1.5 font-medium text-[13px] text-neutral-900 cursor-pointer hover:text-[#0091ff] truncate min-w-0"
+                title="Click to view secondary betting markets"
               >
                 {renderTeamIcon(match.team1, match.team1Logo)}
                 <span className="truncate">{match.team1}</span>
@@ -601,8 +559,12 @@ const MatchRow: React.FC<MatchRowProps> = ({
             {/* Team 2 Row */}
             <div className="flex items-center justify-between gap-2 py-0.5">
               <div
-                onClick={() => openDetailedEvent(match)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded((prev) => !prev);
+                }}
                 className="flex items-center gap-1.5 font-medium text-[13px] text-neutral-900 cursor-pointer hover:text-[#0091ff] truncate min-w-0"
+                title="Click to view secondary betting markets"
               >
                 {renderTeamIcon(match.team2, match.team2Logo)}
                 <span className="truncate">{match.team2}</span>
@@ -656,6 +618,27 @@ const MatchRow: React.FC<MatchRowProps> = ({
                 </span>
 
                 <div className="flex items-center gap-1.5 text-neutral-500 shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsExpanded((prev) => !prev);
+                    }}
+                    className={`flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded transition-all cursor-pointer border ${
+                      isExpanded
+                        ? 'bg-[#163b63] border-[#163b63] text-white shadow-2xs'
+                        : 'bg-[#edf3f9] hover:bg-[#e0ecf7] border-[#d2dfec] text-[#1b65a5]'
+                    }`}
+                    title="Toggle secondary betting markets"
+                  >
+                    <Sparkles className={`w-3 h-3 ${isExpanded ? 'text-[#ffc600]' : 'text-[#1b65a5]'}`} />
+                    <span>{isExpanded ? 'Hide Markets' : 'Secondary Markets'}</span>
+                    <ChevronDown
+                      className={`w-3 h-3 transition-transform duration-300 ${
+                        isExpanded ? 'rotate-180 text-[#ffc600]' : ''
+                      }`}
+                    />
+                  </button>
+
                   <button
                     onClick={() => openDetailedEvent(match)}
                     title="Cashout Available"
@@ -774,13 +757,30 @@ const MatchRow: React.FC<MatchRowProps> = ({
               </>
             )}
 
-            {/* Extra Markets Link */}
+            {/* Extra Markets Link / Expand Toggle */}
             <button
-              onClick={() => openDetailedEvent(match)}
-              className="w-10 text-center text-xs sm:text-[13px] font-semibold text-neutral-900 underline hover:text-[#0091ff] cursor-pointer shrink-0"
-              title={`View all ${match.extraMarketsCount} markets`}
+              id={`expand-markets-btn-${match.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className={`h-7 px-2 rounded-[5px] text-xs sm:text-[12px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 border ${
+                isExpanded
+                  ? 'bg-[#163b63] border-[#163b63] text-white shadow-2xs'
+                  : 'bg-[#f0f2f5] hover:bg-[#e4e8ec] border-[#dfe5ec] text-[#163b63]'
+              }`}
+              title={
+                isExpanded
+                  ? 'Collapse secondary betting markets'
+                  : `Expand ${match.extraMarketsCount} secondary betting markets`
+              }
             >
-              +{match.extraMarketsCount}
+              <span>+{match.extraMarketsCount}</span>
+              <ChevronDown
+                className={`w-3 h-3 transition-transform duration-300 ${
+                  isExpanded ? 'rotate-180 text-[#ffc600]' : 'text-[#64748b]'
+                }`}
+              />
             </button>
           </div>
         )}
@@ -950,6 +950,25 @@ const MatchRow: React.FC<MatchRowProps> = ({
           )}
         </div>
       )}
+
+      {/* Animated Expandable Secondary Markets Drawer */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            key={`secondary-markets-motion-${match.id}`}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-[#d5e0eb]"
+          >
+            <SecondaryMarketsDrawer
+              match={match}
+              onOpenFullModal={() => openDetailedEvent(match)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Expandable Sub-Games */}
       {subGamesExpanded &&

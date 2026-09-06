@@ -48,21 +48,11 @@ export const TelebirrDepositModal: React.FC = () => {
     setErrorMsg('');
 
     try {
-      // Use the fidaBetApi client which handles auth tokens properly
-      // First ensure we're authenticated
-      let token = localStorage.getItem('fidabet_token');
+      // Use the fidaBetApi client which handles auth tokens properly.
+      // No silent auto-login: depositing requires an active signed-in session.
+      const token = localStorage.getItem('fidabet_token');
       if (!token) {
-        try {
-          await fidaBetApi.login('Player_8831', 'password123');
-          token = localStorage.getItem('fidabet_token');
-        } catch (e: any) {
-          console.error('Auto-login failed:', e);
-          throw new Error('Authentication failed: ' + (e.message || 'Please refresh the page and try again'));
-        }
-      }
-
-      if (!token) {
-        throw new Error('No authentication token. Please refresh the page.');
+        throw new Error('No authentication token. Please log in and try again.');
       }
 
       const fullPhone = phone.startsWith('+251') ? phone : '+251' + phone;
@@ -146,9 +136,9 @@ export const TelebirrDepositModal: React.FC = () => {
   // Phone Entry Screen
   if (step === 'phone-entry') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
           <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
@@ -202,9 +192,9 @@ export const TelebirrDepositModal: React.FC = () => {
   // PIN Entry Screen
   if (step === 'pin-entry') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
           <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
@@ -275,9 +265,9 @@ export const TelebirrDepositModal: React.FC = () => {
   // Processing Screen
   if (step === 'processing') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
           <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
             <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
@@ -297,9 +287,9 @@ export const TelebirrDepositModal: React.FC = () => {
   // Success Screen
   if (step === 'success') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
           <div style={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#2e7d32' }}>telebirr</div>
             <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
@@ -329,131 +319,146 @@ export const TelebirrDepositModal: React.FC = () => {
   // ========== MAIN DEPOSIT FORM ==========
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto"
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className="relative w-full max-w-[920px] rounded-2xl overflow-hidden shadow-3xl" style={{ background: '#EEF2F9', fontFamily: "'Inter', sans-serif" }}>
-        <button onClick={handleClose} className="absolute top-4 right-4 z-10 p-1.5 rounded-full bg-white/80 hover:bg-white text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer">
+      <div
+        className="relative w-full max-w-[920px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[92vh] flex flex-col"
+        style={{ background: '#EEF2F9', fontFamily: "'Inter', sans-serif" }}
+      >
+        <button
+          onClick={handleClose}
+          className="absolute top-3.5 right-3.5 z-10 p-1.5 rounded-full bg-white/80 hover:bg-white text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer shadow-xs"
+        >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#DFE5F0]">
+        <div className="shrink-0 flex items-center justify-between px-6 py-3.5 bg-white border-b border-[#DFE5F0]">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: '#0B4A8C', fontFamily: "'Space Grotesk', sans-serif" }}>A</div>
             <span className="text-sm font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Adera Bet · 18+</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[#4C5C77]">
+          <div className="flex items-center gap-1.5 text-xs text-[#4C5C77] pr-7">
             <Lock className="w-3.5 h-3.5" />
             Secure deposit
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr]">
-          <div className="p-6 md:border-r border-[#DFE5F0]">
-            <h1 className="text-xl font-semibold mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit to your wallet</h1>
-            <p className="text-sm mb-6" style={{ color: '#4C5C77' }}>Current balance · {user?.balance?.toLocaleString() || '0'} {user?.currency || 'ETB'}</p>
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] overflow-y-auto flex-1 min-h-0 divide-y md:divide-y-0 md:divide-x divide-[#DFE5F0]">
+          <div className="p-4 sm:p-6 flex flex-col justify-between">
+            <div>
+              <h1 className="text-xl font-semibold mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit to your wallet</h1>
+              <p className="text-sm mb-5" style={{ color: '#4C5C77' }}>Current balance · {user?.balance?.toLocaleString() || '0'} {user?.currency || 'ETB'}</p>
 
-            <div className="mb-4">
-              <label className="block text-xs mb-2 font-medium" style={{ color: '#4C5C77' }}>Choose an amount</label>
-              <div className="grid grid-cols-2 gap-2">
-                {AMOUNTS.map((val) => (
-                  <button key={val} onClick={() => setAmount(val)}
-                    className={`border rounded-[10px] px-3 py-2.5 text-sm font-semibold transition-colors cursor-pointer ${amount === val ? 'border-[#0B4A8C] bg-[#E4EEFC] text-[#083761]' : 'border-[#DFE5F0] bg-white text-[#10213D] hover:bg-[#EEF2F9]'}`}
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}>ETB {val.toLocaleString()}</button>
-                ))}
+              <div className="mb-4">
+                <label className="block text-xs mb-2 font-medium" style={{ color: '#4C5C77' }}>Choose an amount</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {AMOUNTS.map((val) => (
+                    <button key={val} onClick={() => setAmount(val)}
+                      className={`border rounded-[10px] px-3 py-2 text-sm font-semibold transition-colors cursor-pointer ${amount === val ? 'border-[#0B4A8C] bg-[#E4EEFC] text-[#083761]' : 'border-[#DFE5F0] bg-white text-[#10213D] hover:bg-[#EEF2F9]'}`}
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}>ETB {val.toLocaleString()}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-xs mb-2 font-medium" style={{ color: '#4C5C77' }}>Or enter a custom amount</label>
+                <div className="flex items-center border border-[#DFE5F0] rounded-[10px] overflow-hidden bg-white">
+                  <span className="px-3 py-2 text-sm font-semibold border-r border-[#DFE5F0] bg-[#EEF2F9] text-[#4C5C77]">ETB</span>
+                  <input type="number" value={amount} min={100} max={50000}
+                    onChange={(e) => { const n = parseFloat(e.target.value); if (!isNaN(n)) setAmount(n); }}
+                    className="border-none outline-none px-3 py-2 text-sm w-full" style={{ fontFamily: "'Inter', sans-serif" }} />
+                </div>
+                <p className="text-xs mt-1.5" style={{ color: '#4C5C77' }}>Minimum deposit ETB 100 · maximum ETB 50,000 per transaction.</p>
+              </div>
+
+              <div className="mb-5">
+                <label className="block text-xs mb-2 font-medium" style={{ color: '#4C5C77' }}>
+                  <Phone className="w-3 h-3 inline mr-1" />Phone number (Telebirr)
+                </label>
+                <div className="flex items-center border border-[#DFE5F0] rounded-[10px] overflow-hidden bg-white">
+                  <span className="px-3 py-2 text-sm font-semibold border-r border-[#DFE5F0] bg-[#EEF2F9] text-[#4C5C77] whitespace-nowrap">+251</span>
+                  <input type="tel" value={phone} placeholder="9XXXXXXXX"
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="border-none outline-none px-3 py-2 text-sm w-full" style={{ fontFamily: "'Inter', sans-serif" }} />
+                </div>
+                <p className="text-xs mt-1.5" style={{ color: '#4C5C77' }}>Your registered Telebirr phone number.</p>
               </div>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-xs mb-2 font-medium" style={{ color: '#4C5C77' }}>Or enter a custom amount</label>
-              <div className="flex items-center border border-[#DFE5F0] rounded-[10px] overflow-hidden bg-white">
-                <span className="px-3 py-2.5 text-sm font-semibold border-r border-[#DFE5F0] bg-[#EEF2F9] text-[#4C5C77]">ETB</span>
-                <input type="number" value={amount} min={100} max={50000}
-                  onChange={(e) => { const n = parseFloat(e.target.value); if (!isNaN(n)) setAmount(n); }}
-                  className="border-none outline-none px-3 py-2.5 text-sm w-full" style={{ fontFamily: "'Inter', sans-serif" }} />
-              </div>
-              <p className="text-xs mt-1.5" style={{ color: '#4C5C77' }}>Minimum deposit ETB 100 · maximum ETB 50,000 per transaction.</p>
-            </div>
-
-            <div className="mb-5">
-              <label className="block text-xs mb-2 font-medium" style={{ color: '#4C5C77' }}>
-                <Phone className="w-3 h-3 inline mr-1" />Phone number (Telebirr)
-              </label>
-              <div className="flex items-center border border-[#DFE5F0] rounded-[10px] overflow-hidden bg-white">
-                <span className="px-3 py-2.5 text-sm font-semibold border-r border-[#DFE5F0] bg-[#EEF2F9] text-[#4C5C77] whitespace-nowrap">+251</span>
-                <input type="tel" value={phone} placeholder="9XXXXXXXX"
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  className="border-none outline-none px-3 py-2.5 text-sm w-full" style={{ fontFamily: "'Inter', sans-serif" }} />
-              </div>
-              <p className="text-xs mt-1.5" style={{ color: '#4C5C77' }}>Your registered Telebirr phone number.</p>
-            </div>
-
-            <div className="pt-4 border-t border-[#DFE5F0]">
-              <div className="flex justify-between text-sm py-1" style={{ color: '#4C5C77' }}><span>Deposit amount</span><span>{fmt(amount)}</span></div>
-              <div className="flex justify-between text-sm py-1" style={{ color: '#4C5C77' }}><span>Processing fee</span><span>ETB 0</span></div>
-              <div className="flex justify-between font-semibold pt-3 mt-2 border-t border-[#DFE5F0]" style={{ color: '#10213D' }}>
+            <div className="pt-3 border-t border-[#DFE5F0]">
+              <div className="flex justify-between text-sm py-0.5" style={{ color: '#4C5C77' }}><span>Deposit amount</span><span>{fmt(amount)}</span></div>
+              <div className="flex justify-between text-sm py-0.5" style={{ color: '#4C5C77' }}><span>Processing fee</span><span>ETB 0</span></div>
+              <div className="flex justify-between font-semibold pt-2 mt-1 border-t border-[#DFE5F0]" style={{ color: '#10213D' }}>
                 <span className="text-base">Total to pay</span>
                 <span className="text-xl" style={{ fontFamily: "'Space Grotesk', sans-serif", fontVariantNumeric: 'tabular-nums' }}>{fmt(amount)}</span>
               </div>
             </div>
           </div>
 
-          <div className="p-6 flex flex-col min-h-[460px]">
-            <div className="flex gap-2 mb-5">
-              <div className="flex-1 border rounded-[11px] px-3 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-[#0B4A8C] bg-[#E4EEFC] text-[#083761]">
-                <span className="w-4 h-4 rounded-[5px] shrink-0" style={{ background: '#0B4A8C' }} />
-                telebirr
+          <div className="p-4 sm:p-6 flex flex-col justify-between min-h-0">
+            <div>
+              <div className="flex gap-2 mb-4">
+                <div className="flex-1 border rounded-[11px] px-3 py-2 text-xs font-semibold flex items-center justify-center gap-2 border-[#0B4A8C] bg-[#E4EEFC] text-[#083761]">
+                  <span className="w-4 h-4 rounded-[5px] shrink-0" style={{ background: '#0B4A8C' }} />
+                  telebirr
+                </div>
+                <button className="flex-1 border rounded-[11px] px-3 py-2 text-xs font-semibold flex items-center justify-center gap-2 border-[#DFE5F0] bg-white text-[#4C5C77] cursor-default" disabled>
+                  <span className="w-4 h-4 rounded-[5px] shrink-0" style={{ background: '#C6CEDD' }} />PGO
+                </button>
+                <button className="flex-1 border rounded-[11px] px-3 py-2 text-xs font-semibold flex items-center justify-center gap-2 border-[#DFE5F0] bg-white text-[#4C5C77] cursor-default" disabled>
+                  <span className="w-4 h-4 rounded-[5px] shrink-0" style={{ background: '#C6CEDD' }} />Bank transfer
+                </button>
               </div>
-              <button className="flex-1 border rounded-[11px] px-3 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-[#DFE5F0] bg-white text-[#4C5C77] cursor-default" disabled>
-                <span className="w-4 h-4 rounded-[5px] shrink-0" style={{ background: '#C6CEDD' }} />PGO
-              </button>
-              <button className="flex-1 border rounded-[11px] px-3 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-[#DFE5F0] bg-white text-[#4C5C77] cursor-default" disabled>
-                <span className="w-4 h-4 rounded-[5px] shrink-0" style={{ background: '#C6CEDD' }} />Bank transfer
-              </button>
+
+              <div className="bg-white border border-[#DFE5F0] rounded-[14px] p-4 sm:p-5 flex flex-col">
+                {step === 'error' && (
+                  <div className="flex flex-col items-center text-center flex-1 justify-center gap-3 py-3">
+                    <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center mb-1 bg-[#FDECEA]">
+                      <AlertCircle className="w-6 h-6 text-[#D32F2F]" />
+                    </div>
+                    <h3 className="m-0 mb-1 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit failed</h3>
+                    <p className="m-0 text-sm max-w-[320px] break-all" style={{ color: '#4C5C77', wordBreak: 'break-word' }}>{errorMsg}</p>
+                    <button onClick={handleReset} className="w-full mt-3 border border-[#DFE5F0] rounded-[10px] px-4 py-2.5 text-sm font-semibold cursor-pointer transition-colors bg-white hover:bg-[#EEF2F9]" style={{ color: '#10213D' }}>Try again</button>
+                  </div>
+                )}
+
+                {(step === 'form' || step === 'processing') && (
+                  <>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit with telebirr</span>
+                    </div>
+                    <p className="text-xs sm:text-sm leading-relaxed mb-3" style={{ color: '#4C5C77' }}>
+                      You'll be redirected to telebirr to approve this payment. Adera Bet never sees or stores your telebirr PIN — you enter it only inside telebirr's own app or USSD session.
+                    </p>
+                    <div className="flex gap-2.5 items-start rounded-[10px] px-3.5 py-2.5 text-xs leading-relaxed mb-4 bg-[#E4EEFC] border border-[#DFE5F0] text-[#083761]">
+                      <Lock className="w-4 h-4 shrink-0 mt-0.5 text-[#0B4A8C]" />
+                      <span>After you tap continue, you'll see the telebirr PIN entry screen where you authorize the payment with your own PIN.</span>
+                    </div>
+
+                    {step === 'processing' && (
+                      <div className="flex flex-col items-center justify-center text-center gap-2.5 mb-3 py-2">
+                        <div className="w-9 h-9 rounded-full border-[3px] border-[#E4EEFC] border-t-[#0B4A8C] animate-spin" />
+                        <p className="text-xs sm:text-sm" style={{ color: '#4C5C77' }}>Contacting Telebirr...</p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
-            <div className="bg-white border border-[#DFE5F0] rounded-[14px] p-6 flex-1 flex flex-col">
-              {step === 'error' && (
-                <div className="flex flex-col items-center text-center flex-1 justify-center gap-3">
-                  <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center mb-1 bg-[#FDECEA]">
-                    <AlertCircle className="w-6 h-6 text-[#D32F2F]" />
-                  </div>
-                  <h3 className="m-0 mb-1 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit failed</h3>
-                  <p className="m-0 text-sm max-w-[320px] break-all" style={{ color: '#4C5C77', wordBreak: 'break-word' }}>{errorMsg}</p>
-                  <button onClick={handleReset} className="w-full mt-3 border border-[#DFE5F0] rounded-[10px] px-4 py-3 text-sm font-semibold cursor-pointer transition-colors bg-white hover:bg-[#EEF2F9]" style={{ color: '#10213D' }}>Try again</button>
-                </div>
-              )}
-
-              {(step === 'form' || step === 'processing') && (
-                <>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-semibold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit with telebirr</span>
-                  </div>
-                  <p className="text-sm leading-relaxed mb-4" style={{ color: '#4C5C77' }}>
-                    You'll be redirected to telebirr to approve this payment. Adera Bet never sees or stores your telebirr PIN — you enter it only inside telebirr's own app or USSD session.
-                  </p>
-                  <div className="flex gap-2.5 items-start rounded-[10px] px-3.5 py-3 text-xs leading-relaxed mb-5 bg-[#E4EEFC] border border-[#DFE5F0] text-[#083761]">
-                    <Lock className="w-4 h-4 shrink-0 mt-0.5 text-[#0B4A8C]" />
-                    <span>After you tap continue, you'll see the telebirr PIN entry screen where you authorize the payment with your own PIN.</span>
-                  </div>
-
-                  {step === 'processing' && (
-                    <div className="flex flex-col items-center justify-center text-center gap-3 mb-4 py-4">
-                      <div className="w-10 h-10 rounded-full border-[3px] border-[#E4EEFC] border-t-[#0B4A8C] animate-spin" />
-                      <p className="text-sm" style={{ color: '#4C5C77' }}>Contacting Telebirr...</p>
-                    </div>
-                  )}
-
-                  <button
-                    onClick={handleContinue}
-                    disabled={step === 'processing'}
-                    className="w-full border-none rounded-[10px] px-4 py-3 text-sm font-semibold text-white mt-auto transition-colors disabled:opacity-50"
-                    style={{ background: '#0B4A8C', fontFamily: "'Space Grotesk', sans-serif", cursor: step === 'processing' ? 'wait' : 'pointer' }}
-                  >
-                    {step === 'processing' ? 'Connecting...' : `Continue to telebirr — ${fmt(amount)}`}
-                  </button>
-                </>
-              )}
+            <div className="pt-3 mt-auto">
+              <button
+                onClick={handleContinue}
+                disabled={step === 'processing'}
+                className="w-full border-none rounded-[10px] px-4 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-50 cursor-pointer shadow-xs hover:brightness-105"
+                style={{ background: '#0B4A8C', fontFamily: "'Space Grotesk', sans-serif", cursor: step === 'processing' ? 'wait' : 'pointer' }}
+              >
+                {step === 'processing' ? 'Connecting...' : `Continue to telebirr — ${fmt(amount)}`}
+              </button>
             </div>
           </div>
         </div>

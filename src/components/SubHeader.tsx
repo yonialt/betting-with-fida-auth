@@ -17,6 +17,9 @@ export const SubHeader: React.FC = () => {
     setSearchQuery,
     activeCenterView,
     setActiveCenterView,
+    isBetSlipCollapsed,
+    setIsBetSlipCollapsed,
+    betSlip,
   } = useBetting();
 
   const tabs: { id: SubTabId; label: string; icon?: string }[] = [

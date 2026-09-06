@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { SplashScreen } from './SplashScreen';
+import { useBetting } from '../context/BettingContext';
 
 interface VerificationResult {
   verified: boolean;
@@ -16,7 +17,7 @@ interface VerificationResult {
  * Dark teal/cyan (#1a3a4a) + white + gold accents
  */
 export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
+  const { ageVerified, markAgeVerified } = useBetting();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [faydaId, setFaydaId] = useState<string>('');
   const [splashDone, setSplashDone] = useState<boolean>(false);
@@ -28,62 +29,17 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string>('');
 
+  // Whenever the gate is showing (first visit or right after logout), reset the
+  // splash + form state so it behaves like a fresh gate and the splash replays
+  // after the next successful verification.
   useEffect(() => {
-    let cancelled = false;
-
-    async function init() {
-      try {
-        let token = localStorage.getItem('fidabet_token');
-        if (!token) {
-          const loginRes = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: 'Player_8831', password: 'password123' }),
-          });
-          if (loginRes.ok) {
-            const data = await loginRes.json();
-            token = data.token;
-            if (token) {
-              localStorage.setItem('fidabet_token', token);
-              if (data.refreshToken) localStorage.setItem('fidabet_refresh_token', data.refreshToken);
-            }
-          }
-        }
-
-        if (cancelled) return;
-
-        if (token) {
-          const statusRes = await fetch('/api/age-verification/status', {
-            headers: { 'Authorization': `Bearer ${token}` },
-          });
-          if (statusRes.ok) {
-            const data = await statusRes.json();
-            if (!cancelled) {
-              setIsVerified(data.verified);
-              if (data.verified) {
-                setResult({
-                  verified: true,
-                  status: 'VERIFIED',
-                  message: data.latestVerification?.reason || 'Age verified',
-                  age: data.latestVerification?.age,
-                });
-              }
-            }
-          } else {
-            if (!cancelled) setIsVerified(false);
-          }
-        } else {
-          if (!cancelled) setIsVerified(false);
-        }
-      } catch (err) {
-        console.error('[AgeGate] Init error:', err);
-        if (!cancelled) setIsVerified(false);
-      }
+    if (!ageVerified) {
+      setSplashDone(false);
+      setResult(null);
+      setError('');
+      setFaydaId('');
     }
-
-    init();
-    return () => { cancelled = true; };
-  }, []);
+  }, [ageVerified]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,35 +55,11 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
     setIsSubmitting(true);
 
     try {
-      let token = localStorage.getItem('fidabet_token');
-      if (!token) {
-        const loginRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'Player_8831', password: 'password123' }),
-        });
-        if (loginRes.ok) {
-          const loginData = await loginRes.json();
-          token = loginData.token;
-          if (token) {
-            localStorage.setItem('fidabet_token', token);
-            if (loginData.refreshToken) localStorage.setItem('fidabet_refresh_token', loginData.refreshToken);
-          }
-        }
-      }
-
-      if (!token) {
-        setError('Authentication failed. Please refresh and try again.');
-        setIsSubmitting(false);
-        return;
-      }
-
+      // Guest-first flow: age verification happens before login, so no auth
+      // token is sent. The backend does not require one for these endpoints.
       const res = await fetch('/api/age-verification/verify', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ faydaId: cleanId }),
       });
 
@@ -135,7 +67,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
       setResult(data);
 
       if (data.status === 'VERIFIED' || data.status === 'ALREADY_VERIFIED') {
-        setIsVerified(true);
+        markAgeVerified();
       }
     } catch (err) {
       console.error('[AgeGate] Verify error:', err);
@@ -149,41 +81,16 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
     setIsSubmitting(true);
     setError('');
     try {
-      let token = localStorage.getItem('fidabet_token');
-      if (!token) {
-        const loginRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'Player_8831', password: 'password123' }),
-        });
-        if (loginRes.ok) {
-          const loginData = await loginRes.json();
-          token = loginData.token;
-          if (token) {
-            localStorage.setItem('fidabet_token', token);
-            if (loginData.refreshToken) localStorage.setItem('fidabet_refresh_token', loginData.refreshToken);
-          }
-        }
-      }
-
-      if (!token) {
-        setError('Authentication failed.');
-        setIsSubmitting(false);
-        return;
-      }
-
+      // Guest-first flow: no auth token is required for the demo skip either.
       const res = await fetch('/api/age-verification/skip-demo', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const data = await res.json();
       setResult(data);
       if (data.status === 'VERIFIED') {
-        setIsVerified(true);
+        markAgeVerified();
       }
     } catch (err) {
       console.error('[AgeGate] Skip error:', err);
@@ -193,20 +100,8 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  // Loading state
-  if (isVerified === null) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a3a4a 0%, #0f2a36 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Loader2 style={{ width: 48, height: 48, color: '#80cbc4', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Checking verification status...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Already verified — show splash then app
-  if (isVerified) {
+  // Already verified (this session) — show splash then app
+  if (ageVerified) {
     if (!splashDone) {
       return <SplashScreen onComplete={handleSplashComplete} />;
     }

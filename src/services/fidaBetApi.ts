@@ -49,40 +49,11 @@ class FidaBetApiClient {
 
     let response = await doFetch(this.token || undefined);
 
-    // Handle 401 or 403 — token expired or invalid → re-authenticate
+    // Invalid or expired token: clear the stored session and surface the error.
+    // Never silently re-authenticate or auto-login on the user's behalf.
     if (response.status === 401 || response.status === 403) {
-      console.log(`[API] Got ${response.status} on ${endpoint}, attempting re-auth...`);
-
-      // Try refresh token first
-      if (this.refreshToken && !endpoint.includes('/auth/')) {
-        try {
-          const refreshed = await this.refreshAuthToken();
-          if (refreshed) {
-            response = await doFetch(this.token!);
-            if (response.ok) {
-              return response.json();
-            }
-          }
-        } catch {}
-      }
-
-      // Refresh failed — re-login with credentials
-      try {
-        console.log('[API] Re-logging in...');
-        const loginResp = await fetch(`${API_BASE_URL}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'Player_8831', password: 'password123' }),
-        });
-        if (loginResp.ok) {
-          const loginData = await loginResp.json();
-          if (loginData.token) {
-            this.setTokens(loginData.token, loginData.refreshToken);
-            console.log('[API] Re-auth successful, retrying request...');
-            response = await doFetch(loginData.token);
-          }
-        }
-      } catch {}
+      console.log(`[API] Session rejected with ${response.status} on ${endpoint}; clearing stored token.`);
+      this.clearTokens();
     }
 
     if (!response.ok) {
@@ -95,24 +66,6 @@ class FidaBetApiClient {
     }
 
     return response.json();
-  }
-
-  private async refreshAuthToken(): Promise<boolean> {
-    try {
-      const resp = await fetch(`${API_BASE_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: this.refreshToken }),
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        this.setTokens(data.token, data.refreshToken);
-        return true;
-      }
-    } catch {
-      this.clearTokens();
-    }
-    return false;
   }
 
   // --- Auth API ---
@@ -136,6 +89,13 @@ class FidaBetApiClient {
       this.setTokens(data.token, data.refreshToken);
     }
     return data;
+  }
+
+  // --- Session (restore on reload) ---
+  // Returns { token, user } only when the stored token is still accepted by
+  // the backend; throws (after clearing the token) otherwise.
+  public async getSession() {
+    return this.request<any>('/auth/session');
   }
 
   // --- User Profile & KYC ---

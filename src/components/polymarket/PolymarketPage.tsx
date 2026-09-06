@@ -107,6 +107,7 @@ export const PolymarketPage: React.FC = () => {
               <PolymarketAllMarketsGrid
                 onSelectOutcome={handleSelectOutcome}
                 searchFilter={searchQuery}
+                categoryFilter={activeCategory}
               />
             </div>
           </>
@@ -116,6 +117,7 @@ export const PolymarketPage: React.FC = () => {
             <PolymarketAllMarketsGrid
               onSelectOutcome={handleSelectOutcome}
               searchFilter={searchQuery}
+              categoryFilter={activeCategory}
             />
           </div>
         )}

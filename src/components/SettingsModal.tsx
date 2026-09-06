@@ -79,6 +79,21 @@ export const SettingsModal: React.FC = () => {
             </label>
           </div>
 
+          <div className="pt-2 border-t border-neutral-200 flex items-center justify-between text-xs">
+            <span className="text-neutral-500 font-medium">Developer & Engine:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setSettingsModalOpen(false);
+                window.history.pushState({}, '', '/admin');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+            >
+              Open Admin Console (/admin) →
+            </button>
+          </div>
+
           <button
             onClick={() => setSettingsModalOpen(false)}
             className="w-full py-2 bg-[#ffc600] hover:bg-[#f0ba00] text-black font-extrabold text-xs rounded transition-colors uppercase tracking-wider"
