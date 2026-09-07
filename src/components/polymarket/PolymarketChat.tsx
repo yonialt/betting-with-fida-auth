@@ -219,22 +219,47 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
     // If in #ai-oracle channel or user mentioned @ai, provide instant intelligent oracle response
     if (activeChannel === '#ai-oracle' || userText.toLowerCase().includes('@ai') || userText.toLowerCase().includes('oracle')) {
       setAiThinking(true);
-      setTimeout(() => {
-        setAiThinking(false);
-        const aiResponse: ChatMessage = {
-          id: `ai-${Date.now()}`,
-          sender: 'Polymarket AI Oracle',
-          avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
-          badge: 'AI Oracle',
-          badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-          text: generateAiAnalysis(userText),
-          channel: activeChannel,
-          timestamp: 'Just now',
-          isAi: true,
-          reactions: { '🎯': 3, '⚡': 2 },
-        };
-        setMessages((prev) => [...prev, aiResponse]);
-      }, 1200);
+      fetch('/api/ai/oracle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: userText,
+          marketContext: selectedMarket?.title || 'Polymarket prediction events',
+        }),
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          setAiThinking(false);
+          const aiResponse: ChatMessage = {
+            id: `ai-${Date.now()}`,
+            sender: 'Polymarket AI Oracle',
+            avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
+            badge: 'AI Oracle',
+            badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
+            text: data?.analysis || generateAiAnalysis(userText),
+            channel: activeChannel,
+            timestamp: 'Just now',
+            isAi: true,
+            reactions: { '🎯': 3, '⚡': 2 },
+          };
+          setMessages((prev) => [...prev, aiResponse]);
+        })
+        .catch(() => {
+          setAiThinking(false);
+          const aiResponse: ChatMessage = {
+            id: `ai-${Date.now()}`,
+            sender: 'Polymarket AI Oracle',
+            avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
+            badge: 'AI Oracle',
+            badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
+            text: generateAiAnalysis(userText),
+            channel: activeChannel,
+            timestamp: 'Just now',
+            isAi: true,
+            reactions: { '🎯': 3, '⚡': 2 },
+          };
+          setMessages((prev) => [...prev, aiResponse]);
+        });
     }
   };
 

@@ -7,6 +7,11 @@ export interface PolymarketOutcome {
   badge?: string;
   change?: string;
   volume?: string;
+  avatar?: string;
+  logoType?: string;
+  buttonTheme?: string;
+  shortName?: string;
+  countryFlag?: string;
 }
 
 export interface PolymarketChartSeries {
@@ -21,6 +26,19 @@ export interface PolymarketChartData {
   series: PolymarketChartSeries[];
 }
 
+export interface PolymarketComment {
+  id: string;
+  author: string;
+  avatar?: string;
+  timeAgo: string;
+  text: string;
+  likes: number;
+  badge?: string;
+  verified?: boolean;
+  sharesOutcome?: string;
+  replies?: PolymarketComment[];
+}
+
 export interface PolymarketMarket {
   id: string;
   title: string;
@@ -30,17 +48,26 @@ export interface PolymarketMarket {
   iconBg?: string;
   imageUrl?: string;
   avatarUrl?: string;
+  countryFlag?: string;
   volume: string;
   displayType:
     | 'chart_hero'
     | 'up_down_btc'
     | 'versus_match'
+    | 'match_versus'
     | 'binary_buttons'
     | 'multi_outcome'
+    | 'football_match'
     | string;
   isLive?: boolean;
   liveTag?: string;
+  hasRepeat?: boolean;
+  hasGift?: boolean;
+  gaugePercent?: number;
+  gaugeLabel?: string;
+  logoType?: string;
   timeInfo?: string;
+  timeRange?: string;
   outcomes: PolymarketOutcome[];
   chartData?: PolymarketChartData;
   commentsCount?: number;
@@ -48,6 +75,22 @@ export interface PolymarketMarket {
   endDate?: string;
   slug?: string;
   active?: boolean;
+  // Detail page specifics
+  rulesText?: string;
+  resolutionSource?: string;
+  resolutionSourceUrl?: string;
+  resolverAddress?: string;
+  marketOpened?: string;
+  priceToBeat?: number;
+  currentPrice?: number;
+  targetPrice?: number;
+  timerMins?: number;
+  timerSecs?: number;
+  orderBookVolume?: string;
+  commentsList?: PolymarketComment[];
+  scoreHome?: number;
+  scoreAway?: number;
+  matchStatus?: string;
 }
 
 export interface PolymarketHotTopic {
@@ -60,6 +103,7 @@ export interface PolymarketHotTopic {
 export interface PolymarketTradeState {
   market: PolymarketMarket;
   outcome?: PolymarketOutcome;
-  side: 'yes' | 'no' | 'team1' | 'team2' | string;
+  side: 'yes' | 'no' | 'team1' | 'team2' | 'up' | 'down' | string;
   price?: number;
 }
+

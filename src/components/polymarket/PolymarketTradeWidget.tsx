@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
+import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
 
 interface PolymarketTradeWidgetProps {
   market: PolymarketMarket;
@@ -14,7 +15,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
   onTradeExecuted,
   className = '',
 }) => {
-  const { placeBet, user } = useBetting();
+  const { placeBet, user, language } = useBetting();
   const [orderSide, setOrderSide] = useState<'buy' | 'sell'>('buy');
   const [selectedOutcomeSide, setSelectedOutcomeSide] = useState<'yes' | 'no'>('yes');
   const [orderType, setOrderType] = useState<'Market' | 'Limit'>('Market');
@@ -98,11 +99,11 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           {/* Titles */}
           <div className="min-w-0 flex-1">
             <h4 className="text-xs text-neutral-300 font-medium truncate">
-              {market.title}
+              {translateMarketTitle(market.title, language)}
             </h4>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-xs font-bold text-white truncate">
-                {activeOutcome.name}
+                {translateOutcomeName(activeOutcome.name, language)}
               </span>
               <span className="text-neutral-500 font-bold">·</span>
               <span
@@ -110,7 +111,9 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                   selectedOutcomeSide === 'yes' ? 'text-emerald-400' : 'text-rose-400'
                 }`}
               >
-                {selectedOutcomeSide === 'yes' ? 'Yes' : 'No'}
+                {selectedOutcomeSide === 'yes'
+                  ? (language === 'am' ? 'አዎ' : 'Yes')
+                  : (language === 'am' ? 'አይ' : 'No')}
               </span>
             </div>
           </div>
@@ -127,7 +130,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              Buy
+              {t('buy', language, 'Buy')}
             </button>
             <button
               onClick={() => setOrderSide('sell')}
@@ -137,7 +140,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              Sell
+              {t('sell', language, 'Sell')}
             </button>
           </div>
 
@@ -147,7 +150,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
               onClick={() => setShowOrderTypeMenu(!showOrderTypeMenu)}
               className="flex items-center gap-1 text-xs text-neutral-300 hover:text-white font-semibold py-1 px-2 rounded-lg bg-[#1a2232] border border-[#2e3b52] transition-colors cursor-pointer"
             >
-              <span>{orderType}</span>
+              <span>{orderType === 'Market' ? (language === 'am' ? 'ገበያ' : 'Market') : (language === 'am' ? 'ወሰን' : 'Limit')}</span>
               <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
             </button>
 
@@ -160,7 +163,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                   }}
                   className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[#253248] font-medium flex items-center justify-between cursor-pointer"
                 >
-                  <span>Market</span>
+                  <span>{language === 'am' ? 'ገበያ' : 'Market'}</span>
                   {orderType === 'Market' && <Check className="w-3 h-3 text-emerald-400" />}
                 </button>
                 <button
@@ -170,7 +173,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                   }}
                   className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[#253248] font-medium flex items-center justify-between cursor-pointer"
                 >
-                  <span>Limit</span>
+                  <span>{language === 'am' ? 'ወሰን' : 'Limit'}</span>
                   {orderType === 'Limit' && <Check className="w-3 h-3 text-emerald-400" />}
                 </button>
               </div>
@@ -189,7 +192,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                 : 'bg-[#1b2434] hover:bg-[#222d42] text-neutral-400 border border-[#2e3d55]'
             }`}
           >
-            <span>Yes</span>
+            <span>{translateOutcomeName('Yes', language)}</span>
             <span className="font-extrabold">{yesPrice}¢</span>
           </button>
 
@@ -202,7 +205,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                 : 'bg-[#1b2434] hover:bg-[#222d42] text-neutral-400 border border-[#2e3d55]'
             }`}
           >
-            <span>No</span>
+            <span>{translateOutcomeName('No', language)}</span>
             <span className="font-extrabold">{noPrice}¢</span>
           </button>
         </div>
@@ -210,23 +213,28 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
         {/* 4. Amount Input Section */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-neutral-400">Amount</span>
-            <div className="flex items-center gap-1">
+            <span className="text-sm font-semibold text-neutral-400">
+              {t('amount', language, 'Amount')} ({language === 'am' ? 'ብር' : 'Birr'})
+            </span>
+            <div className="flex items-center gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold font-mono text-white">
-                ${amount}
+                {amount}
+              </span>
+              <span className="text-xs font-bold text-amber-400 font-mono self-end mb-1">
+                {language === 'am' ? 'ብር' : 'Birr'}
               </span>
             </div>
           </div>
 
           {/* Quick Increment Chips */}
           <div className="flex items-center justify-end gap-1.5">
-            {[1, 5, 10, 100].map((val) => (
+            {[10, 50, 100, 500].map((val) => (
               <button
                 key={val}
                 onClick={() => handleQuickAdd(val)}
                 className="px-2.5 py-1 rounded-lg bg-[#1a2232] hover:bg-[#253248] text-neutral-300 hover:text-white border border-[#2e3b52] text-xs font-semibold font-mono transition-all active:scale-95 cursor-pointer"
               >
-                +${val}
+                +{val} {language === 'am' ? 'ብር' : 'Birr'}
               </button>
             ))}
             {amount > 0 && (
@@ -245,16 +253,18 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
         {amount > 0 && (
           <div className="bg-[#171f2d] border border-[#26354a] rounded-xl p-2.5 mb-4 text-xs space-y-1">
             <div className="flex items-center justify-between text-neutral-400">
-              <span>Avg Price:</span>
+              <span>{t('avg_price', language, 'Avg Price:')}</span>
               <span className="font-mono font-bold text-white">{currentPrice}¢</span>
             </div>
             <div className="flex items-center justify-between text-neutral-400">
-              <span>Shares:</span>
+              <span>{t('shares', language, 'Shares:')}</span>
               <span className="font-mono font-bold text-emerald-400">{calculatedShares}</span>
             </div>
             <div className="flex items-center justify-between text-neutral-400">
-              <span>Potential Return:</span>
-              <span className="font-mono font-bold text-emerald-400">${potentialReturn} ({(100 - currentPrice).toFixed(0)}% profit)</span>
+              <span>{t('potential_return', language, 'Potential Return:')}</span>
+              <span className="font-mono font-bold text-emerald-400">
+                {potentialReturn} {language === 'am' ? 'ብር' : 'Birr'} ({(100 - currentPrice).toFixed(0)}%{language === 'am' ? ' ትርፍ' : ' profit'})
+              </span>
             </div>
           </div>
         )}
@@ -274,22 +284,25 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           {isSubmitting ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Executing Order...
+              {language === 'am' ? 'ትዕዛዝ በማስኬድ ላይ...' : 'Executing Order...'}
             </span>
           ) : tradeSuccess ? (
             <span className="flex items-center gap-2">
               <Check className="w-5 h-5" />
-              Order Placed!
+              {language === 'am' ? 'ትዕዛዝ ተጠናቋል!' : 'Order Placed!'}
             </span>
           ) : (
-            <span>Trade</span>
+            <span>{t('trade', language, 'Trade')}</span>
           )}
         </button>
 
         {/* 6. Terms Disclaimer */}
         <p className="text-[11px] text-neutral-500 text-center mt-3">
-          By trading, you agree to the{' '}
-          <span className="underline hover:text-neutral-400 cursor-pointer">Terms of Use</span>.
+          {language === 'am' ? (
+            <>በመገበያየት <span className="underline hover:text-neutral-400 cursor-pointer">የአጠቃቀም ደንቦችን</span> ተስማምተዋል።</>
+          ) : (
+            <>By trading, you agree to the <span className="underline hover:text-neutral-400 cursor-pointer">Terms of Use</span>.</>
+          )}
         </p>
       </div>
 

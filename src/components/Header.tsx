@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Flame,
   Zap,
@@ -8,11 +8,12 @@ import {
   Tv,
   Video,
   Settings,
-  Globe,
   ChevronDown,
   User,
   Wallet,
   LogOut,
+  Plus,
+  Check,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
@@ -27,20 +28,7 @@ export const Header: React.FC = () => {
     setAppMode,
   } = useBetting();
 
-  const [timeString, setTimeString] = useState<string>('02:50');
   const [activeNavTab, setActiveNavTab] = useState<string>('live');
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
-      setTimeString(`${hours}:${mins}`);
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Shared presentation for the top-level category items: uniform type,
   // single-color icons, one accent for active/hover (no per-category colors).
@@ -88,26 +76,77 @@ export const Header: React.FC = () => {
           {/* User Account / LOG IN Button */}
           {user.isLoggedIn ? (
             <>
-              <button
-                id="btn-deposit"
-                onClick={() => setDepositModalOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded transition-colors cursor-pointer shadow-xs"
+              {/* Modern Connected Wallet & Balance Capsule */}
+              <div
+                id="header-balance-wallet-pill"
+                className="flex items-center rounded-full bg-[#0d1723]/90 hover:bg-[#121f2f] border border-neutral-700/70 hover:border-emerald-500/50 p-0.5 transition-all shadow-inner group"
               >
-                <Wallet className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">DEPOSIT</span>
-              </button>
+                {/* Balance Display (opens Wallet modal on click) */}
+                <button
+                  type="button"
+                  onClick={() => setLoginModalOpen(true)}
+                  className="flex items-center gap-1.5 pl-2.5 pr-2 py-0.5 text-left cursor-pointer focus:outline-none"
+                  title="Wallet balance — click for details"
+                >
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                    <Wallet className="w-2.5 h-2.5 text-emerald-400" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-mono font-extrabold text-[12.5px] text-white tracking-tight">
+                      {user.balance.toLocaleString()}
+                    </span>
+                    <span className="text-[9.5px] font-bold text-emerald-400 uppercase tracking-wider">
+                      {user.currency}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Modern Quick Deposit Action Button */}
+                <button
+                  id="btn-deposit"
+                  onClick={() => setDepositModalOpen(true)}
+                  className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[10.5px] font-extrabold rounded-full transition-all shadow-xs active:scale-95 cursor-pointer ml-0.5"
+                  title="Deposit Funds"
+                >
+                  <Plus className="w-3 h-3 stroke-[3]" />
+                  <span className="hidden md:inline">DEPOSIT</span>
+                </button>
+              </div>
+
+              {/* Modern User Profile Capsule */}
               <div
                 id="btn-user-profile"
                 onClick={() => setLoginModalOpen(true)}
-                className="flex items-center gap-2 bg-[#101822] hover:bg-[#16202c] border border-neutral-700 rounded px-2.5 py-1 cursor-pointer transition-colors"
+                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-gradient-to-r from-[#131f2d] to-[#0d1622] hover:from-[#192738] hover:to-[#121c2b] border border-white/10 hover:border-cyan-500/40 cursor-pointer transition-all shadow-sm group select-none"
+                title="Account Profile & Settings"
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-200">
-                  <span className="font-mono text-emerald-400">{user.balance.toLocaleString()} {user.currency}</span>
+                {/* Modern Geometric / Monogram Avatar (No person photo or skin tone) */}
+                <div className="relative shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-1.5 ring-white/20 group-hover:ring-cyan-400/60 transition-all">
+                    {user.username ? (
+                      <span className="leading-none select-none tracking-tight font-mono">
+                        {user.username.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-white stroke-[2.2]" />
+                    )}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0d1622]" />
                 </div>
-                <div className="w-px h-3.5 bg-neutral-700"></div>
-                <div className="flex items-center">
-                  <img src="/profile-avatar.png" alt="Profile" className="w-7 h-7 rounded-full object-cover" />
+
+                <div className="hidden sm:flex flex-col text-left leading-none">
+                  <span className="text-[11.5px] font-extrabold text-white group-hover:text-cyan-300 transition-colors truncate max-w-[90px]">
+                    {user.username || 'Account'}
+                  </span>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="inline-flex items-center gap-0.5 text-[8.5px] font-extrabold text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded border border-emerald-500/20 uppercase tracking-wide">
+                      <Check className="w-2 h-2 stroke-[3]" />
+                      Verified
+                    </span>
+                  </div>
                 </div>
+
+                <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:text-white transition-transform group-hover:translate-y-0.5 shrink-0 ml-0.5" />
               </div>
 
               {/* Log out / switch account */}
@@ -115,10 +154,9 @@ export const Header: React.FC = () => {
                 id="btn-logout"
                 onClick={logout}
                 title="Log out"
-                className="flex items-center gap-1.5 text-xs font-bold text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-md hover:bg-neutral-800 transition-colors cursor-pointer"
+                className="p-1.5 text-neutral-400 hover:text-rose-300 hover:bg-neutral-800/90 rounded-full transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Log out</span>
               </button>
             </>
           ) : (
@@ -149,17 +187,6 @@ export const Header: React.FC = () => {
           >
             <Settings className="w-4 h-4" />
           </button>
-
-          {/* Language & Time Display */}
-          <div
-            id="language-time-indicator"
-            onClick={() => setSettingsModalOpen(true)}
-            className="hidden sm:flex items-center gap-1 text-xs font-semibold text-neutral-300 cursor-pointer hover:text-white px-1.5 py-1 rounded hover:bg-neutral-800 transition-colors"
-          >
-            <Globe className="w-3.5 h-3.5 text-neutral-400" />
-            <span className="font-bold">EN</span>
-            <span className="font-mono text-neutral-400 text-[11px]">{timeString}</span>
-          </div>
         </div>
       </div>
 

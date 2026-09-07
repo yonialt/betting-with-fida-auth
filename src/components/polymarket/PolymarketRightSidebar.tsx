@@ -10,6 +10,8 @@ import { POLYMARKET_HOT_TOPICS, POLYMARKET_HERO } from '../../data/polymarketDat
 import { PolymarketChat } from './PolymarketChat';
 import { PolymarketTradeWidget } from './PolymarketTradeWidget';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
+import { useBetting } from '../../context/BettingContext';
+import { formatBirrVolume } from '../../data/polymarketTranslations';
 
 interface PolymarketRightSidebarProps {
   onOpenPerps: () => void;
@@ -26,6 +28,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
   selectedMarket,
   onSelectOutcome,
 }) => {
+  const { language } = useBetting();
   const [activeSecondaryTab, setActiveSecondaryTab] = useState<'trade' | 'chat' | 'topics'>('trade');
   const displayMarket = selectedMarket || POLYMARKET_HERO;
 
@@ -50,7 +53,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
           }`}
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          <span>Live Chat</span>
+          <span>{language === 'am' ? 'ቀጥታ ውይይት' : 'Live Chat'}</span>
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-0.5" />
         </button>
 
@@ -63,7 +66,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
           }`}
         >
           <Flame className="w-3.5 h-3.5 text-orange-400" />
-          <span>Hot Topics</span>
+          <span>{language === 'am' ? 'ተወዳጅ ርዕሶች' : 'Hot Topics'}</span>
         </button>
 
         <button
@@ -91,7 +94,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
         <div className="w-full bg-[#121824] border border-[#1e293b] rounded-2xl p-4 text-white shadow-xl">
           <div className="flex items-center justify-between mb-3 cursor-pointer group">
             <div className="flex items-center gap-1.5 font-bold text-sm text-neutral-200 group-hover:text-blue-400 transition-colors">
-              <span>Hot topics</span>
+              <span>{language === 'am' ? 'ተወዳጅ ርዕሶች' : 'Hot topics'}</span>
               <ChevronRight className="w-4 h-4 text-neutral-500 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </div>
@@ -114,7 +117,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
 
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-neutral-400 font-mono">
-                    {topic.volume}
+                    {formatBirrVolume(topic.volume, language)}
                   </span>
                   <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
                 </div>
@@ -126,7 +129,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
             onClick={() => onSelectTopic('All')}
             className="mt-3 w-full py-2 bg-[#1a2334] hover:bg-[#253248] text-neutral-200 text-xs font-bold rounded-xl transition-colors cursor-pointer border border-[#2e3b52]"
           >
-            Explore all
+            {language === 'am' ? 'ሁሉንም አስስ' : 'Explore all'}
           </button>
         </div>
       )}

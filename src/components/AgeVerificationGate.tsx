@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Loader2, AlertTriangle, Eye, EyeOff, Globe } from 'lucide-react';
 import { SplashScreen } from './SplashScreen';
 import { useBetting } from '../context/BettingContext';
 
@@ -12,12 +12,82 @@ interface VerificationResult {
   dateOfBirth?: string;
 }
 
+type Lang = 'en' | 'am';
+
+const translations = {
+  en: {
+    title: 'Age Verification',
+    description: (
+      <>
+        Ethiopian law requires all betting users to be 18 years or older.<br />
+        Verify your identity using Fayda, the national digital ID.
+      </>
+    ),
+    idLabel: 'Fayda ID Number',
+    idPlaceholder: 'Enter your 12-digit Fayda ID',
+    idHelper: 'Your Fayda ID is the 12-digit number on your national digital ID card.',
+    verifyBtn: 'Verify Age',
+    verifyingBtn: 'Verifying with Fayda...',
+    skipDemo: 'Demo: Skip verification (development only)',
+    successTitle: 'Verification Successful',
+    verifiedAge: (age: number) => `Verified age: ${age} years`,
+    failedTitle: 'Age Verification Failed',
+    failedSub: 'You must be 18 or older to use this platform.',
+    errDigits: 'Fayda ID must be exactly 12 digits',
+    errConnect: 'Failed to connect to verification service. Please try again.',
+    errSkip: 'Failed to skip verification.',
+    poweredBy: 'Powered by',
+    nationalId: 'Fayda National Digital ID',
+  },
+  am: {
+    title: 'የዕድሜ ማረጋገጫ',
+    description: (
+      <>
+        የኢትዮጵያ ሕግ ሁሉም የውርርድ ተጠቃሚዎች ዕድሜያቸው 18 ዓመት ወይም ከዚያ በላይ መሆን እንዳለበት ይደነግጋል።<br />
+        ማንነትዎን በፋይዳ ብሔራዊ ዲጂታል መታወቂያ ያረጋግጡ።
+      </>
+    ),
+    idLabel: 'የፋይዳ መታወቂያ ቁጥር',
+    idPlaceholder: 'የ12 አሃዝ ፋይዳ መታወቂያዎን ያስገቡ',
+    idHelper: 'የእርስዎ የፋይዳ መታወቂያ በብሔራዊ ዲጂታል መታወቂያ ካርድዎ ላይ ያለው ባለ 12 አሃዝ ቁጥር ነው።',
+    verifyBtn: 'ዕድሜ ያረጋግጡ',
+    verifyingBtn: 'በፋይዳ በማረጋገጥ ላይ...',
+    skipDemo: 'ዴሞ፡ ማረጋገጫውን ይለፉ (ለሙከራ ብቻ)',
+    successTitle: 'ማረጋገጫው ተሳክቷል',
+    verifiedAge: (age: number) => `የተረጋገጠ ዕድሜ፡ ${age} ዓመት`,
+    failedTitle: 'የዕድሜ ማረጋገጫ አልተሳካም',
+    failedSub: 'ይህንን መድረክ ለመጠቀም 18 ዓመት ወይም ከዚያ በላይ መሆን አለብዎት።',
+    errDigits: 'የፋይዳ መታወቂያ በትክክል 12 አሃዝ መሆን አለበት',
+    errConnect: 'ከማረጋገጫ አገልግሎት ጋር መገናኘት አልተቻለም። እባክዎ እንደገና ይሞክሩ።',
+    errSkip: 'ማረጋገጫውን ማለፍ አልተቻለም።',
+    poweredBy: 'በፋይዳ የቀረበ',
+    nationalId: 'ፋይዳ ብሔራዊ ዲጂታል መታወቂያ',
+  },
+};
+
 /**
  * Age Verification Gate — styled to match Fayda Partner Portal theme
  * Dark teal/cyan (#1a3a4a) + white + gold accents
  */
 export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { ageVerified, markAgeVerified } = useBetting();
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('fidabet_gate_lang');
+      if (saved === 'am' || saved === 'en') return saved;
+    }
+    return 'en';
+  });
+
+  const handleLanguageToggle = (newLang: Lang) => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fidabet_gate_lang', newLang);
+    }
+  };
+
+  const t = translations[lang];
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [faydaId, setFaydaId] = useState<string>('');
   const [splashDone, setSplashDone] = useState<boolean>(false);
@@ -48,7 +118,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
 
     const cleanId = faydaId.replace(/\s/g, '');
     if (!/^\d{12}$/.test(cleanId)) {
-      setError('Fayda ID must be exactly 12 digits');
+      setError(t.errDigits);
       return;
     }
 
@@ -71,7 +141,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
       }
     } catch (err) {
       console.error('[AgeGate] Verify error:', err);
-      setError('Failed to connect to verification service. Please try again.');
+      setError(t.errConnect);
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +164,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
       }
     } catch (err) {
       console.error('[AgeGate] Skip error:', err);
-      setError('Failed to skip verification.');
+      setError(t.errSkip);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,6 +190,66 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
       fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
     }}>
       <div style={{ maxWidth: 440, width: '100%' }}>
+        {/* Language Switcher Toggle */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <div
+            id="fayda-language-switch-bar"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'rgba(0, 0, 0, 0.28)',
+              padding: '4px 6px',
+              borderRadius: 24,
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.25)',
+              marginLeft: 0,
+              marginTop: 0,
+              marginRight: -400,
+            }}
+          >
+            <Globe size={14} style={{ color: 'rgba(255,255,255,0.75)', marginLeft: 6, marginRight: 2 }} />
+            <button
+              type="button"
+              id="fayda-lang-en-toggle"
+              onClick={() => handleLanguageToggle('en')}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 16,
+                border: 'none',
+                fontSize: 12,
+                fontWeight: lang === 'en' ? 700 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: lang === 'en' ? '#00695c' : 'transparent',
+                color: lang === 'en' ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                boxShadow: lang === 'en' ? '0 2px 6px rgba(0, 105, 92, 0.5)' : 'none',
+              }}
+            >
+              English
+            </button>
+            <button
+              type="button"
+              id="fayda-lang-am-toggle"
+              onClick={() => handleLanguageToggle('am')}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 16,
+                border: 'none',
+                fontSize: 12,
+                fontWeight: lang === 'am' ? 700 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: lang === 'am' ? '#00695c' : 'transparent',
+                color: lang === 'am' ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                boxShadow: lang === 'am' ? '0 2px 6px rgba(0, 105, 92, 0.5)' : 'none',
+              }}
+            >
+              አማርኛ
+            </button>
+          </div>
+        </div>
+
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <img
@@ -128,11 +258,10 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
             style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'contain', marginBottom: 16, display: 'block', margin: '0 auto 16px auto' }}
           />
           <h1 style={{ color: '#ffffff', fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>
-            Age Verification
+            {t.title}
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
-            Ethiopian law requires all betting users to be 18 years or older.<br />
-            Verify your identity using Fayda, the national digital ID.
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+            {t.description}
           </p>
         </div>
 
@@ -154,11 +283,11 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                <span style={{ color: '#2e7d32', fontWeight: 600, fontSize: 14 }}>Verification Successful</span>
+                <span style={{ color: '#2e7d32', fontWeight: 600, fontSize: 14 }}>{t.successTitle}</span>
               </div>
               <p style={{ color: '#1b5e20', fontSize: 13, margin: 0 }}>{result.message}</p>
               {result.age && (
-                <p style={{ color: '#4caf50', fontSize: 12, marginTop: 4 }}>Verified age: {result.age} years</p>
+                <p style={{ color: '#4caf50', fontSize: 12, marginTop: 4 }}>{t.verifiedAge(result.age)}</p>
               )}
             </div>
           )}
@@ -174,11 +303,11 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c62828" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                <span style={{ color: '#c62828', fontWeight: 600, fontSize: 14 }}>Age Verification Failed</span>
+                <span style={{ color: '#c62828', fontWeight: 600, fontSize: 14 }}>{t.failedTitle}</span>
               </div>
               <p style={{ color: '#b71c1c', fontSize: 13, margin: 0 }}>{result.message}</p>
               <p style={{ color: '#666', fontSize: 12, marginTop: 8 }}>
-                You must be 18 or older to use this platform.
+                {t.failedSub}
               </p>
             </div>
           )}
@@ -213,14 +342,14 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                 }}>
-                  Fayda ID Number
+                  {t.idLabel}
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showFaydaId ? 'text' : 'password'}
                     value={faydaId}
                     onChange={(e) => setFaydaId(e.target.value.replace(/\D/g, '').slice(0, 12))}
-                    placeholder="Enter your 12-digit Fayda ID"
+                    placeholder={t.idPlaceholder}
                     autoFocus
                     disabled={isSubmitting}
                     maxLength={12}
@@ -258,7 +387,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                   </button>
                 </div>
                 <p style={{ color: '#90a4ae', fontSize: 12, marginTop: 8 }}>
-                  Your Fayda ID is the 12-digit number on your national digital ID card.
+                  {t.idHelper}
                 </p>
               </div>
 
@@ -288,10 +417,10 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                 {isSubmitting ? (
                   <>
                     <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                    Verifying with Fayda...
+                    {t.verifyingBtn}
                   </>
                 ) : (
-                  'Verify Age'
+                  t.verifyBtn
                 )}
               </button>
             </form>
@@ -317,7 +446,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#546e7a'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#78909c'; }}
               >
-                Demo: Skip verification (development only)
+                {t.skipDemo}
               </button>
             </div>
           )}
@@ -325,17 +454,17 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
 
         {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
-            Powered by{' '}
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>
+            {t.poweredBy}{' '}
             <a
               href="https://id.gov.et"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: 'rgba(128,203,196,0.6)', textDecoration: 'none' }}
+              style={{ color: 'rgba(128,203,196,0.7)', textDecoration: 'none' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = '#80cbc4'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(128,203,196,0.6)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(128,203,196,0.7)'; }}
             >
-              Fayda National Digital ID
+              {t.nationalId}
             </a>
           </p>
         </div>

@@ -519,6 +519,47 @@ export interface WeatherCityMarket {
 
 export const WEATHER_CITY_MARKETS: WeatherCityMarket[] = [
   {
+    id: 'weather-addis-ababa',
+    city: 'Addis Ababa 🇪🇹',
+    date: 'September 7',
+    volume: '$48K Vol. · Daily',
+    options: [
+      { temp: '23°C', probability: 58, yesPrice: 58.0, noPrice: 42.0 },
+      { temp: '24°C', probability: 31, yesPrice: 31.0, noPrice: 69.0 },
+      { temp: '25°C', probability: 11, yesPrice: 11.0, noPrice: 89.0 },
+    ],
+  },
+  {
+    id: 'weather-bahir-dar',
+    city: 'Bahir Dar (Lake Tana) 🇪🇹',
+    date: 'September 7',
+    volume: '$29K Vol. · Daily',
+    options: [
+      { temp: '27°C', probability: 64, yesPrice: 64.0, noPrice: 36.0 },
+      { temp: '28°C', probability: 28, yesPrice: 28.0, noPrice: 72.0 },
+    ],
+  },
+  {
+    id: 'weather-dire-dawa',
+    city: 'Dire Dawa 🇪🇹',
+    date: 'September 7',
+    volume: '$22K Vol. · Daily',
+    options: [
+      { temp: '33°C', probability: 60, yesPrice: 60.0, noPrice: 40.0 },
+      { temp: '34°C', probability: 35, yesPrice: 35.0, noPrice: 65.0 },
+    ],
+  },
+  {
+    id: 'weather-hawassa',
+    city: 'Hawassa 🇪🇹',
+    date: 'September 7',
+    volume: '$19K Vol. · Daily',
+    options: [
+      { temp: '26°C', probability: 54, yesPrice: 54.0, noPrice: 46.0 },
+      { temp: '27°C', probability: 36, yesPrice: 36.0, noPrice: 64.0 },
+    ],
+  },
+  {
     id: 'weather-wellington',
     city: 'Wellington',
     date: 'September 7',
@@ -536,6 +577,36 @@ export const WEATHER_CITY_MARKETS: WeatherCityMarket[] = [
     options: [
       { temp: '27°C', probability: 32, yesPrice: 32.0, noPrice: 68.0 },
       { temp: '26°C', probability: 26, yesPrice: 26.0, noPrice: 74.0 },
+    ],
+  },
+  {
+    id: 'weather-newyork',
+    city: 'New York (Central Park)',
+    date: 'September 7',
+    volume: '$51K Vol. · Daily',
+    options: [
+      { temp: '77-78°F', probability: 52, yesPrice: 52.0, noPrice: 48.0 },
+      { temp: '79-80°F', probability: 38, yesPrice: 38.0, noPrice: 62.0 },
+    ],
+  },
+  {
+    id: 'weather-dubai',
+    city: 'Dubai',
+    date: 'September 7',
+    volume: '$37K Vol. · Daily',
+    options: [
+      { temp: '39°C', probability: 67, yesPrice: 67.0, noPrice: 33.0 },
+      { temp: '40°C', probability: 28, yesPrice: 28.0, noPrice: 72.0 },
+    ],
+  },
+  {
+    id: 'weather-nairobi',
+    city: 'Nairobi',
+    date: 'September 7',
+    volume: '$25K Vol. · Daily',
+    options: [
+      { temp: '24°C', probability: 59, yesPrice: 59.0, noPrice: 41.0 },
+      { temp: '25°C', probability: 33, yesPrice: 33.0, noPrice: 67.0 },
     ],
   },
   {
@@ -589,6 +660,16 @@ export const WEATHER_CITY_MARKETS: WeatherCityMarket[] = [
     ],
   },
   {
+    id: 'weather-cairo',
+    city: 'Cairo',
+    date: 'September 7',
+    volume: '$21K Vol. · Daily',
+    options: [
+      { temp: '35°C', probability: 65, yesPrice: 65.0, noPrice: 35.0 },
+      { temp: '36°C', probability: 27, yesPrice: 27.0, noPrice: 73.0 },
+    ],
+  },
+  {
     id: 'weather-telaviv',
     city: 'Tel Aviv',
     date: 'September 7',
@@ -596,26 +677,6 @@ export const WEATHER_CITY_MARKETS: WeatherCityMarket[] = [
     options: [
       { temp: '32°C', probability: 60, yesPrice: 60.0, noPrice: 40.0 },
       { temp: '33°C', probability: 42, yesPrice: 42.0, noPrice: 58.0 },
-    ],
-  },
-  {
-    id: 'weather-ankara',
-    city: 'Ankara',
-    date: 'September 7',
-    volume: '$16K Vol. · Daily',
-    options: [
-      { temp: '25°C', probability: 51, yesPrice: 51.0, noPrice: 49.0 },
-      { temp: '24°C', probability: 42, yesPrice: 42.0, noPrice: 58.0 },
-    ],
-  },
-  {
-    id: 'weather-saopaulo',
-    city: 'Sao Paulo',
-    date: 'September 7',
-    volume: '$13K Vol. · Daily',
-    options: [
-      { temp: '13°C', probability: 55, yesPrice: 55.0, noPrice: 45.0 },
-      { temp: '14°C', probability: 32, yesPrice: 32.0, noPrice: 68.0 },
     ],
   },
   {
@@ -628,15 +689,153 @@ export const WEATHER_CITY_MARKETS: WeatherCityMarket[] = [
       { temp: '92-93°F', probability: 28, yesPrice: 28.0, noPrice: 72.0 },
     ],
   },
+];
+
+export interface WeatherEventMarket {
+  id: string;
+  category: 'Precipitation' | 'Drought' | 'Global' | 'Hurricanes' | 'Earthquakes' | 'Tornadoes' | 'Pandemics';
+  title: string;
+  region: string;
+  volume: string;
+  chance: number;
+  yesPrice: number;
+  noPrice: number;
+  endsDate: string;
+  description: string;
+}
+
+export const WEATHER_EVENT_MARKETS: WeatherEventMarket[] = [
   {
-    id: 'weather-kualalumpur',
-    city: 'Kuala Lumpur',
-    date: 'September 7',
-    volume: '$18K Vol. · Daily',
-    options: [
-      { temp: '34°C', probability: 52, yesPrice: 52.0, noPrice: 48.0 },
-      { temp: '33°C', probability: 31, yesPrice: 31.0, noPrice: 69.0 },
-    ],
+    id: 'weath-eth-kiremt-above',
+    category: 'Precipitation',
+    title: 'Ethiopian Highlands Kiremt seasonal rainfall above 30-year climatological normal?',
+    region: 'Ethiopia 🇪🇹',
+    volume: '$6.2M Vol.',
+    chance: 58,
+    yesPrice: 58,
+    noPrice: 42,
+    endsDate: 'Oct 15, 2026',
+    description: 'Resolves based on the Ethiopian Meteorology Institute (EMI) comprehensive rainy season review comparing cumulative rainfall to baseline.',
+  },
+  {
+    id: 'weath-eth-tana-level',
+    category: 'Drought',
+    title: 'Lake Tana water reservoir level remains in surplus zone through Q4 2026?',
+    region: 'Ethiopia 🇪🇹',
+    volume: '$4.8M Vol.',
+    chance: 81,
+    yesPrice: 81,
+    noPrice: 19,
+    endsDate: 'Nov 30, 2026',
+    description: 'Resolves to Yes if the Ministry of Water and Energy gauge readings confirm Lake Tana elevation stays above 1,786.0 meters.',
+  },
+  {
+    id: 'weath-eth-awash-flood',
+    category: 'Precipitation',
+    title: 'Awash River Basin reaches red flood warning stage in 2026?',
+    region: 'Ethiopia 🇪🇹',
+    volume: '$3.5M Vol.',
+    chance: 44,
+    yesPrice: 44,
+    noPrice: 56,
+    endsDate: 'Sep 30, 2026',
+    description: 'Resolves to Yes if the National Disaster Risk Management Commission issues an active Red Level flood stage alert for the Middle Awash.',
+  },
+  {
+    id: 'weath-global-2026-warmest',
+    category: 'Global',
+    title: '2026 ranks among the top 3 warmest years in recorded history (NOAA/Copernicus)?',
+    region: 'Global',
+    volume: '$31.4M Vol.',
+    chance: 86,
+    yesPrice: 86,
+    noPrice: 14,
+    endsDate: 'Jan 15, 2027',
+    description: 'Resolves according to the NOAA National Centers for Environmental Information and Copernicus Climate Change Service annual consensus report.',
+  },
+  {
+    id: 'weath-lanina-q4',
+    category: 'Global',
+    title: 'NOAA officially confirms La Niña conditions through December 2026?',
+    region: 'Pacific / Horn of Africa',
+    volume: '$14.9M Vol.',
+    chance: 72,
+    yesPrice: 72,
+    noPrice: 28,
+    endsDate: 'Dec 31, 2026',
+    description: 'Based on the Climate Prediction Center Oceanic Niño Index (ONI) running 3-month average of Sea Surface Temperatures.',
+  },
+  {
+    id: 'weath-atlantic-named-hurricanes',
+    category: 'Hurricanes',
+    title: 'Atlantic Hurricane Season produces 18 or more named tropical storms in 2026?',
+    region: 'North Atlantic',
+    volume: '$19.2M Vol.',
+    chance: 63,
+    yesPrice: 63,
+    noPrice: 37,
+    endsDate: 'Nov 30, 2026',
+    description: 'Resolves to Yes if the National Hurricane Center designates 18 or more tropical storms or hurricanes during the official calendar season.',
+  },
+  {
+    id: 'weath-cat5-landfall',
+    category: 'Hurricanes',
+    title: 'Category 5 Hurricane makes direct continental landfall in North America or Caribbean?',
+    region: 'Caribbean / US',
+    volume: '$11.8M Vol.',
+    chance: 34,
+    yesPrice: 34,
+    noPrice: 66,
+    endsDate: 'Nov 30, 2026',
+    description: 'Resolves according to post-storm tropical cyclone reports published by the National Hurricane Center.',
+  },
+  {
+    id: 'weath-drought-mead-pool',
+    category: 'Drought',
+    title: 'Lake Mead water elevation drops below 1,040 feet before end of 2026?',
+    region: 'North America',
+    volume: '$8.4M Vol.',
+    chance: 29,
+    yesPrice: 29,
+    noPrice: 71,
+    endsDate: 'Dec 31, 2026',
+    description: 'Resolves based on the US Bureau of Reclamation daily water operations reports for Hoover Dam.',
+  },
+  {
+    id: 'weath-eth-drought-horn',
+    category: 'Drought',
+    title: 'Horn of Africa regional drought emergency declared in Somali/Afar regions in 2026?',
+    region: 'Ethiopia 🇪🇹',
+    volume: '$4.1M Vol.',
+    chance: 38,
+    yesPrice: 38,
+    noPrice: 62,
+    endsDate: 'Dec 31, 2026',
+    description: 'Resolves to Yes if the IGAD Climate Prediction and Applications Centre (ICPAC) classifies Eastern Ethiopia in extreme severe drought.',
+  },
+  {
+    id: 'weath-us-tornadoes-1400',
+    category: 'Tornadoes',
+    title: 'US confirmed tornadoes exceed 1,400 during 2026 (NOAA Storm Prediction Center)?',
+    region: 'North America',
+    volume: '$5.6M Vol.',
+    chance: 49,
+    yesPrice: 49,
+    noPrice: 51,
+    endsDate: 'Dec 31, 2026',
+    description: 'Resolves according to the NOAA Storm Prediction Center final annual tornado database count.',
+  },
+  {
+    id: 'weath-earthquake-m8',
+    category: 'Earthquakes',
+    title: 'Magnitude 8.0+ major earthquake occurs along Pacific Ring of Fire in 2026?',
+    region: 'Pacific Basin',
+    volume: '$12.7M Vol.',
+    chance: 51,
+    yesPrice: 51,
+    noPrice: 49,
+    endsDate: 'Dec 31, 2026',
+    description: 'Resolves based on the United States Geological Survey (USGS) Earthquake Hazards Program catalog.',
   },
 ];
 

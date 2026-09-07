@@ -3,6 +3,7 @@ import { X, CheckCircle, TrendingUp, AlertCircle, ArrowUpRight, DollarSign } fro
 import confetti from 'canvas-confetti';
 import { PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
+import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
 
 interface PolymarketTradeModalProps {
   trade: PolymarketTradeState | null;
@@ -13,7 +14,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
   trade,
   onClose,
 }) => {
-  const { user } = useBetting();
+  const { user, language } = useBetting();
   const [tab, setTab] = useState<'buy' | 'sell'>('buy');
   const [selectedSide, setSelectedSide] = useState<'yes' | 'no'>(
     trade?.side === 'no' ? 'no' : 'yes'
@@ -56,10 +57,10 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
         <div className="p-4 border-b border-neutral-200 flex items-start justify-between gap-3">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-blue-600">
-              {trade.market.category} Prediction
+              {trade.market.category} {language === 'am' ? 'ግምገማ' : 'Prediction'}
             </div>
             <h3 className="font-bold text-sm text-neutral-900 mt-0.5 line-clamp-2">
-              {trade.market.title}
+              {translateMarketTitle(trade.market.title, language)}
             </h3>
           </div>
           <button
@@ -75,9 +76,13 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
             <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
               <CheckCircle className="w-8 h-8" />
             </div>
-            <h4 className="font-bold text-lg text-neutral-900">Order Executed!</h4>
+            <h4 className="font-bold text-lg text-neutral-900">
+              {language === 'am' ? 'ትዕዛዝ ተጠናቋል!' : 'Order Executed!'}
+            </h4>
             <p className="text-xs text-neutral-500 mt-1 max-w-xs">
-              Successfully bought {shares} {selectedSide.toUpperCase()} shares for ${numAmount}.
+              {language === 'am'
+                ? `${shares} ድርሻዎችን በ ${numAmount} ብር በተሳካ ሁኔታ ገዝተዋል።`
+                : `Successfully bought ${shares} ${selectedSide.toUpperCase()} shares for ${numAmount} Birr.`}
             </p>
           </div>
         ) : (
@@ -85,10 +90,13 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
             {/* Outcome Target */}
             <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-200 flex items-center justify-between">
               <span className="text-xs text-neutral-700 font-semibold">
-                Outcome: <strong className="text-neutral-900">{trade.outcome?.name}</strong>
+                {language === 'am' ? 'ውጤት: ' : 'Outcome: '}{' '}
+                <strong className="text-neutral-900">
+                  {translateOutcomeName(trade.outcome?.name, language)}
+                </strong>
               </span>
               <span className="text-xs font-mono font-bold text-blue-600">
-                {trade.outcome?.probability}% chance
+                {trade.outcome?.probability}% {language === 'am' ? 'ዕድል' : 'chance'}
               </span>
             </div>
 
@@ -102,7 +110,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
                     : 'bg-neutral-100 text-neutral-600 hover:text-neutral-900 border border-neutral-200'
                 }`}
               >
-                <span>Buy YES</span>
+                <span>{language === 'am' ? 'ግዛ አዎ' : 'Buy YES'}</span>
                 <span className="text-[11px] font-mono opacity-90">{trade.outcome?.yesPrice || 50}¢</span>
               </button>
 
@@ -114,7 +122,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
                     : 'bg-neutral-100 text-neutral-600 hover:text-neutral-900 border border-neutral-200'
                 }`}
               >
-                <span>Buy NO</span>
+                <span>{language === 'am' ? 'ግዛ አይ' : 'Buy NO'}</span>
                 <span className="text-[11px] font-mono opacity-90">{trade.outcome?.noPrice || 50}¢</span>
               </button>
             </div>
@@ -122,21 +130,25 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
             {/* Amount Input */}
             <div>
               <div className="flex items-center justify-between text-xs text-neutral-500 mb-1.5">
-                <label className="font-semibold text-neutral-700">Amount (USD)</label>
-                <span>Balance: $14,500.00</span>
+                <label className="font-semibold text-neutral-700">
+                  {language === 'am' ? 'መጠን (ብር)' : 'Amount (Birr)'}
+                </label>
+                <span>{language === 'am' ? 'ቀሪ ሂሳብ: 14,500.00 ብር' : 'Balance: 14,500.00 Birr'}</span>
               </div>
 
               <div className="relative">
-                <DollarSign className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <span className="text-xs font-bold text-neutral-500 font-mono absolute left-3 top-1/2 -translate-y-1/2 select-none">
+                  {language === 'am' ? 'ብር' : 'ETB'}
+                </span>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-neutral-50 border border-neutral-200 focus:bg-white focus:border-blue-500 rounded-xl pl-9 pr-14 py-2.5 text-sm font-bold text-neutral-900 focus:outline-none transition-colors"
+                  className="w-full bg-neutral-50 border border-neutral-200 focus:bg-white focus:border-blue-500 rounded-xl pl-12 pr-14 py-2.5 text-sm font-bold text-neutral-900 focus:outline-none transition-colors"
                   placeholder="0.00"
                 />
                 <button
-                  onClick={() => setAmount('100')}
+                  onClick={() => setAmount('500')}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-neutral-200 hover:bg-neutral-300 text-blue-700 px-2 py-1 rounded cursor-pointer"
                 >
                   MAX
@@ -145,13 +157,13 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
 
               {/* Quick Amount Chips */}
               <div className="flex items-center gap-1.5 mt-2">
-                {['$10', '$25', '$50', '$100', '$250'].map((chip) => (
+                {['10', '50', '100', '250', '500'].map((chip) => (
                   <button
                     key={chip}
-                    onClick={() => setAmount(chip.replace('$', ''))}
+                    onClick={() => setAmount(chip)}
                     className="flex-1 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 hover:text-neutral-900 text-[11px] font-semibold rounded-lg border border-neutral-200 transition-colors cursor-pointer"
                   >
-                    {chip}
+                    {chip} {language === 'am' ? 'ብር' : 'Birr'}
                   </button>
                 ))}
               </div>
@@ -160,22 +172,24 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
             {/* Trade Summary */}
             <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-200 flex flex-col gap-1.5 text-xs text-neutral-600">
               <div className="flex items-center justify-between">
-                <span>Avg Price:</span>
+                <span>{t('avg_price', language, 'Avg Price:')}</span>
                 <span className="font-mono text-neutral-900 font-bold">{currentPriceCents}¢</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Shares:</span>
+                <span>{t('shares', language, 'Shares:')}</span>
                 <span className="font-mono text-neutral-900 font-bold">{shares}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Potential Return:</span>
+                <span>{t('potential_return', language, 'Potential Return:')}</span>
                 <span className="font-mono text-emerald-600 font-bold">
-                  +${(parseFloat(potentialPayout) - numAmount).toFixed(2)} ({returnPercentage}%)
+                  +{(parseFloat(potentialPayout) - numAmount).toFixed(2)} {language === 'am' ? 'ብር' : 'Birr'} ({returnPercentage}%)
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-neutral-200 font-bold text-neutral-900">
-                <span>Total Payout:</span>
-                <span className="font-mono text-emerald-600 text-sm">${potentialPayout}</span>
+                <span>{language === 'am' ? 'ጠቅላላ ክፍያ:' : 'Total Payout:'}</span>
+                <span className="font-mono text-emerald-600 text-sm">
+                  {potentialPayout} {language === 'am' ? 'ብር' : 'Birr'}
+                </span>
               </div>
             </div>
 
@@ -189,7 +203,9 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
                   : 'bg-rose-600 hover:bg-rose-500 text-white'
               }`}
             >
-              Buy {selectedSide.toUpperCase()} for ${numAmount}
+              {language === 'am'
+                ? `${selectedSide === 'yes' ? 'አዎ' : 'አይ'} በ ${numAmount} ብር ግዛ`
+                : `Buy ${selectedSide.toUpperCase()} for ${numAmount} Birr`}
             </button>
           </div>
         )}

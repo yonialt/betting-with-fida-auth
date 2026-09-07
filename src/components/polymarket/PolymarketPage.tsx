@@ -10,35 +10,63 @@ import { PolymarketCategories } from './PolymarketCategories';
 import { PolymarketHeroCard } from './PolymarketHeroCard';
 import { PolymarketRightSidebar } from './PolymarketRightSidebar';
 import { PolymarketAllMarketsGrid } from './PolymarketAllMarketsGrid';
+import { PolymarketDetailView } from './PolymarketDetailView';
 import { PolymarketTradeModal } from './PolymarketTradeModal';
 import { PolymarketFooter } from './PolymarketFooter';
 import { PolymarketChat } from './PolymarketChat';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
+import { PolymarketCombosView } from './views/PolymarketCombosView';
+import { PolymarketPerpsView } from './views/PolymarketPerpsView';
+import { PolymarketBreakingView } from './views/PolymarketBreakingView';
+import { PolymarketNewView } from './views/PolymarketNewView';
+import { PolymarketPoliticsView } from './views/PolymarketPoliticsView';
+import { PolymarketMidtermsView } from './views/PolymarketMidtermsView';
+import { PolymarketCryptoView } from './views/PolymarketCryptoView';
+import { PolymarketWeatherView } from './views/PolymarketWeatherView';
+import { PolymarketMentionsView } from './views/PolymarketMentionsView';
+import { PolymarketElectionsView } from './views/PolymarketElectionsView';
+import { PolymarketArtView } from './views/PolymarketArtView';
+import { PolymarketEsportsView } from './views/PolymarketEsportsView';
+import { PolymarketEthiopiaView } from './views/PolymarketEthiopiaView';
 
 export const PolymarketPage: React.FC = () => {
+  const { language } = useBetting();
   const [activeCategory, setActiveCategory] = useState<string>('trending');
   const [activeViewTab, setActiveViewTab] = useState<'featured' | 'all'>('featured');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeTrade, setActiveTrade] = useState<PolymarketTradeState | null>(null);
   const [floatingChatOpen, setFloatingChatOpen] = useState<boolean>(false);
   const [selectedMarketForChat, setSelectedMarketForChat] = useState<PolymarketMarket | null>(null);
+  const [selectedDetailMarket, setSelectedDetailMarket] = useState<PolymarketMarket | null>(null);
+  const [showMidtermsView, setShowMidtermsView] = useState<boolean>(false);
 
   const handleSelectOutcome = (trade: PolymarketTradeState) => {
     setActiveTrade(trade);
   };
 
+  const handleOpenDetail = (market: PolymarketMarket) => {
+    setSelectedDetailMarket(market);
+    setSelectedMarketForChat(market);
+    setShowMidtermsView(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleOpenPerps = () => {
     setActiveCategory('perps');
-    setActiveViewTab('all');
+    setShowMidtermsView(false);
+    setSelectedDetailMarket(null);
   };
 
   const handleOpenCombos = () => {
     setActiveCategory('combos');
-    setActiveViewTab('all');
+    setShowMidtermsView(false);
+    setSelectedDetailMarket(null);
   };
 
   const handleSelectTopic = (topicName: string) => {
+    setSelectedDetailMarket(null);
+    setShowMidtermsView(false);
     if (topicName === 'All') {
       setActiveViewTab('all');
       setSearchQuery('');
@@ -48,79 +76,220 @@ export const PolymarketPage: React.FC = () => {
     }
   };
 
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setSelectedDetailMarket(null);
+    setShowMidtermsView(false);
+    if (cat === 'midterms') {
+      setShowMidtermsView(true);
+    }
+  };
+
+  // Render view depending on category or special state
+  const renderMainContent = () => {
+    if (selectedDetailMarket) {
+      return (
+        <PolymarketDetailView
+          market={selectedDetailMarket}
+          onBack={() => setSelectedDetailMarket(null)}
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (showMidtermsView || activeCategory === 'midterms') {
+      return (
+        <PolymarketMidtermsView
+          onBack={() => {
+            setShowMidtermsView(false);
+            setActiveCategory('politics');
+          }}
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'combos') {
+      return (
+        <PolymarketCombosView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'perps') {
+      return <PolymarketPerpsView />;
+    }
+
+    if (activeCategory === 'breaking') {
+      return <PolymarketBreakingView />;
+    }
+
+    if (activeCategory === 'new') {
+      return (
+        <PolymarketNewView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'ethiopia') {
+      return (
+        <PolymarketEthiopiaView
+          onSelectOutcome={handleSelectOutcome}
+          onOpenDetail={handleOpenDetail}
+        />
+      );
+    }
+
+    if (activeCategory === 'politics') {
+      return (
+        <PolymarketPoliticsView
+          onSelectOutcome={handleSelectOutcome}
+          onOpenMidterms={() => setShowMidtermsView(true)}
+        />
+      );
+    }
+
+    if (activeCategory === 'crypto') {
+      return (
+        <PolymarketCryptoView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'weather') {
+      return (
+        <PolymarketWeatherView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'mentions') {
+      return (
+        <PolymarketMentionsView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'elections') {
+      return (
+        <PolymarketElectionsView
+          onOpenMidterms={() => setShowMidtermsView(true)}
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'pop-culture' || activeCategory === 'art') {
+      return (
+        <PolymarketArtView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'esports') {
+      return (
+        <PolymarketEsportsView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    // Default Featured vs All Views
+    if (activeViewTab === 'featured') {
+      return (
+        <>
+          {/* Top Featured Row: Hero Card (Left) + Right Sidebar (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Hero Prediction Carousel Card */}
+            <div className="lg:col-span-8 xl:col-span-8 2xl:col-span-9">
+              <PolymarketHeroCard
+                onSelectOutcome={handleSelectOutcome}
+                onOpenDetail={handleOpenDetail}
+              />
+            </div>
+
+            {/* Right Sidebar Widget: Trade Box + Tabs */}
+            <div className="lg:col-span-4 xl:col-span-4 2xl:col-span-3">
+              <PolymarketRightSidebar
+                onOpenPerps={handleOpenPerps}
+                onOpenCombos={handleOpenCombos}
+                onSelectTopic={handleSelectTopic}
+                selectedMarket={selectedMarketForChat}
+                onSelectOutcome={handleSelectOutcome}
+              />
+            </div>
+          </div>
+
+          {/* Bottom: All Markets Grid Section */}
+          <div className="mt-4 pt-8 border-t border-[#1e293b]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white tracking-tight">
+                All Prediction Markets
+              </h3>
+              <span className="text-xs text-neutral-400 font-mono">
+                Real-time Settlement
+              </span>
+            </div>
+            <PolymarketAllMarketsGrid
+              onSelectOutcome={handleSelectOutcome}
+              searchFilter={searchQuery}
+              categoryFilter={activeCategory}
+              onOpenDetail={handleOpenDetail}
+            />
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="w-full">
+        <PolymarketAllMarketsGrid
+          onSelectOutcome={handleSelectOutcome}
+          searchFilter={searchQuery}
+          categoryFilter={activeCategory}
+          onOpenDetail={handleOpenDetail}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#0a0d14] text-white flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white relative">
       {/* 1. Main Polymarket Header */}
       <PolymarketHeader
         searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        setSearchQuery={(q) => {
+          setSearchQuery(q);
+          if (q) {
+            setSelectedDetailMarket(null);
+            setShowMidtermsView(false);
+          }
+        }}
         activeViewTab={activeViewTab}
-        setActiveViewTab={setActiveViewTab}
+        setActiveViewTab={(tab) => {
+          setActiveViewTab(tab);
+          setSelectedDetailMarket(null);
+        }}
         onToggleChat={() => setFloatingChatOpen(!floatingChatOpen)}
         chatOpen={floatingChatOpen}
+        onOpenMarketDetail={handleOpenDetail}
       />
 
       {/* 2. Category Carousel Filter Bar */}
       <PolymarketCategories
         activeCategory={activeCategory}
-        setActiveCategory={(cat) => {
-          setActiveCategory(cat);
-          if (cat === 'combos' || cat === 'perps') {
-            setActiveViewTab('all');
-          }
-        }}
+        setActiveCategory={handleCategoryChange}
       />
 
       {/* 3. Main Polymarket Content Area */}
       <main className="flex-1 max-w-[1920px] w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-8">
-        {activeViewTab === 'featured' ? (
-          <>
-            {/* Top Featured Row: Hero Card (Left) + Right Sidebar (Right) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Hero Prediction Card (Fed Decision in September) */}
-              <div className="lg:col-span-8 xl:col-span-8 2xl:col-span-9">
-                <PolymarketHeroCard onSelectOutcome={handleSelectOutcome} />
-              </div>
-
-              {/* Right Sidebar Widget: Trade Box ("Sid Box") + Tabs */}
-              <div className="lg:col-span-4 xl:col-span-4 2xl:col-span-3">
-                <PolymarketRightSidebar
-                  onOpenPerps={handleOpenPerps}
-                  onOpenCombos={handleOpenCombos}
-                  onSelectTopic={handleSelectTopic}
-                  selectedMarket={selectedMarketForChat}
-                  onSelectOutcome={handleSelectOutcome}
-                />
-              </div>
-            </div>
-
-            {/* Bottom: All Markets Grid Section */}
-            <div className="mt-4 pt-8 border-t border-[#1e293b]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white tracking-tight">
-                  All Prediction Markets
-                </h3>
-                <span className="text-xs text-neutral-400 font-mono">
-                  Real-time Settlement
-                </span>
-              </div>
-              <PolymarketAllMarketsGrid
-                onSelectOutcome={handleSelectOutcome}
-                searchFilter={searchQuery}
-                categoryFilter={activeCategory}
-              />
-            </div>
-          </>
-        ) : (
-          /* All Markets View Grid */
-          <div className="w-full">
-            <PolymarketAllMarketsGrid
-              onSelectOutcome={handleSelectOutcome}
-              searchFilter={searchQuery}
-              categoryFilter={activeCategory}
-            />
-          </div>
-        )}
+        {renderMainContent()}
       </main>
 
       {/* Floating Chat Trollbox (Bottom Right Popup on any tab/view) */}
@@ -155,7 +324,7 @@ export const PolymarketPage: React.FC = () => {
           title="Open Polymarket Trollbox & Live Chat"
         >
           <MessageSquare className="w-5 h-5" />
-          <span className="text-xs">Live Chat</span>
+          <span className="text-xs">{language === 'am' ? 'ቀጥታ ውይይት' : 'Live Chat'}</span>
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
         </button>
       )}

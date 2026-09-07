@@ -125,7 +125,7 @@ export const BetSlip: React.FC = () => {
           onClick={() => {
             if (setNotification) {
               setNotification({
-                message: '1xBet Mobile App: Available on Android & iOS',
+                message: 'ሃገራዊ Betting Mobile App: Available on Android & iOS',
                 type: 'info',
               });
             }

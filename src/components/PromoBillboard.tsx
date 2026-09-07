@@ -17,8 +17,8 @@ interface BillboardSlide {
 const BILLBOARD_SLIDES: BillboardSlide[] = [
   {
     id: 'serie-a',
-    title: '1XBET: THE OFFICIAL PARTNER OF SERIE A',
-    subtitle: 'Feel the passion of Serie A by winning with 1xBet!',
+    title: 'ሃገራዊ BETTING: THE OFFICIAL PARTNER OF SERIE A',
+    subtitle: 'Feel the passion of Serie A by winning with ሃገራዊ Betting!',
     ctaText: 'FIND OUT MORE',
     badge: 'OFFICIAL PARTNER',
     bgGradient: 'from-[#050b14] via-[#091b36] to-[#04439c]',

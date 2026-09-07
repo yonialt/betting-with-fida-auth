@@ -36,6 +36,9 @@ interface BettingContextType {
   selectedEventMatch: Match | null;
   appMode: '1xbet' | 'polymarket';
   setAppMode: (mode: '1xbet' | 'polymarket') => void;
+  language: 'en' | 'am';
+  setLanguage: (lang: 'en' | 'am') => void;
+  toggleLanguage: () => void;
   oddsDisplayMode: 'simple' | 'detailed';
   setOddsDisplayMode: (mode: 'simple' | 'detailed') => void;
   activeCenterView: 'matches' | 'event';
@@ -177,7 +180,28 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [selectedMatchForTracker, setSelectedMatchForTracker] = useState<Match | null>(null);
   const [selectedEventMatch, setSelectedEventMatch] = useState<Match | null>(INITIAL_MATCHES[0]);
   const [activeCenterView, setActiveCenterView] = useState<'matches' | 'event'>('matches');
-  const [appMode, setAppMode] = useState<'1xbet' | 'polymarket'>('1xbet');
+  const [appMode, setAppMode] = useState<'1xbet' | 'polymarket'>('polymarket');
+  const [language, setLanguageState] = useState<'en' | 'am'>(() => {
+    try {
+      const saved = localStorage.getItem('hagerawi_language');
+      return (saved === 'en' || saved === 'am') ? saved : 'am';
+    } catch {
+      return 'am';
+    }
+  });
+
+  const setLanguage = (lang: 'en' | 'am') => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('hagerawi_language', lang);
+    } catch {
+      // ignore
+    }
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'am' : 'en');
+  };
   const [oddsDisplayMode, setOddsDisplayMode] = useState<'simple' | 'detailed'>('simple');
   const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false);
   const [bonusesModalOpen, setBonusesModalOpen] = useState<boolean>(false);
@@ -698,6 +722,9 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         isBetSlipCollapsed,
         setIsBetSlipCollapsed,
         toggleBetSlipCollapsed,
+        language,
+        setLanguage,
+        toggleLanguage,
       }}
     >
       {children}
