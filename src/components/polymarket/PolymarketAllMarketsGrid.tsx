@@ -20,6 +20,7 @@ import {
 } from '../../types/polymarket';
 import { fetchPolymarketGammaEvents } from '../../services/polymarketGammaService';
 import { useBetting } from '../../context/BettingContext';
+import { PolymarketBtcUpDownCard } from './PolymarketBtcUpDownCard';
 import {
   t,
   translateMarketTitle,
@@ -133,75 +134,231 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
     return true;
   });
 
-  // Render team or league emblem icon
-  const renderEmblem = (logoType?: string, flag?: string) => {
+  // Render team or league emblem icon with official logos
+  const renderEmblem = (logoType?: string, flag?: string, logoUrl?: string) => {
     if (flag) {
       return (
-        <span className="text-base leading-none shrink-0 select-none">
+        <span className="text-base leading-none shrink-0 select-none" title="Country Flag">
           {flag}
         </span>
       );
     }
+    // Use official logo URL if provided
+    if (logoUrl) {
+      return (
+        <img
+          src={logoUrl}
+          alt="Team Logo"
+          className="w-6 h-6 rounded object-contain shrink-0 border border-[#222c3e]"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+          }}
+        />
+      );
+    }
     if (logoType === 'spirit') {
       return (
-        <div className="w-5 h-5 rounded-full bg-[#121620] border border-[#293244] flex items-center justify-center shrink-0">
-          <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C7.5 2 4 5 4 8.5c0 3 2.5 4.5 4.5 5.5-2 1-3.5 2.5-3.5 5 0 2.8 4 3 7 3s7-0.2 7-3c0-2.5-1.5-4-3.5-5 2-1 4.5-2.5 4.5-5.5C20 5 16.5 2 12 2z" />
-          </svg>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Team_Spirit_new_em.svg"
+          alt="Team Spirit"
+          className="w-6 h-6 rounded object-contain bg-[#121620] border border-[#293244] shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#121620] border border-[#293244] flex items-center justify-center shrink-0"><svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C7.5 2 4 5 4 8.5c0 3 2.5 4.5 4.5 5.5-2 1-3.5 2.5-3.5 5 0 2.8 4 3 7 3s7-0.2 7-3c0-2.5-1.5-4-3.5-5 2-1 4.5-2.5 4.5-5.5C20 5 16.5 2 12 2z"/></svg></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'mouz') {
       return (
-        <div className="w-5 h-5 rounded-full bg-[#e11d48] flex items-center justify-center shrink-0">
-          <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Mouz_logo.svg"
+          alt="MOUZ"
+          className="w-6 h-6 rounded object-contain bg-[#e11d48] border border-[#c41a3d] shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#e11d48] flex items-center justify-center shrink-0"><span class="text-white font-bold text-xs">MOUZ</span></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'g2') {
       return (
-        <div className="w-5 h-5 rounded-full bg-[#161820] border border-[#2d3342] flex items-center justify-center shrink-0">
-          <svg className="w-3.2 h-3.2 text-neutral-200" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 3.5c1.93 0 3.5 1.57 3.5 3.5 0 2.2-2.5 4-3.5 5.5-1-1.5-3.5-3.3-3.5-5.5 0-1.93 1.57-3.5 3.5-3.5z" />
-          </svg>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/G2_Esports_logo.svg"
+          alt="G2 Esports"
+          className="w-6 h-6 rounded object-contain bg-[#161820] border border-[#2d3342] shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#161820] border border-[#2d3342] flex items-center justify-center shrink-0"><span class="text-[#38bdf8] font-black text-xs tracking-tighter">G2</span></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'karmine') {
       return (
-        <div className="w-5 h-5 rounded-full bg-[#0d162a] border border-[#1d2d52] flex items-center justify-center shrink-0">
-          <span className="font-black text-[8.5px] text-[#38bdf8] tracking-tighter leading-none">KC</span>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Karmine_Corp_logo.svg"
+          alt="Karmine Corp"
+          className="w-6 h-6 rounded object-contain bg-[#0d162a] border border-[#1d2d52] shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#0d162a] border border-[#1d2d52] flex items-center justify-center shrink-0"><span class="text-[#38bdf8] font-black text-[8.5px] tracking-tighter leading-none">KC</span></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'brewers') {
       return (
-        <div className="w-5 h-5 rounded-full bg-[#0a2351] border border-[#ffc52f]/40 flex items-center justify-center shrink-0">
-          <span className="font-black text-[10px] text-[#ffc52f] leading-none">M</span>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Milwaukee_Brewers_Baseball_Club_wordmark.svg"
+          alt="Milwaukee Brewers"
+          className="w-6 h-6 rounded object-contain bg-[#0a2351] border border-[#ffc52f]/40 shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#0a2351] border border-[#ffc52f]/40 flex items-center justify-center shrink-0"><span class="text-[#ffc52f] font-black text-[10px] leading-none">BREWERS</span></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'reds') {
       return (
-        <div className="w-5 h-5 rounded-full bg-[#c6011f] flex items-center justify-center shrink-0">
-          <span className="font-serif font-black text-[10.5px] text-white leading-none">C</span>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Cincinnati_Reds_logo.svg"
+          alt="Cincinnati Reds"
+          className="w-6 h-6 rounded object-contain bg-[#c6011f] shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#c6011f] flex items-center justify-center shrink-0"><span class="text-white font-serif font-black text-[10.5px] leading-none">REDS</span></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'tigers') {
       return (
-        <div className="w-5 h-5 rounded-sm bg-[#0c2340] flex items-center justify-center shrink-0">
-          <span className="font-serif font-black text-[10px] text-white leading-none">D</span>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Detroit_Tigers_logo.svg"
+          alt="Detroit Tigers"
+          className="w-6 h-6 rounded-sm object-contain bg-[#0c2340] border border-[#ffc52f]/30 shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-sm bg-[#0c2340] flex items-center justify-center shrink-0"><span class="text-white font-serif font-black text-[10px] leading-none">TIGERS</span></div>';
+            }
+          }}
+        />
       );
     }
     if (logoType === 'guardians') {
       return (
-        <div className="w-5 h-5 rounded-sm bg-[#e31937] flex items-center justify-center shrink-0">
-          <span className="font-black text-[10.5px] text-white leading-none">C</span>
-        </div>
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Cleveland_Guardians_logo.svg"
+          alt="Cleveland Guardians"
+          className="w-6 h-6 rounded-sm object-contain bg-[#e31937] shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-sm bg-[#e31937] flex items-center justify-center shrink-0"><span class="text-white font-black text-[10.5px] leading-none">GUARDIANS</span></div>';
+            }
+          }}
+        />
+      );
+    }
+    if (logoType === 'cbe-sa') {
+      return (
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/CBE_SA_logo.png"
+          alt="CBE SA"
+          className="w-6 h-6 rounded-full object-contain bg-[#0066cc] border border-[#3399ff]/40 shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#0066cc] border border-[#3399ff]/40 flex items-center justify-center shrink-0"><span class="text-white font-black text-[7px] leading-none">CBE SA</span></div>';
+            }
+          }}
+        />
+      );
+    }
+    if (logoType === 'saint-george') {
+      return (
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Saint_George_SC_logo.svg"
+          alt="Saint George SC"
+          className="w-6 h-6 rounded-full object-contain bg-[#ffd700] border border-[#b8960f]/40 shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#ffd700] border border-[#b8960f]/40 flex items-center justify-center shrink-0"><span class="text-[#8b0000] font-black text-[8px] leading-none">ST GEORGE</span></div>';
+            }
+          }}
+        />
+      );
+    }
+    if (logoType === 'fasil-kenema') {
+      return (
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Fasil_Kenema_logo.svg"
+          alt="Fasil Kenema"
+          className="w-6 h-6 rounded-full object-contain bg-[#1a5276] border border-[#2e86c1]/40 shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#1a5276] border border-[#2e86c1]/40 flex items-center justify-center shrink-0"><span class="text-white font-black text-[8px] leading-none">FK</span></div>';
+            }
+          }}
+        />
+      );
+    }
+    if (logoType === 'defense-force') {
+      return (
+        <img
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Defense_Force_SC_logo.svg"
+          alt="Defense Force SC"
+          className="w-6 h-6 rounded-full object-contain bg-[#2d5016] border border-[#4a7c28]/40 shrink-0"
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="w-5 h-5 rounded-full bg-[#2d5016] border border-[#4a7c28]/40 flex items-center justify-center shrink-0"><span class="text-white font-black text-[7px] leading-none">DF</span></div>';
+            }
+          }}
+        />
       );
     }
     return (
@@ -229,107 +386,15 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
   const renderMarketCard = (market: PolymarketMarket) => {
     const isBookmarked = bookmarkedMarkets.has(market.id);
 
-    // 1. BTC 5m UP / DOWN Card (Card 2 in Photo)
+    // 1. BTC 5m UP / DOWN Card (live price + countdown + multiplier odds)
     if (market.displayType === 'up_down_btc') {
       return (
-        <div
+        <PolymarketBtcUpDownCard
           key={market.id}
-          onClick={() => onOpenDetail?.(market)}
-          className="bg-[#101622] border border-[#1a2333] hover:border-[#28374d] rounded-2xl p-4 text-white flex flex-col justify-between transition-all shadow-md group cursor-pointer"
-        >
-          <div>
-            {/* Top row with ₿ Icon, Title & Circular Gauge */}
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#f7931a] flex items-center justify-center font-black text-white text-base shadow-xs shrink-0">
-                  ₿
-                </div>
-                <h3 className="font-bold text-sm text-white group-hover:text-blue-400 transition-colors">
-                  {translateMarketTitle(market.title, language)}
-                </h3>
-              </div>
-
-              {/* Donut Circular Gauge */}
-              <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
-                <svg className="w-10 h-10 -rotate-90 transform" viewBox="0 0 36 36">
-                  <path
-                    className="text-[#1a2538]"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-[#3b82f6]"
-                    strokeDasharray="50, 100"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center justify-center leading-none text-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-white leading-none">50%</span>
-                  <span className="text-[7.5px] font-medium text-neutral-400 leading-none mt-0.5">
-                    {language === 'am' ? 'ከፍ' : 'Up'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Split Dark Green Up / Dark Red Down buttons side-by-side */}
-            <div className="grid grid-cols-2 gap-2.5 my-3">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectOutcome({
-                    market,
-                    outcome: market.outcomes[0],
-                    side: 'up',
-                    price: 50,
-                  });
-                }}
-                className="bg-[#122b20] hover:bg-[#18392a] text-[#4ade80] border border-[#1c3e2e] rounded-xl py-2.5 text-sm font-bold flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-98"
-              >
-                {language === 'am' ? 'ከፍ' : 'Up'}
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectOutcome({
-                    market,
-                    outcome: market.outcomes[1],
-                    side: 'down',
-                    price: 50,
-                  });
-                }}
-                className="bg-[#2d1419] hover:bg-[#3d1921] text-[#f87171] border border-[#451c24] rounded-xl py-2.5 text-sm font-bold flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-98"
-              >
-                {language === 'am' ? 'ዝቅ' : 'Down'}
-              </button>
-            </div>
-          </div>
-
-          {/* Footer: LIVE · Bitcoin + Bookmark */}
-          <div className="mt-3 pt-2.5 border-t border-[#1b2536] flex items-center justify-between text-xs text-neutral-400">
-            <div className="flex items-center gap-1.5 font-medium text-neutral-400">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-              <span>LIVE · Bitcoin</span>
-            </div>
-
-            <button
-              onClick={(e) => toggleBookmark(market.id, e)}
-              className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
-              title="Bookmark market"
-            >
-              <Bookmark
-                className={`w-4 h-4 ${isBookmarked ? 'text-amber-400 fill-amber-400' : ''}`}
-              />
-            </button>
-          </div>
-        </div>
+          market={market}
+          onSelectOutcome={onSelectOutcome}
+          onOpenDetail={onOpenDetail}
+        />
       );
     }
 
@@ -350,7 +415,7 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
               {/* Competitor 1 */}
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  {renderEmblem(out1?.logoType, out1?.countryFlag)}
+                  {renderEmblem(out1?.logoType, out1?.countryFlag, out1?.logoUrl)}
                   {out1?.badge && (
                     <span className="font-mono text-neutral-300 font-bold text-xs shrink-0">
                       {out1.badge}
@@ -368,7 +433,7 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
               {/* Competitor 2 */}
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  {renderEmblem(out2?.logoType, out2?.countryFlag)}
+                  {renderEmblem(out2?.logoType, out2?.countryFlag, out2?.logoUrl)}
                   {out2?.badge && (
                     <span className="font-mono text-neutral-300 font-bold text-xs shrink-0">
                       {out2.badge}
@@ -457,8 +522,7 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
         onClick={() => onOpenDetail?.(market)}
         className="bg-[#101622] border border-[#1a2333] hover:border-[#28374d] rounded-2xl p-4 text-white flex flex-col justify-between transition-all shadow-md group cursor-pointer"
       >
-        <div>
-          {/* Header with Avatar / Logo & Title */}
+        <div>            {/* Header with Avatar / Logo & Title */}
           <div className="flex items-start gap-2.5 mb-3">
             {market.logoType === 'us_open' ? (
               <div className="w-8 h-8 rounded-md bg-white p-0.5 flex flex-col items-center justify-center shrink-0 shadow-xs">
@@ -470,7 +534,18 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
                 src={market.imageUrl}
                 alt={market.title}
                 className="w-8 h-8 rounded-md object-cover shrink-0 border border-[#222c3e]"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
               />
+            ) : null}
+            {market.imageUrl ? (
+              <div className="w-8 h-8 rounded-md bg-[#162030] items-center justify-center text-neutral-300 shrink-0 hidden">
+                <HelpCircle className="w-4 h-4" />
+              </div>
             ) : market.countryFlag ? (
               <span className="text-2xl leading-none shrink-0">{market.countryFlag}</span>
             ) : (
@@ -491,13 +566,44 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
                 key={outcome.name}
                 className="flex items-center justify-between text-xs py-0.5"
               >
-                <span className="text-neutral-200 font-medium truncate max-w-[110px] sm:max-w-[130px]">
-                  {translateOutcomeName(outcome.name, language)}
-                </span>
+                <div className="flex items-center gap-2 min-w-0">
+                  {outcome.avatar ? (
+                    <img
+                      src={outcome.avatar}
+                      alt={outcome.name}
+                      className="w-6 h-6 rounded-full object-cover shrink-0 border border-[#222c3e]"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : outcome.logoUrl ? (
+                    <img
+                      src={outcome.logoUrl}
+                      alt={outcome.name}
+                      className="w-6 h-6 rounded object-cover shrink-0 border border-[#222c3e]"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : outcome.logoType ? (
+                    renderEmblem(outcome.logoType, outcome.countryFlag, outcome.logoUrl)
+                  ) : outcome.countryFlag ? (
+                    <span className="text-lg leading-none shrink-0">{outcome.countryFlag}</span>
+                  ) : null}
+                  <span className="text-neutral-200 font-medium truncate max-w-[100px] sm:max-w-[120px]">
+                    {translateOutcomeName(outcome.name, language)}
+                  </span>
+                </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="font-mono font-bold text-white text-xs mr-1">
                     {outcome.probability}%
+                  </span>
+                  <span
+                    className="text-[9px] font-mono font-bold text-neutral-500 bg-[#151d2b] border border-[#222c3e] rounded px-1 py-0.5"
+                    title={`${language === 'am' ? 'የብዜት ዕድል' : 'Multiplier odds'}`}
+                  >
+                    ×{outcome.probability > 0 ? (100 / outcome.probability).toFixed(2) : '1.00'}
                   </span>
 
                   <button

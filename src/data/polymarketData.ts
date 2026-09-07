@@ -157,6 +157,7 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
   category: 'Elections',
   subcategory: 'Ethiopia',
   countryFlag: '🇪🇹',
+  imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
   volume: '$285,817,256 Vol. • May 31, 2026',
   displayType: 'multi_outcome',
   commentsCount: 43,
@@ -168,7 +169,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 97.1,
       noPrice: 4.1,
       volume: '$142,743 Vol.',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Abiy_Ahmed_Portrait.jpg',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Belete Molla',
@@ -177,6 +179,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 0.8,
       noPrice: 99.8,
       volume: '$32,288,756 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Belete_Molla.png',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Gedion Timothewos',
@@ -185,6 +189,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 1.3,
       noPrice: 99.8,
       volume: '$15,933,718 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Minister_of_Foreign_Affairs_Gedion_Timothewos.jpg',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Berhanu Nega',
@@ -193,6 +199,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 0.4,
       noPrice: 99.8,
       volume: '$14,896,151 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Birhanu_Nega.png',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Aleso Mengesho',
@@ -200,6 +208,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 0.6,
       noPrice: 99.6,
       volume: '$13,577,152 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Ethiopia.svg',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Shimelis Abdisa',
@@ -207,6 +217,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 0.5,
       noPrice: 99.5,
       volume: '$41,422,322 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Shimelis_Abdisa_in_2018.jpg',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Adanech Abiebie',
@@ -214,6 +226,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 0.5,
       noPrice: 99.8,
       volume: '$89,454,616 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Adanech_Abebe.jpg',
+      countryFlag: '🇪🇹',
     },
     {
       name: 'Demeke Mekonnen',
@@ -221,6 +235,8 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       yesPrice: 0.4,
       noPrice: 99.9,
       volume: '$29,298,548 Vol.',
+      avatar: 'https://commons.wikimedia.org/wiki/Special:FilePath/Demeke_Mekonnen_Hassen_-_2020_(cropped).jpg',
+      countryFlag: '🇪🇹',
     },
   ],
   rulesText: 'General elections are scheduled to be held in Ethiopia on June 1, 2026. This market will resolve to the next individual who officially assumes the office of Prime Minister of Ethiopia following the 2026 General elections.',
@@ -450,8 +466,8 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     displayType: 'multi_outcome',
     logoType: 'us_open',
     outcomes: [
-      { name: 'Carlos Alcaraz', probability: 47, yesPrice: 47, noPrice: 53 },
-      { name: 'Alexander Zverev', probability: 25, yesPrice: 25, noPrice: 75 },
+      { name: 'Carlos Alcaraz', probability: 47, yesPrice: 47, noPrice: 53, logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Carlos_Alcaraz.jpg', countryFlag: '🇪🇸' },
+      { name: 'Alexander Zverev', probability: 25, yesPrice: 25, noPrice: 75, logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Alexander_Zverev.jpg', countryFlag: '🇩🇪' },
     ],
   },
 
@@ -465,8 +481,8 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     matchStatus: 'GAME 4',
     displayType: 'match_versus',
     outcomes: [
-      { name: 'Spirit', probability: 83, badge: '2', logoType: 'spirit', buttonTheme: 'slate', yesPrice: 83, noPrice: 17 },
-      { name: 'MOUZ', probability: 18, badge: '1', logoType: 'mouz', buttonTheme: 'red', yesPrice: 18, noPrice: 82 },
+      { name: 'Spirit', probability: 83, badge: '2', logoType: 'spirit', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Team_Spirit_new_em.svg', countryFlag: '🇷🇺', buttonTheme: 'slate', yesPrice: 83, noPrice: 17 },
+      { name: 'MOUZ', probability: 18, badge: '1', logoType: 'mouz', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Mouz_logo.svg', countryFlag: '🇩🇪', buttonTheme: 'red', yesPrice: 18, noPrice: 82 },
     ],
   },
 
@@ -480,8 +496,8 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     matchStatus: 'GAME 4',
     displayType: 'match_versus',
     outcomes: [
-      { name: 'G2 Esports', probability: 73, badge: '2', logoType: 'g2', buttonTheme: 'red', yesPrice: 73, noPrice: 27 },
-      { name: 'Karmine Corp', probability: 28, badge: '1', logoType: 'karmine', shortName: 'Karmine', buttonTheme: 'slate', yesPrice: 28, noPrice: 72 },
+      { name: 'G2 Esports', probability: 73, badge: '2', logoType: 'g2', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/G2_Esports_logo.svg', countryFlag: '🇩🇪', buttonTheme: 'red', yesPrice: 73, noPrice: 27 },
+      { name: 'Karmine Corp', probability: 28, badge: '1', logoType: 'karmine', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Karmine_Corp_logo.svg', shortName: 'Karmine', countryFlag: '🇫🇷', buttonTheme: 'slate', yesPrice: 28, noPrice: 72 },
     ],
   },
 
@@ -495,8 +511,8 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     matchStatus: 'BOT 5TH',
     displayType: 'match_versus',
     outcomes: [
-      { name: 'Brewers', probability: 30, badge: '6', logoType: 'brewers', buttonTheme: 'blue', yesPrice: 30, noPrice: 70 },
-      { name: 'Reds', probability: 71, badge: '6', logoType: 'reds', buttonTheme: 'red', yesPrice: 71, noPrice: 29 },
+      { name: 'Brewers', probability: 30, badge: '6', logoType: 'brewers', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Milwaukee_Brewers_Baseball_Club_wordmark.svg', countryFlag: '🇺🇸', buttonTheme: 'blue', yesPrice: 30, noPrice: 70 },
+      { name: 'Reds', probability: 71, badge: '6', logoType: 'reds', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cincinnati_Reds_logo.svg', countryFlag: '🇺🇸', buttonTheme: 'red', yesPrice: 71, noPrice: 29 },
     ],
   },
 
@@ -510,8 +526,8 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     matchStatus: 'BOT 1ST',
     displayType: 'match_versus',
     outcomes: [
-      { name: 'Tigers', probability: 59, badge: '2', logoType: 'tigers', buttonTheme: 'blue', yesPrice: 59, noPrice: 41 },
-      { name: 'Guardians', probability: 42, badge: '0', logoType: 'guardians', buttonTheme: 'red', yesPrice: 42, noPrice: 58 },
+      { name: 'Tigers', probability: 59, badge: '2', logoType: 'tigers', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Detroit_Tigers_logo.svg', countryFlag: '🇺🇸', buttonTheme: 'blue', yesPrice: 59, noPrice: 41 },
+      { name: 'Guardians', probability: 42, badge: '0', logoType: 'guardians', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cleveland_Guardians_logo.svg', countryFlag: '🇺🇸', buttonTheme: 'red', yesPrice: 42, noPrice: 58 },
     ],
   },
 
@@ -525,8 +541,8 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     matchStatus: 'S2',
     displayType: 'match_versus',
     outcomes: [
-      { name: 'M. Kostyuk', probability: 40, badge: '5 1', countryFlag: '🇺🇦', buttonTheme: 'olive', yesPrice: 40, noPrice: 60 },
-      { name: 'L. Noskova', probability: 61, badge: '7 1', countryFlag: '🇨🇿', buttonTheme: 'red', yesPrice: 61, noPrice: 39 },
+      { name: 'M. Kostyuk', probability: 40, badge: '5 1', countryFlag: '🇺🇦', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Marta_Kostyuk_(2023_US_Open)_20_(cropped).jpg', buttonTheme: 'olive', yesPrice: 40, noPrice: 60 },
+      { name: 'L. Noskova', probability: 61, badge: '7 1', countryFlag: '🇨🇿', logoUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Linda_Noskov%C3%A1_(2023_US_Open)_05.jpg', buttonTheme: 'red', yesPrice: 61, noPrice: 39 },
     ],
   },
 
@@ -540,13 +556,14 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Sports',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ethiopian_Football_Federation_logo.png',
     volume: '$12.5M Vol.',
     displayType: 'multi_outcome',
     outcomes: [
-      { name: 'CBE SA (ኢትዮጵያ ንግድ ባንክ)', probability: 46, yesPrice: 46, noPrice: 54 },
-      { name: 'Saint George SC (ቅዱስ ጊዮርጊስ)', probability: 32, yesPrice: 32, noPrice: 68 },
-      { name: 'Fasil Kenema (ፋሲል ከነማ)', probability: 14, yesPrice: 14, noPrice: 86 },
-      { name: 'Defense Force SC (መከላከያ)', probability: 8, yesPrice: 8, noPrice: 92 },
+      { name: 'CBE SA (ኢትዮጵያ ንግድ ባንክ)', probability: 46, yesPrice: 46, noPrice: 54, logoType: 'cbe-sa' },
+      { name: 'Saint George SC (ቅዱስ ጊዮርጊስ)', probability: 32, yesPrice: 32, noPrice: 68, logoType: 'saint-george' },
+      { name: 'Fasil Kenema (ፋሲል ከነማ)', probability: 14, yesPrice: 14, noPrice: 86, logoType: 'fasil-kenema' },
+      { name: 'Defense Force SC (መከላከያ)', probability: 8, yesPrice: 8, noPrice: 92, logoType: 'defense-force' },
     ],
   },
 
@@ -557,6 +574,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Tech',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/GERD_Dam.jpg',
     volume: '$67.3M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -572,6 +590,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Economy',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/National_Bank_of_Ethiopia_logo.png',
     volume: '$24.6M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -587,6 +606,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Geopolitics',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$42.1M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -602,6 +622,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Crypto',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$19.8M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -617,6 +638,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Sports',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Ethiopia.svg',
     volume: '$8.9M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -632,6 +654,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Culture',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Ethiopia.svg',
     volume: '$14.1M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -647,6 +670,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$6.2M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -662,6 +686,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$3.4M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -677,6 +702,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$4.8M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -692,6 +718,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Politics',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$21.5M Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -707,6 +734,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Economy',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Emblem_of_Ethiopia.svg',
     volume: '$16.8M Vol.',
     displayType: 'binary_buttons',
     outcomes: [

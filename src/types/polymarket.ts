@@ -9,6 +9,7 @@ export interface PolymarketOutcome {
   volume?: string;
   avatar?: string;
   logoType?: string;
+  logoUrl?: string;
   buttonTheme?: string;
   shortName?: string;
   countryFlag?: string;
