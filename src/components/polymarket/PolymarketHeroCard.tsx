@@ -20,6 +20,7 @@ import {
   translateMarketTitle,
   translateOutcomeName,
   formatBirrVolume,
+  formatSantim,
 } from '../../data/polymarketTranslations';
 
 interface PolymarketHeroCardProps {
@@ -98,7 +99,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
       case 'btc-up-down':
         return {
           labels: ['2:10 PM', '2:11 PM', '2:12 PM', '2:13 PM', '2:14 PM', '2:15 PM'],
-          yTicks: ['$79,840', '$79,835', '$79,830', '$79,825', '$79,820'],
+          yTicks: ['79,840 ETB', '79,835 ETB', '79,830 ETB', '79,825 ETB', '79,820 ETB'],
           targetLine: 79829,
           lines: [
             {
@@ -245,7 +246,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   }
                   className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
                 >
-                  <span>{translateOutcomeName('Yes', language)} 16¢</span>
+                  <span>{translateOutcomeName('Yes', language)} {formatSantim(16, language)}</span>
                   <span className="text-xs text-emerald-300 font-normal">
                     16% {language === 'am' ? 'ዕድል' : 'chance'}
                   </span>
@@ -261,7 +262,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   }
                   className="flex-1 py-2.5 px-4 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
                 >
-                  <span>{translateOutcomeName('No', language)} 84¢</span>
+                  <span>{translateOutcomeName('No', language)} {formatSantim(84, language)}</span>
                   <span className="text-xs text-red-300 font-normal">
                     84% {language === 'am' ? 'ዕድል' : 'chance'}
                   </span>
@@ -275,7 +276,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                       {language === 'am' ? 'የሚበልጠው ዋጋ' : 'Price to Beat'}
                     </div>
                     <div className="font-mono font-bold text-white text-base">
-                      ${slide.priceToBeat?.toLocaleString()}
+                      {slide.priceToBeat?.toLocaleString()} ETB
                     </div>
                   </div>
                   <div className="text-right">
@@ -283,7 +284,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                       {language === 'am' ? 'የአሁኑ ዋጋ' : 'Current Price'}
                     </div>
                     <div className="font-mono font-bold text-amber-400 text-base">
-                      ${slide.currentPrice?.toLocaleString()}
+                      {slide.currentPrice?.toLocaleString()} ETB
                     </div>
                   </div>
                 </div>

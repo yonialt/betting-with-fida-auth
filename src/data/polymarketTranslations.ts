@@ -294,19 +294,19 @@ export const formatBirr = (amount: number | string, lang: Language = 'en'): stri
     minimumFractionDigits: num % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   });
-  return lang === 'am' ? `${formatted} ብር` : `${formatted} Birr`;
+  return lang === 'am' ? `${formatted} ብር` : `${formatted} ETB`;
 };
 
 /**
- * Format a volume string into Birr
- * e.g., "$99,274,089 Vol." -> "99,274,089 ብር ዝውውር" or "99,274,089 Birr Vol."
- * e.g., "$87.4m" -> "87.4M ብር" or "87.4M Birr"
+ * Format a volume string into Birr / ETB
+ * e.g., "$99,274,089 Vol." -> "99,274,089 ብር ዝውውር" or "99,274,089 ETB Vol."
+ * e.g., "$87.4m" -> "87.4M ብር" or "87.4M ETB"
  */
 export const formatBirrVolume = (volumeStr: string | undefined, lang: Language = 'en'): string => {
   if (!volumeStr) return '';
   let str = volumeStr.replace(/\$/g, '').trim();
   if (lang === 'am') {
-    str = str.replace(/Vol\./gi, 'ዝውውር').replace(/Vol/gi, 'ዝውውር');
+    str = str.replace(/Vol\./gi, 'ዝውውር').replace(/Vol/gi, 'ዝውውር').replace(/today/gi, 'ዛሬ');
     if (!str.includes('ብር')) {
       if (str.includes('ዝውውር')) {
         str = str.replace('ዝውውር', 'ብር ዝውውር');
@@ -316,15 +316,28 @@ export const formatBirrVolume = (volumeStr: string | undefined, lang: Language =
     }
     return str;
   } else {
-    if (!str.includes('Birr')) {
+    if (!str.includes('ETB') && !str.includes('Birr')) {
       if (str.includes('Vol.')) {
-        str = str.replace('Vol.', 'Birr Vol.');
+        str = str.replace('Vol.', 'ETB Vol.');
       } else if (str.includes('Vol')) {
-        str = str.replace('Vol', 'Birr Vol');
+        str = str.replace('Vol', 'ETB Vol');
+      } else if (str.includes('today')) {
+        str = str.replace('today', 'ETB today');
       } else {
-        str = `${str} Birr`;
+        str = `${str} ETB`;
       }
     }
     return str;
   }
+};
+
+/**
+ * Format cents / santim (sub-unit of Ethiopian Birr)
+ * 1 Birr (ETB) = 100 Santim (ሳንቲም)
+ * e.g. 52 or "52¢" -> "52 ሳንቲም" or "52 Santim"
+ */
+export const formatSantim = (cents: number | string | undefined, lang: Language = 'en'): string => {
+  if (cents === undefined || cents === null) return '';
+  const clean = typeof cents === 'string' ? cents.replace(/[¢$]/g, '').trim() : String(cents);
+  return lang === 'am' ? `${clean} ሳንቲም` : `${clean} Santim`;
 };

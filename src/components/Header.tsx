@@ -16,6 +16,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
+import { LanguageToggle } from './LanguageToggle';
 
 export const Header: React.FC = () => {
   const {
@@ -25,6 +26,7 @@ export const Header: React.FC = () => {
     setDepositModalOpen,
     openAuthModal,
     logout,
+    appMode,
     setAppMode,
   } = useBetting();
 
@@ -45,6 +47,14 @@ export const Header: React.FC = () => {
     }`;
 
   const isNavActive = (tab: string) => activeNavTab === tab;
+
+  const handleNavTabClick = (tab: string) => {
+    setActiveNavTab(tab);
+  };
+
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <header
@@ -67,7 +77,7 @@ export const Header: React.FC = () => {
           borderRadius: '0px',
           backgroundColor: '#1b2838',
           height: '46px',
-          width: '1354px',
+          width: '100%',
           borderWidth: '1px',
         }}
       >
@@ -178,6 +188,9 @@ export const Header: React.FC = () => {
             </>
           )}
 
+          {/* Language Selection Popout (Globe Icon) */}
+          <LanguageToggle />
+
           {/* Settings Gear */}
           <button
             id="btn-settings"
@@ -212,7 +225,7 @@ export const Header: React.FC = () => {
             {/* TOP-EVENTS */}
             <button
               id="nav-top-events"
-              onClick={() => setActiveNavTab('top-events')}
+              onClick={() => handleNavTabClick('top-events')}
               className={categoryLinkClass(isNavActive('top-events'))}
             >
               <Flame className={categoryIconClass(isNavActive('top-events'))} />
@@ -223,7 +236,7 @@ export const Header: React.FC = () => {
             {/* SPORTS */}
             <button
               id="nav-sports"
-              onClick={() => setActiveNavTab('sports')}
+              onClick={() => handleNavTabClick('sports')}
               className={categoryLinkClass(isNavActive('sports'))}
             >
               <Zap className={categoryIconClass(isNavActive('sports'))} />
@@ -234,7 +247,7 @@ export const Header: React.FC = () => {
             {/* LIVE */}
             <button
               id="nav-live"
-              onClick={() => setActiveNavTab('live')}
+              onClick={() => handleNavTabClick('live')}
               className={categoryLinkClass(isNavActive('live'))}
             >
               <Radio
@@ -248,7 +261,7 @@ export const Header: React.FC = () => {
             {/* ESPORTS */}
             <button
               id="nav-esports"
-              onClick={() => setActiveNavTab('esports')}
+              onClick={() => handleNavTabClick('esports')}
               className={categoryLinkClass(isNavActive('esports'))}
             >
               <Gamepad2 className={categoryIconClass(isNavActive('esports'))} />
@@ -267,7 +280,7 @@ export const Header: React.FC = () => {
             {/* CASINO */}
             <button
               id="nav-casino"
-              onClick={() => setActiveNavTab('casino')}
+              onClick={() => handleNavTabClick('casino')}
               className={categoryLinkClass(isNavActive('casino'))}
             >
               <Spade className={categoryIconClass(isNavActive('casino'))} />
@@ -278,7 +291,7 @@ export const Header: React.FC = () => {
             {/* LIVE CASINO */}
             <button
               id="nav-live-casino"
-              onClick={() => setActiveNavTab('live-casino')}
+              onClick={() => handleNavTabClick('live-casino')}
               className={categoryLinkClass(isNavActive('live-casino'))}
             >
               <Tv className={categoryIconClass(isNavActive('live-casino'))} />
@@ -297,7 +310,8 @@ export const Header: React.FC = () => {
               P
             </div>
             <span className="font-extrabold tracking-tight">POLYMARKET</span>
-            <span className="bg-[#ffc600] text-black text-[9px] px-1 py-0.2 rounded font-black tracking-wider">
+            <span className="bg-[#ffc600] text-black text-[9px] px-1 py-0.2 rounded font-black tracking-wider flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
               LIVE
             </span>
           </button>
@@ -318,7 +332,7 @@ export const Header: React.FC = () => {
       >
         <div
           id="brand-logo"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={handleLogoClick}
           className="absolute left-[15px] sm:left-[13px] lg:left-[11px] top-[42px] sm:top-[46px] lg:top-[50px] -translate-y-1/2 w-[86px] h-[86px] sm:w-[98px] sm:h-[98px] lg:w-[110px] lg:h-[110px] overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform active:scale-95"
           style={{
             borderRadius: '192px',

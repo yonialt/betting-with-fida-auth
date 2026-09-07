@@ -3,14 +3,16 @@ import {
   Search,
   X,
   ChevronLeft,
+  ChevronDown,
   LogOut,
-  MessageSquare,
-  Sparkles,
-  ExternalLink,
-  Shield,
-  HelpCircle,
   Wallet,
-  TrendingUp,
+  Plus,
+  User,
+  Check,
+  Settings,
+  Sparkles,
+  HelpCircle,
+  MessageSquare,
 } from 'lucide-react';
 import { useBetting } from '../../context/BettingContext';
 import { HowItWorksModal } from './HowItWorksModal';
@@ -34,6 +36,7 @@ interface PolymarketHeaderProps {
   onToggleChat?: () => void;
   chatOpen?: boolean;
   onOpenMarketDetail?: (market: PolymarketMarket) => void;
+  children?: React.ReactNode;
 }
 
 export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
@@ -42,10 +45,21 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   activeViewTab,
   setActiveViewTab,
   onToggleChat,
-  chatOpen,
+  chatOpen: _chatOpen,
   onOpenMarketDetail,
+  children,
 }) => {
-  const { user, setAppMode, logout, language } = useBetting();
+  const {
+    user,
+    setAppMode,
+    logout,
+    language,
+    setLoginModalOpen,
+    setSettingsModalOpen,
+    setDepositModalOpen,
+    openAuthModal,
+  } = useBetting();
+
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState<boolean>(false);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
@@ -88,7 +102,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
     if (found) {
       onOpenMarketDetail?.(found);
     } else {
-      // Filter by title
       setSearchQuery(itemTitle);
       setActiveViewTab('all');
     }
@@ -103,264 +116,361 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
     );
   });
 
-
   return (
     <>
+      {/* Top Dark Navy Blue Navbar of Sportbetting with Polymarket Search + Second Navbar + Fender Arch Logo */}
       <header
         id="polymarket-main-header"
-        className="w-full bg-[#090d14] border-b border-[#181f2c] text-white select-none sticky top-0 z-40"
+        className="relative w-full bg-white border-b select-none sticky top-0 z-40 shadow-xs"
+        style={{
+          backgroundColor: '#1b2838',
+          borderColor: '#1b2838',
+        }}
       >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 h-[56px] flex items-center justify-between gap-3 sm:gap-6">
-          {/* Left: Polymarket Logo & Search */}
-          <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {/* Logo Mark + Text */}
-            <div
-              onClick={() => {
-                setActiveViewTab('featured');
-                setSearchQuery('');
-              }}
-              className="flex items-center gap-2.5 cursor-pointer shrink-0 transition-opacity hover:opacity-90"
-              title="Polymarket Home"
-            >
-              {/* Exact Polymarket Isometric Wireframe Polyhedron Logo */}
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#ffffff"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-6 h-6 shrink-0"
+        <div
+          className="top-navbar-cutout w-full bg-[#1b2838] text-white pl-[100px] sm:pl-[120px] lg:pl-[138px] pr-3 sm:pr-4 h-[46px] flex items-center justify-between gap-2 sm:gap-3 border-b border-neutral-800"
+          style={{
+            marginLeft: '-2px',
+            borderRadius: '0px',
+            backgroundColor: '#1b2838',
+            height: '46px',
+            width: '100%',
+            borderWidth: '1px',
+          }}
+        >
+          {/* Middle: Search Polymarket Event Searching Bar */}
+          <div ref={searchContainerRef} className="flex-1 max-w-[540px] min-w-0 relative mx-1 sm:mx-3">
+            <Search className="w-4 h-4 text-[#72859e] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              id="polymarket-search-input"
+              type="text"
+              value={searchQuery}
+              onFocus={() => setSearchFocused(true)}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('search_placeholder', language, 'Search polymarkets...')}
+              className="w-full h-[32px] sm:h-[34px] bg-[#111c29] hover:bg-[#142335] focus:bg-[#16273c] border border-[#25394f] focus:border-blue-500 rounded-lg pl-9 pr-8 text-xs sm:text-[13px] text-white placeholder-[#72859e] focus:outline-none transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-neutral-400 hover:text-white rounded cursor-pointer"
               >
-                {/* Outer perimeter hexagon */}
-                <path d="M12 2.5L21.5 8V16L12 21.5L2.5 16V8L12 2.5Z" />
-                {/* Vertical spine */}
-                <path d="M12 2.5V21.5" />
-                {/* Diagonals forming triangular facets */}
-                <path d="M2.5 8L21.5 16" />
-                <path d="M2.5 16L21.5 8" />
-              </svg>
+                <X className="w-3 h-3" />
+              </button>
+            )}
 
-              <span className="font-bold text-[19px] tracking-[-0.025em] text-white select-none">
-                Polymarket
-              </span>
-            </div>
+            {/* Autocomplete Dropdown */}
+            {searchFocused && (
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#0e1622] border border-[#22354c] rounded-xl shadow-2xl z-50 overflow-hidden text-xs">
+                {/* Tabs: Markets | Profiles */}
+                <div className="flex items-center border-b border-[#1b2536] bg-[#0b1018] px-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setSearchTab('markets')}
+                    className={`pb-2 px-3 font-bold border-b-2 transition-colors cursor-pointer ${
+                      searchTab === 'markets'
+                        ? 'border-blue-500 text-white'
+                        : 'border-transparent text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {t('markets_tab', language, 'Markets')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchTab('profiles')}
+                    className={`pb-2 px-3 font-bold border-b-2 transition-colors cursor-pointer ${
+                      searchTab === 'profiles'
+                        ? 'border-blue-500 text-white'
+                        : 'border-transparent text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {t('profiles_tab', language, 'Profiles')}
+                  </button>
+                </div>
 
-            {/* Search Input Bar (matching screenshot layout & placeholder) */}
-            <div ref={searchContainerRef} className="flex-1 max-w-[540px] relative hidden sm:block">
-              <Search className="w-4 h-4 text-[#52637a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                id="polymarket-search-input"
-                type="text"
-                value={searchQuery}
-                onFocus={() => setSearchFocused(true)}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('search_placeholder', language, 'Search polymarkets...')}
-                className="w-full h-[38px] bg-[#111622] hover:bg-[#141a28] focus:bg-[#161f30] border border-[#1e2738] focus:border-[#2b3a52] rounded-lg pl-10 pr-4 text-[13.5px] text-white placeholder-[#52637a] focus:outline-none transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#64748b] hover:text-white rounded"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-
-              {/* Autocomplete Dropdown */}
-              {searchFocused && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-[#0e141f] border border-[#1e293b] rounded-xl shadow-2xl z-50 overflow-hidden text-xs">
-                  {/* Tabs: Markets | Profiles */}
-                  <div className="flex items-center border-b border-[#1b2536] bg-[#0b1018] px-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setSearchTab('markets')}
-                      className={`pb-2 px-3 font-bold border-b-2 transition-colors cursor-pointer ${
-                        searchTab === 'markets'
-                          ? 'border-blue-500 text-white'
-                          : 'border-transparent text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {t('markets_tab', language, 'Markets')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSearchTab('profiles')}
-                      className={`pb-2 px-3 font-bold border-b-2 transition-colors cursor-pointer ${
-                        searchTab === 'profiles'
-                          ? 'border-blue-500 text-white'
-                          : 'border-transparent text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {t('profiles_tab', language, 'Profiles')}
-                    </button>
-                  </div>
-
-                  {/* List of Suggestions */}
-                  <div className="max-h-80 overflow-y-auto divide-y divide-[#17202f]">
-                    {searchTab === 'markets' ? (
-                      filteredSearchItems.length > 0 ? (
-                        filteredSearchItems.map((item) => (
-                          <div
-                            key={item.id}
-                            onClick={() => handleSelectSearchItem(item.id, item.title)}
-                            className="p-3 hover:bg-[#162132] cursor-pointer flex items-center justify-between gap-3 transition-colors"
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              {item.flag ? (
-                                <span className="text-xl leading-none shrink-0">{item.flag}</span>
-                              ) : (
-                                <div className="w-7 h-7 rounded-lg bg-[#182335] text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">
-                                  P
-                                </div>
-                              )}
-                              <div className="min-w-0">
-                                <div className="font-bold text-white truncate text-xs">
-                                  {translateMarketTitle(item.title, language)}
-                                </div>
-                                {item.subtitle && (
-                                  <div className="text-[11px] text-neutral-400 truncate mt-0.5">
-                                    {item.subtitle}
-                                  </div>
-                                )}
+                {/* List of Suggestions */}
+                <div className="max-h-80 overflow-y-auto divide-y divide-[#17202f]">
+                  {searchTab === 'markets' ? (
+                    filteredSearchItems.length > 0 ? (
+                      filteredSearchItems.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => handleSelectSearchItem(item.id, item.title)}
+                          className="p-3 hover:bg-[#162132] cursor-pointer flex items-center justify-between gap-3 transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {item.flag ? (
+                              <span className="text-xl leading-none shrink-0">{item.flag}</span>
+                            ) : (
+                              <div className="w-7 h-7 rounded-lg bg-[#182335] text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                P
                               </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0">
-                              {item.date && (
-                                <span className="text-[11px] text-neutral-400 font-mono hidden md:inline">
-                                  {item.date}
-                                </span>
-                              )}
-                              {item.change && (
-                                <span className="text-[11px] text-emerald-400 font-mono font-semibold">
-                                  {item.change}
-                                </span>
-                              )}
-                              {item.prob !== undefined && (
-                                <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono font-bold text-xs border border-blue-500/20">
-                                  {item.prob}%
-                                </span>
+                            )}
+                            <div className="min-w-0">
+                              <div className="font-bold text-white truncate text-xs">
+                                {translateMarketTitle(item.title, language)}
+                              </div>
+                              {item.subtitle && (
+                                <div className="text-[11px] text-neutral-400 truncate mt-0.5">
+                                  {item.subtitle}
+                                </div>
                               )}
                             </div>
                           </div>
-                        ))
-                      ) : (
-                        <div className="p-4 text-center text-neutral-400 text-xs">
-                          {t('no_matching_markets', language, 'No matching polymarkets found')}
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            {item.date && (
+                              <span className="text-[11px] text-neutral-400 font-mono hidden md:inline">
+                                {item.date}
+                              </span>
+                            )}
+                            {item.change && (
+                              <span className="text-[11px] text-emerald-400 font-mono font-semibold">
+                                {item.change}
+                              </span>
+                            )}
+                            {item.prob !== undefined && (
+                              <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono font-bold text-xs border border-blue-500/20">
+                                {item.prob}%
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      )
+                      ))
                     ) : (
                       <div className="p-4 text-center text-neutral-400 text-xs">
-                        No user profiles found
+                        {t('no_matching_markets', language, 'No matching polymarkets found')}
                       </div>
-                    )}
-                  </div>
-
-                  {/* See all results footer */}
-                  <div
-                    onClick={() => {
-                      setSearchFocused(false);
-                      setActiveViewTab('all');
-                    }}
-                    className="p-2.5 bg-[#0b1018] border-t border-[#1b2536] text-center text-blue-400 hover:text-blue-300 font-semibold cursor-pointer text-xs"
-                  >
-                    {t('see_all_results', language, 'See all results for')} "{searchQuery || 'markets'}" →
-                  </div>
+                    )
+                  ) : (
+                    <div className="p-4 text-center text-neutral-400 text-xs">
+                      No user profiles found
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+
+                {/* See all results footer */}
+                <div
+                  onClick={() => {
+                    setSearchFocused(false);
+                    setActiveViewTab('all');
+                  }}
+                  className="p-2.5 bg-[#0b1018] border-t border-[#1b2536] text-center text-blue-400 hover:text-blue-300 font-semibold cursor-pointer text-xs"
+                >
+                  {t('see_all_results', language, 'See all results for')} "{searchQuery || 'markets'}" →
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Right: Actions (LanguageToggle, How it works, Log in, Sign up, Menu) */}
+          {/* Right: Sportbetting Top Navbar Account Utilities & Controls */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Language Toggle Button */}
+            {user.isLoggedIn ? (
+              <>
+                {/* Connected Wallet & Balance Capsule */}
+                <div
+                  id="header-balance-wallet-pill"
+                  className="flex items-center rounded-full bg-[#0d1723]/90 hover:bg-[#121f2f] border border-neutral-700/70 hover:border-emerald-500/50 p-0.5 transition-all shadow-inner group"
+                >
+                  {/* Balance Display (opens Wallet modal on click) */}
+                  <button
+                    type="button"
+                    onClick={() => setLoginModalOpen(true)}
+                    className="flex items-center gap-1.5 pl-2.5 pr-2 py-0.5 text-left cursor-pointer focus:outline-none"
+                    title="Wallet balance — click for details"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                      <Wallet className="w-2.5 h-2.5 text-emerald-400" />
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="font-mono font-extrabold text-[12px] text-white tracking-tight">
+                        {user.balance.toLocaleString()}
+                      </span>
+                      <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">
+                        {user.currency}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Quick Deposit Button */}
+                  <button
+                    id="btn-deposit"
+                    onClick={() => setDepositModalOpen(true)}
+                    className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[10px] font-extrabold rounded-full transition-all shadow-xs active:scale-95 cursor-pointer ml-0.5"
+                    title="Deposit Funds"
+                  >
+                    <Plus className="w-3 h-3 stroke-[3]" />
+                    <span className="hidden md:inline">DEPOSIT</span>
+                  </button>
+                </div>
+
+                {/* User Profile Capsule */}
+                <div
+                  id="btn-user-profile"
+                  onClick={() => setLoginModalOpen(true)}
+                  className="flex items-center gap-2 pl-1.5 pr-2 sm:pr-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#131f2d] to-[#0d1622] hover:from-[#192738] hover:to-[#121c2b] border border-white/10 hover:border-cyan-500/40 cursor-pointer transition-all shadow-xs group select-none"
+                  title="Account Profile & Settings"
+                >
+                  <div className="relative shrink-0">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-1 ring-white/20 group-hover:ring-cyan-400/60 transition-all">
+                      {user.username ? (
+                        <span className="leading-none select-none tracking-tight font-mono text-[11px]">
+                          {user.username.charAt(0).toUpperCase()}
+                        </span>
+                      ) : (
+                        <User className="w-3.5 h-3.5 text-white stroke-[2.2]" />
+                      )}
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1.5 ring-[#0d1622]" />
+                  </div>
+
+                  <div className="hidden sm:flex flex-col text-left leading-none">
+                    <span className="text-[11px] font-extrabold text-white group-hover:text-cyan-300 transition-colors truncate max-w-[80px]">
+                      {user.username || 'Account'}
+                    </span>
+                    <div className="flex items-center gap-0.5 mt-0.5">
+                      <span className="inline-flex items-center gap-0.5 text-[8px] font-extrabold text-emerald-400 bg-emerald-500/10 px-1 rounded border border-emerald-500/20 uppercase tracking-wide">
+                        <Check className="w-2 h-2 stroke-[3]" />
+                        Verified
+                      </span>
+                    </div>
+                  </div>
+
+                  <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:text-white transition-transform group-hover:translate-y-0.5 shrink-0 ml-0.5 hidden sm:block" />
+                </div>
+
+                {/* Log out button */}
+                <button
+                  id="btn-logout"
+                  onClick={logout}
+                  title="Log out"
+                  className="p-1.5 text-neutral-400 hover:text-rose-300 hover:bg-neutral-800/90 rounded-full transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  id="btn-login"
+                  onClick={() => openAuthModal('login')}
+                  className="px-3 sm:px-3.5 py-1 text-white text-[11px] font-black rounded uppercase tracking-wider transition-all cursor-pointer border border-neutral-600 hover:bg-neutral-800"
+                >
+                  LOG IN
+                </button>
+                <button
+                  id="btn-signup"
+                  onClick={() => openAuthModal('signup')}
+                  className="px-3 sm:px-3.5 py-1 bg-[#ffc600] hover:bg-[#f0ba00] text-black text-[11px] font-black rounded uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+                >
+                  SIGN UP
+                </button>
+              </>
+            )}
+
+            {/* Language Toggle Popout */}
             <LanguageToggle />
 
             {/* How it works Button */}
             <button
               id="btn-polymarket-how-it-works"
               onClick={() => setHowItWorksOpen(true)}
-              className="flex items-center gap-1.5 text-[13.5px] font-semibold text-white hover:text-neutral-200 transition-colors cursor-pointer px-2 py-1.5 rounded-md hover:bg-[#141b27]"
+              className="hidden lg:flex items-center gap-1.5 text-[11.5px] font-semibold text-neutral-300 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-white/5"
               title="How Polymarket Works"
             >
-              {/* Circle 'i' glyph matching screenshot */}
-              <span className="w-4 h-4 rounded-full border border-[#52637a] flex items-center justify-center text-[10.5px] font-serif italic text-[#94a3b8] leading-none shrink-0">
+              <span className="w-3.5 h-3.5 rounded-full border border-neutral-500 flex items-center justify-center text-[9.5px] font-serif italic text-neutral-300 leading-none shrink-0">
                 i
               </span>
-              <span className="hidden md:inline">{t('how_it_works', language, 'How it works')}</span>
+              <span>{t('how_it_works', language, 'How it works')}</span>
             </button>
 
-            {/* Auth Buttons */}
-            {user.isLoggedIn ? (
-              <div className="flex items-center gap-2">
-                {/* User chip */}
-                <div className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-lg bg-[#111722] border border-[#1f293a]">
-                  <div className="w-6 h-6 rounded-md bg-[#0066ff] text-white flex items-center justify-center text-[11px] font-bold uppercase">
-                    {user.username.charAt(0)}
-                  </div>
-                  <span className="text-[13px] font-semibold text-neutral-200 max-w-[90px] truncate">
-                    {user.username}
-                  </span>
-                </div>
+            {/* Settings Gear Modal Button */}
+            <button
+              id="btn-settings"
+              onClick={() => setSettingsModalOpen(true)}
+              className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-full transition-colors cursor-pointer"
+              title="Settings"
+            >
+              <Settings className="w-3.5 h-3.5" />
+            </button>
 
-                <button
-                  id="btn-polymarket-header-logout"
-                  onClick={logout}
-                  className="p-2 text-neutral-400 hover:text-white hover:bg-[#161e2c] rounded-lg transition-colors cursor-pointer"
-                  title={t('logout', language, 'Log out')}
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                {/* Log in Button */}
-                <button
-                  id="btn-polymarket-login"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="h-[36px] px-3.5 sm:px-4 rounded-lg bg-transparent hover:bg-[#161e2c] border border-[#263346] text-white text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap"
-                >
-                  {t('login', language, 'Log in')}
-                </button>
-
-                {/* Sign up Button */}
-                <button
-                  id="btn-polymarket-signup"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="h-[36px] px-4 sm:px-4.5 rounded-lg bg-[#0066ff] hover:bg-[#1a75ff] text-white text-[13.5px] font-bold transition-all cursor-pointer shadow-xs whitespace-nowrap active:scale-98"
-                >
-                  {t('signup', language, 'Sign up')}
-                </button>
-              </div>
-            )}
-
-            {/* Two-Bar Hamburger Menu Icon matching screenshot */}
+            {/* Mobile Hamburger Menu Icon */}
             <button
               id="btn-polymarket-hamburger"
               onClick={() => setDrawerOpen(true)}
-              className="w-9 h-9 flex flex-col items-center justify-center gap-[5px] text-white hover:text-neutral-300 rounded-lg hover:bg-[#161e2c] transition-colors cursor-pointer shrink-0 ml-0.5"
+              className="w-8 h-8 flex flex-col items-center justify-center gap-[4px] text-white hover:text-neutral-300 rounded-lg hover:bg-white/10 transition-colors cursor-pointer shrink-0 md:hidden ml-0.5"
               title="Open Navigation Menu"
             >
-              <span className="w-[18px] h-[2px] bg-white rounded-full transition-all"></span>
-              <span className="w-[18px] h-[2px] bg-white rounded-full transition-all"></span>
+              <span className="w-4 h-[2px] bg-white rounded-full"></span>
+              <span className="w-4 h-[2px] bg-white rounded-full"></span>
             </button>
           </div>
         </div>
 
-        {/* Mobile Search Input (Visible only on very small screens) */}
-        <div className="px-4 pb-2.5 sm:hidden">
-          <div className="relative">
-            <Search className="w-4 h-4 text-[#52637a] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('search_placeholder', language, 'Search polymarkets...')}
-              className="w-full h-[36px] bg-[#111722] border border-[#1e2738] rounded-lg pl-9 pr-4 text-xs text-white placeholder-[#52637a] focus:outline-none"
+        {/* ========================================================
+            NAVBAR 2 (SECOND NAVBAR): Polymarket Category Carousel
+            Shifted right via pl-[118px] sm:pl-[128px] lg:pl-[140px]
+            to ensure zero overlap with the circular logo.
+           ======================================================== */}
+        {children}
+
+        {/* ========================================================
+            LARGE WHITE LOGO AREA — spans the full header height on
+            the left (same pure white as the sports betting fender logo).
+            It holds a single large logo whose center sits exactly on the seam
+            (the top navbar's bottom edge) — the "wheel" position the
+            fender arch below is carved around.
+           ======================================================== */}
+        <div
+          className="absolute inset-y-0 left-0 w-[88px] sm:w-[97px] lg:w-[107px] bg-white z-[6] flex items-center justify-center cursor-pointer select-none"
+          style={{ borderRadius: '66px' }}
+          onClick={() => {
+            setAppMode('1xbet');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          title="Return to ሃገራዊ Sportsbook"
+        >
+          <div
+            id="brand-logo"
+            className="absolute left-[15px] sm:left-[13px] lg:left-[11px] top-[42px] sm:top-[46px] lg:top-[50px] -translate-y-1/2 w-[86px] h-[86px] sm:w-[98px] sm:h-[98px] lg:w-[110px] lg:h-[110px] overflow-hidden flex items-center justify-center cursor-pointer select-none transition-transform active:scale-95"
+            style={{
+              borderRadius: '192px',
+              marginLeft: '-12px',
+              marginRight: '7px',
+              marginTop: '-3px',
+              marginBottom: '-7px',
+              height: '115px',
+              width: '110px',
+              paddingTop: '-10px',
+              paddingLeft: '-12px',
+              paddingRight: '-13px',
+              paddingBottom: '-10px',
+            }}
+          >
+            {/* Rasterized badge (square PNG with a transparent background) */}
+            <img
+              src="/hagerawi-logo.png"
+              alt="Hagerawi Logo"
+              className="absolute block select-none pointer-events-none"
+              style={{ width: '89.7%', maxWidth: 'none', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
             />
           </div>
         </div>
+
+        {/* Concentric circular arc clip paths for the fender cutout */}
+        <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+          <defs>
+            <clipPath id="fender-cutout-mobile" clipPathUnits="userSpaceOnUse">
+              <path d="M 88.66 0 A 52 52 0 0 1 109.65 36 L 9999 36 L 9999 0 Z" />
+            </clipPath>
+            <clipPath id="fender-cutout-sm" clipPathUnits="userSpaceOnUse">
+              <path d="M 97.33 0 A 58 58 0 0 1 119.69 40 L 9999 40 L 9999 0 Z" />
+            </clipPath>
+            <clipPath id="fender-cutout-lg" clipPathUnits="userSpaceOnUse">
+              <path d="M 107.53 0 A 65 65 0 0 1 130.93 47 L 9999 47 L 9999 0 Z" />
+            </clipPath>
+          </defs>
+        </svg>
       </header>
 
       {/* Hamburger Navigation Drawer */}
@@ -381,20 +491,9 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               {/* Drawer Header */}
               <div className="flex items-center justify-between pb-4 border-b border-[#1c2638] mb-4">
                 <div className="flex items-center gap-2">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#ffffff"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-5 h-5"
-                  >
-                    <path d="M12 2.5L21.5 8V16L12 21.5L2.5 16V8L12 2.5Z" />
-                    <path d="M12 2.5V21.5" />
-                    <path d="M2.5 8L21.5 16" />
-                    <path d="M2.5 16L21.5 8" />
-                  </svg>
+                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center overflow-hidden">
+                    <img src="/hagerawi-logo.png" alt="Hagerawi" className="w-[88%] h-[88%] object-contain" />
+                  </div>
                   <span className="font-bold text-base text-white">Polymarket Menu</span>
                 </div>
                 <button

@@ -16,11 +16,11 @@ interface PolymarketCategoriesProps {
 export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
   activeCategory,
   setActiveCategory,
-  isDarkMode = true,
+  isDarkMode = false,
   onToggleDarkMode,
   onSelectMoreOption,
 }) => {
-  const { language } = useBetting();
+  const { language, setAppMode } = useBetting();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
@@ -99,29 +99,35 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
   };
 
   return (
-    <nav
-      id="polymarket-categories-bar"
-      aria-label="Polymarket category navigation"
-      className={`w-full border-b select-none relative z-30 transition-colors ${
-        isDarkMode
-          ? 'bg-[#090d14] border-[#181f2c] text-white'
-          : 'bg-white border-neutral-200 text-neutral-800'
-      }`}
+    <div
+      className="w-full bg-white border-b pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5 select-none"
+      style={{
+        backgroundColor: '#ffffff',
+        borderColor: '#1b2838',
+      }}
     >
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 h-[42px] flex items-center justify-between gap-2 relative">
+      <nav
+        id="polymarket-categories-bar"
+        aria-label="Polymarket category navigation"
+        className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold"
+        style={{ backgroundColor: '#ffffff' }}
+      >
         {/* Scrollable category links */}
         <div
           ref={scrollContainerRef}
-          className="flex items-center gap-3.5 sm:gap-4.5 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-1"
+          className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5"
+          style={{
+            backgroundColor: '#ffffff',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
         >
           {POLYMARKET_CATEGORIES.map((item) => {
             if (item.type === 'divider') {
               return (
                 <div
                   key={item.id}
-                  className={`h-3.5 w-px shrink-0 mx-0.5 ${
-                    isDarkMode ? 'bg-[#263244]' : 'bg-neutral-300'
-                  }`}
+                  className="h-3.5 w-px shrink-0 mx-0.5 bg-neutral-200"
                   aria-hidden="true"
                 />
               );
@@ -134,14 +140,10 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
                 key={item.id}
                 id={`cat-${item.id}`}
                 onClick={() => setActiveCategory(item.id)}
-                className={`flex items-center gap-1.5 whitespace-nowrap text-[13px] sm:text-[13.5px] transition-colors cursor-pointer py-1 ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 lg:px-3 py-1 rounded transition-all whitespace-nowrap cursor-pointer text-[12px] sm:text-[13px] ${
                   isActive
-                    ? isDarkMode
-                      ? 'text-white font-bold tracking-tight'
-                      : 'text-neutral-900 font-bold tracking-tight'
-                    : isDarkMode
-                    ? 'text-[#8e9eb3] hover:text-white font-medium'
-                    : 'text-neutral-500 hover:text-neutral-900 font-medium'
+                    ? 'bg-[#1b2838] text-white shadow-xs font-black'
+                    : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 font-extrabold'
                 }`}
               >
                 {item.type === 'icon' && renderItemIcon(item.iconType)}
@@ -150,44 +152,47 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
             );
           })}
 
-          {/* More v button matching video 02:31 */}
+          {/* More v dropdown button */}
           <button
             id="cat-more-dropdown-btn"
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-            className={`flex items-center gap-1 whitespace-nowrap text-[13px] sm:text-[13.5px] transition-colors cursor-pointer py-1 font-medium ${
+            className={`flex items-center gap-1 px-2 py-1 rounded transition-colors whitespace-nowrap cursor-pointer text-[12px] sm:text-[13px] ${
               moreMenuOpen
-                ? isDarkMode
-                  ? 'text-white font-bold'
-                  : 'text-neutral-900 font-bold'
-                : isDarkMode
-                ? 'text-[#8e9eb3] hover:text-white'
-                : 'text-neutral-500 hover:text-neutral-900'
+                ? 'bg-neutral-100 text-neutral-950 font-black'
+                : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 font-extrabold'
             }`}
           >
             <span>{language === 'am' ? 'ተጨማሪ' : 'More'}</span>
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           </button>
         </div>
 
-        {/* Far-Right Arrow Button matching video ('>') */}
-        <div
-          className={`flex items-center pl-2 shrink-0 ${
-            isDarkMode
-              ? 'bg-gradient-to-l from-[#090d14] via-[#090d14] to-transparent'
-              : 'bg-gradient-to-l from-white via-white to-transparent'
-          }`}
-        >
+        {/* Far-Right: Scroll button & Symmetrical SPORTS LIVE button mirroring Header.tsx */}
+        <div className="flex items-center gap-1.5 pl-2 shrink-0 bg-gradient-to-l from-white via-white to-transparent">
           <button
             onClick={handleScrollRight}
-            className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
-              isDarkMode
-                ? 'text-[#8e9eb3] hover:text-white hover:bg-[#141b27]'
-                : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'
-            }`}
+            className="w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer text-neutral-500 hover:text-neutral-950 hover:bg-neutral-100"
             title="Scroll categories right"
             aria-label="Scroll categories right"
           >
             <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Symmetrical CTA Button mirroring the POLYMARKET LIVE button in Header.tsx */}
+          <button
+            id="nav-sportsbook-live-cta"
+            onClick={() => {
+              setAppMode('1xbet');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black hover:opacity-95 transition-all uppercase tracking-tight shadow-xs active:scale-95 cursor-pointer shrink-0 ml-auto"
+            title="Return to Hagerawi Sportsbook"
+          >
+            <span className="font-extrabold tracking-tight hidden sm:inline">SPORTS</span>
+            <span className="bg-[#ffc600] text-black text-[9px] px-1 py-0.2 rounded font-black tracking-wider flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              LIVE
+            </span>
           </button>
         </div>
 
@@ -202,7 +207,7 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
             setMoreMenuOpen(false);
           }}
         />
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };

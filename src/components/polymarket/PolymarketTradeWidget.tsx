@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
-import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
+import { t, translateMarketTitle, translateOutcomeName, formatSantim } from '../../data/polymarketTranslations';
 
 interface PolymarketTradeWidgetProps {
   market: PolymarketMarket;
@@ -193,7 +193,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             }`}
           >
             <span>{translateOutcomeName('Yes', language)}</span>
-            <span className="font-extrabold">{yesPrice}¢</span>
+            <span className="font-extrabold">{formatSantim(yesPrice, language)}</span>
           </button>
 
           {/* NO Button */}
@@ -206,7 +206,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             }`}
           >
             <span>{translateOutcomeName('No', language)}</span>
-            <span className="font-extrabold">{noPrice}¢</span>
+            <span className="font-extrabold">{formatSantim(noPrice, language)}</span>
           </button>
         </div>
 
@@ -214,14 +214,14 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-neutral-400">
-              {t('amount', language, 'Amount')} ({language === 'am' ? 'ብር' : 'Birr'})
+              {t('amount', language, 'Amount')} ({language === 'am' ? 'ብር' : 'ETB'})
             </span>
             <div className="flex items-center gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold font-mono text-white">
                 {amount}
               </span>
               <span className="text-xs font-bold text-amber-400 font-mono self-end mb-1">
-                {language === 'am' ? 'ብር' : 'Birr'}
+                {language === 'am' ? 'ብር' : 'ETB'}
               </span>
             </div>
           </div>
@@ -234,7 +234,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                 onClick={() => handleQuickAdd(val)}
                 className="px-2.5 py-1 rounded-lg bg-[#1a2232] hover:bg-[#253248] text-neutral-300 hover:text-white border border-[#2e3b52] text-xs font-semibold font-mono transition-all active:scale-95 cursor-pointer"
               >
-                +{val} {language === 'am' ? 'ብር' : 'Birr'}
+                +{val} {language === 'am' ? 'ብር' : 'ETB'}
               </button>
             ))}
             {amount > 0 && (
@@ -254,7 +254,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           <div className="bg-[#171f2d] border border-[#26354a] rounded-xl p-2.5 mb-4 text-xs space-y-1">
             <div className="flex items-center justify-between text-neutral-400">
               <span>{t('avg_price', language, 'Avg Price:')}</span>
-              <span className="font-mono font-bold text-white">{currentPrice}¢</span>
+              <span className="font-mono font-bold text-white">{formatSantim(currentPrice, language)}</span>
             </div>
             <div className="flex items-center justify-between text-neutral-400">
               <span>{t('shares', language, 'Shares:')}</span>
@@ -263,7 +263,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             <div className="flex items-center justify-between text-neutral-400">
               <span>{t('potential_return', language, 'Potential Return:')}</span>
               <span className="font-mono font-bold text-emerald-400">
-                {potentialReturn} {language === 'am' ? 'ብር' : 'Birr'} ({(100 - currentPrice).toFixed(0)}%{language === 'am' ? ' ትርፍ' : ' profit'})
+                {potentialReturn} {language === 'am' ? 'ብር' : 'ETB'} ({(100 - currentPrice).toFixed(0)}%{language === 'am' ? ' ትርፍ' : ' profit'})
               </span>
             </div>
           </div>

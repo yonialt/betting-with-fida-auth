@@ -261,7 +261,7 @@ export const PolymarketPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#0a0d14] text-white flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white relative">
-      {/* 1. Main Polymarket Header */}
+      {/* 1. Main Polymarket Header (Navy Top Navbar + Second Categories Navbar + Fender Arch Logo) */}
       <PolymarketHeader
         searchQuery={searchQuery}
         setSearchQuery={(q) => {
@@ -279,13 +279,13 @@ export const PolymarketPage: React.FC = () => {
         onToggleChat={() => setFloatingChatOpen(!floatingChatOpen)}
         chatOpen={floatingChatOpen}
         onOpenMarketDetail={handleOpenDetail}
-      />
-
-      {/* 2. Category Carousel Filter Bar */}
-      <PolymarketCategories
-        activeCategory={activeCategory}
-        setActiveCategory={handleCategoryChange}
-      />
+      >
+        {/* 2. Category Carousel Filter Bar (Navbar 2) */}
+        <PolymarketCategories
+          activeCategory={activeCategory}
+          setActiveCategory={handleCategoryChange}
+        />
+      </PolymarketHeader>
 
       {/* 3. Main Polymarket Content Area */}
       <main className="flex-1 max-w-[1920px] w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-8">

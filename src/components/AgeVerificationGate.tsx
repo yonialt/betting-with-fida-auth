@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, AlertTriangle, Eye, EyeOff, Globe } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Loader2, AlertTriangle, Eye, EyeOff, Globe, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { SplashScreen } from './SplashScreen';
 import { useBetting } from '../context/BettingContext';
 
@@ -69,8 +70,154 @@ const translations = {
  * Age Verification Gate — styled to match Fayda Partner Portal theme
  * Dark teal/cyan (#1a3a4a) + white + gold accents
  */
+interface FaydaLanguageToggleProps {
+  currentLang: Lang;
+  onSelectLang: (lang: Lang) => void;
+}
+
+const FaydaLanguageToggle: React.FC<FaydaLanguageToggleProps> = ({
+  currentLang,
+  onSelectLang,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimer = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  const handleMouseEnter = () => {
+    clearTimer();
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    clearTimer();
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 240);
+  };
+
+  useEffect(() => {
+    return () => clearTimer();
+  }, []);
+
+  return (
+    <div
+      id="fayda-language-switch-bar"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={() => setIsOpen((prev) => !prev)}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        background: 'rgba(0, 0, 0, 0.28)',
+        padding: '4px 8px',
+        borderRadius: 24,
+        border: '1px solid rgba(255, 255, 255, 0.16)',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.25)',
+        cursor: 'pointer',
+        backdropFilter: 'blur(8px)',
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {/* Previous Globe Icon (on the left, no circular button, no dot) */}
+      <div
+        id="fayda-lang-globe-icon"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'rgba(255, 255, 255, 0.85)',
+          padding: '2px',
+        }}
+        title={currentLang === 'am' ? 'ቋንቋ: አማርኛ (ቀይር)' : 'Language: English (Change)'}
+      >
+        <Globe size={14} style={{ color: 'rgba(255, 255, 255, 0.85)', marginLeft: 2, marginRight: 2 }} />
+      </div>
+
+      {/* Pop out to the RIGHT side: Amharic and English */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            id="fayda-lang-side-popout"
+            role="group"
+            aria-label="Select Language"
+            initial={{ opacity: 0, width: 0, scale: 0.95 }}
+            animate={{ opacity: 1, width: 'auto', scale: 1 }}
+            exit={{ opacity: 0, width: 0, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              marginLeft: 4,
+            }}
+          >
+            {/* Amharic Option */}
+            <button
+              type="button"
+              id="fayda-lang-am-toggle"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectLang('am');
+              }}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 16,
+                border: 'none',
+                fontSize: 12,
+                fontWeight: currentLang === 'am' ? 700 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: currentLang === 'am' ? '#00695c' : 'transparent',
+                color: currentLang === 'am' ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                boxShadow: currentLang === 'am' ? '0 2px 6px rgba(0, 105, 92, 0.5)' : 'none',
+              }}
+              title="ወደ አማርኛ ይቀይሩ"
+            >
+              አማርኛ
+            </button>
+
+            {/* English Option */}
+            <button
+              type="button"
+              id="fayda-lang-en-toggle"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectLang('en');
+              }}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 16,
+                border: 'none',
+                fontSize: 12,
+                fontWeight: currentLang === 'en' ? 700 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: currentLang === 'en' ? '#00695c' : 'transparent',
+                color: currentLang === 'en' ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                boxShadow: currentLang === 'en' ? '0 2px 6px rgba(0, 105, 92, 0.5)' : 'none',
+              }}
+              title="Switch to English"
+            >
+              English
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { ageVerified, markAgeVerified } = useBetting();
+  const { ageVerified, markAgeVerified, setLanguage } = useBetting();
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('fidabet_gate_lang');
@@ -83,6 +230,9 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
     setLang(newLang);
     if (typeof window !== 'undefined') {
       localStorage.setItem('fidabet_gate_lang', newLang);
+    }
+    if (setLanguage) {
+      setLanguage(newLang);
     }
   };
 
@@ -192,62 +342,10 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
       <div style={{ maxWidth: 440, width: '100%' }}>
         {/* Language Switcher Toggle */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          <div
-            id="fayda-language-switch-bar"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              background: 'rgba(0, 0, 0, 0.28)',
-              padding: '4px 6px',
-              borderRadius: 24,
-              border: '1px solid rgba(255, 255, 255, 0.16)',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.25)',
-              marginLeft: 0,
-              marginTop: 0,
-              marginRight: -400,
-            }}
-          >
-            <Globe size={14} style={{ color: 'rgba(255,255,255,0.75)', marginLeft: 6, marginRight: 2 }} />
-            <button
-              type="button"
-              id="fayda-lang-en-toggle"
-              onClick={() => handleLanguageToggle('en')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: 16,
-                border: 'none',
-                fontSize: 12,
-                fontWeight: lang === 'en' ? 700 : 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                background: lang === 'en' ? '#00695c' : 'transparent',
-                color: lang === 'en' ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
-                boxShadow: lang === 'en' ? '0 2px 6px rgba(0, 105, 92, 0.5)' : 'none',
-              }}
-            >
-              English
-            </button>
-            <button
-              type="button"
-              id="fayda-lang-am-toggle"
-              onClick={() => handleLanguageToggle('am')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: 16,
-                border: 'none',
-                fontSize: 12,
-                fontWeight: lang === 'am' ? 700 : 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                background: lang === 'am' ? '#00695c' : 'transparent',
-                color: lang === 'am' ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
-                boxShadow: lang === 'am' ? '0 2px 6px rgba(0, 105, 92, 0.5)' : 'none',
-              }}
-            >
-              አማርኛ
-            </button>
-          </div>
+          <FaydaLanguageToggle
+            currentLang={lang}
+            onSelectLang={handleLanguageToggle}
+          />
         </div>
 
         {/* Logo */}

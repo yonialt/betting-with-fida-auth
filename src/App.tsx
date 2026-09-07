@@ -96,7 +96,13 @@ const BettingAppContent: React.FC = () => {
     return (
       <>
         <PolymarketPage />
+
+        {/* Global Interactive Modals so deposit, settings, wallet, auth work seamlessly */}
+        <LoginModal />
         <AuthModal />
+        <BonusesModal />
+        <SettingsModal />
+        <TelebirrDepositModal />
         <ApiFootballRedisModal
           isOpen={apiFootballModalOpen}
           onClose={() => setApiFootballModalOpen(false)}
