@@ -44,9 +44,16 @@ Production-ready sports betting match and odds engine built with **Spring Boot 3
 
 ## Running with Docker Compose
 
+From the repository root (orchestrates Redis, backend, and frontend together):
+
 ```bash
-cd backend-springboot
 docker compose up -d
+```
+
+Or run the backend stack alone:
+
+```bash
+docker compose up -d redis backend
 ```
 
 Check logs:
@@ -64,7 +71,7 @@ Prerequisites:
 - Local Redis running on port 6379
 
 ```bash
-cd backend-springboot
+cd backend
 export API_FOOTBALL_KEY="your_api_sports_key_here"
 mvn spring-boot:run
 ```

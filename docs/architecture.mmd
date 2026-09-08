@@ -1,0 +1,44 @@
+flowchart LR
+    subgraph clients["Client Layer"]
+        UI["Browser<br/>React 19 SPA"]
+    end
+
+    subgraph fe["Frontend Container · port 3000"]
+        EXPRESS["Express + ws<br/>REST API · /ws topics"]
+        VITE["Vite static bundle<br/>dist/index.html"]
+        FEAI["AI Oracle<br/>Gemini 2.5 Flash"]
+        FEREDIS["ioredis cache<br/>in-memory fallback"]
+    end
+
+    subgraph be["Backend Container · port 8080"]
+        CTRL["ApiFootballController<br/>Spring Boot 3.3"]
+        SVC["OddsEngineService<br/>MatchSyncScheduler"]
+        BEREDIS["Spring Cache<br/>Lettuce client"]
+    end
+
+    subgraph infra["Infrastructure"]
+        REDIS[("Redis 7<br/>cache-aside · TTL 15–180s")]
+    end
+
+    subgraph external["External APIs"]
+        AF["API-Football v3<br/>api-sports.io"]
+        GEM["Google Gemini API"]
+    end
+
+    UI -->|"HTTP + WebSocket"| EXPRESS
+    UI -->|"static assets"| VITE
+    EXPRESS --> VITE
+    EXPRESS --> FEAI
+    FEAI -.->|"fallback heuristics"| EXPRESS
+    EXPRESS -->|"read / write-through"| FEREDIS
+    CTRL --> SVC
+    SVC --> BEREDIS
+    SVC -->|"cache miss"| AF
+    FEREDIS --> REDIS
+    BEREDIS --> REDIS
+    FEAI --> GEM
+
+    style UI fill:#2dd4bf22,stroke:#14b8a6
+    style REDIS fill:#f8717122,stroke:#ef4444
+    style AF fill:#fbbf2422,stroke:#f59e0b
+    style GEM fill:#fbbf2422,stroke:#f59e0b

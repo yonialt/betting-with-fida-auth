@@ -1,8 +1,28 @@
+# --- Node / Frontend ---
 node_modules/
-build/
-dist/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
 coverage/
+
+# --- Java / Maven (Spring Boot backend) ---
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+!backend/.mvn/wrapper/maven-wrapper.jar
+
+# --- Environment ---
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# --- Misc ---
 .DS_Store
 *.log
-.env*
-!.env.example
+dist/
+.idea/
+.vscode/

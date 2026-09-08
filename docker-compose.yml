@@ -1,0 +1,76 @@
+name: fida-bet
+
+services:
+  # Distributed in-memory cache & key-value store (shared by both services)
+  redis:
+    image: redis:7.2-alpine
+    container_name: fidabet-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --save 60 1
+      --loglevel notice
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - fidabet-net
+
+  # Spring Boot 3 match & odds engine (Java 17, port 8080)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fidabet-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - API_FOOTBALL_KEY=${API_FOOTBALL_KEY:-}
+      - API_FOOTBALL_PROVIDER=${API_FOOTBALL_PROVIDER:-api-sports}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - fidabet-net
+
+  # React 19 + Vite frontend served by the Express realtime API (port 3000)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fidabet-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - API_FOOTBALL_KEY=${API_FOOTBALL_KEY:-}
+      - API_FOOTBALL_PROVIDER=${API_FOOTBALL_PROVIDER:-api-sports}
+      - ODDS_API_KEY=${ODDS_API_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - fidabet-net
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  fidabet-net:
+    driver: bridge
