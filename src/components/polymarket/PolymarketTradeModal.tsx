@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
 import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
+import { PolymarketOrderBook } from './PolymarketOrderBook';
 
 interface PolymarketTradeModalProps {
   trade: PolymarketTradeState | null;
@@ -52,7 +53,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-md text-neutral-900 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-md text-neutral-900 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-neutral-200 flex items-start justify-between gap-3">
           <div>
@@ -87,6 +88,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
           </div>
         ) : (
           <div className="p-5 flex flex-col gap-4">
+            <div className="overflow-y-auto flex flex-col gap-4 pr-1">
             {/* Outcome Target */}
             <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-200 flex items-center justify-between">
               <span className="text-xs text-neutral-700 font-semibold">
@@ -207,6 +209,14 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
                 ? `${selectedSide === 'yes' ? 'አዎ' : 'አይ'} በ ${numAmount} ብር ግዛ`
                 : `Buy ${selectedSide.toUpperCase()} for ${numAmount} Birr`}
             </button>
+
+            {/* Live Order Book (Add / Asked depth) */}
+            <PolymarketOrderBook
+              basePriceCents={Math.round(currentPriceCents)}
+              volumeLabel={trade.market.orderBookVolume || trade.market.volume}
+              seed={trade.market.id + '-' + (trade.outcome?.name || selectedSide)}
+            />
+            </div>
           </div>
         )}
       </div>

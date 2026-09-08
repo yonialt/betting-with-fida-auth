@@ -562,7 +562,8 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       balance: +(prev.balance + amount).toFixed(2),
     }));
 
-    fidaBetApi.deposit(amount, 'telebirr').catch(() => {});
+    // Client-side deposit credit (previous working behavior): the deposit modal
+    // (TelebirrDepositModal) calls depositFunds directly, so no extra API call here.
 
     setNotification({
       message: `Successfully deposited ${amount} ${user.currency}!`,

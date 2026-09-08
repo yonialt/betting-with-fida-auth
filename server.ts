@@ -1,6 +1,8 @@
 import express from 'express';
+import http from 'http';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
+import { WebSocketServer, WebSocket } from 'ws';
 import { INITIAL_MATCHES } from './src/data/initialMatches';
 import { Match, PlacedBet, UserProfile, BetSlipItem } from './src/types';
 import { redisCache } from './src/server/redisCache';
@@ -769,6 +771,87 @@ app.post('/webhook/:provider', (req, res) => {
   res.json({ status: 'received', provider: req.params.provider });
 });
 
+// ==================== REAL-TIME WEBSOCKET (STOMP-style topics) ====================
+// The frontend (src/services/fidaBetWebSocket.ts) connects to ws://host/ws and
+// subscribes to topic destinations with { action: 'SUBSCRIBE', destination }.
+// Push frames use { topic, body } so the client routes them to callbacks.
+
+interface WsClient {
+  socket: WebSocket;
+  subscriptions: Set<string>;
+}
+
+const wsClients = new Set<WsClient>();
+
+function broadcastToTopic(topic: string, body: unknown) {
+  const frame = JSON.stringify({ topic, body });
+  wsClients.forEach((client) => {
+    if (client.subscriptions.has(topic) && client.socket.readyState === WebSocket.OPEN) {
+      client.socket.send(frame);
+    }
+  });
+}
+
+// Lightweight live ticker: pushes simulated real-time drift on subscribed topics
+// so connected UIs see "live" odds/score updates without polling.
+function startWsTicker() {
+  setInterval(() => {
+    wsClients.forEach((client) => {
+      client.subscriptions.forEach((topic) => {
+        if (client.socket.readyState !== WebSocket.OPEN) return;
+        const body =
+          topic.includes('odds')
+            ? { type: 'odds_update', drift: +(Math.random() * 0.04 - 0.02).toFixed(3), timestamp: Date.now() }
+            : topic.includes('score') || topic.includes('match')
+            ? { type: 'score_update', minute: 1 + Math.floor(Math.random() * 90), timestamp: Date.now() }
+            : topic.includes('balance')
+            ? { type: 'balance_update', timestamp: Date.now() }
+            : { type: 'ping', timestamp: Date.now() };
+        try {
+          client.socket.send(JSON.stringify({ topic, body }));
+        } catch {}
+      });
+    });
+  }, 3000);
+}
+
+function setupWebSocket(server: http.Server) {
+  const wss = new WebSocketServer({ server, path: '/ws' });
+
+  wss.on('connection', (socket) => {
+    const client: WsClient = { socket, subscriptions: new Set() };
+    wsClients.add(client);
+
+    try {
+      socket.send(JSON.stringify({
+        topic: 'welcome',
+        body: { message: 'Fida Bet realtime connected', timestamp: Date.now() },
+      }));
+    } catch {}
+
+    socket.on('message', (data) => {
+      try {
+        const frame = JSON.parse(data.toString());
+        if (frame.action === 'SUBSCRIBE' && frame.destination) {
+          client.subscriptions.add(String(frame.destination));
+        } else if (frame.action === 'UNSUBSCRIBE' && frame.destination) {
+          client.subscriptions.delete(String(frame.destination));
+        }
+      } catch {
+        // Non-JSON frame ignored
+      }
+    });
+
+    socket.on('close', () => {
+      wsClients.delete(client);
+    });
+
+    socket.on('error', () => {
+      wsClients.delete(client);
+    });
+  });
+}
+
 // --- Server Lifecycle & Vite Middleware Setup ---
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
@@ -785,8 +868,12 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Fida Bet Full-Stack Server running on port ${PORT}`);
+  const server = http.createServer(app);
+  setupWebSocket(server);
+  startWsTicker();
+
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Fida Bet Full-Stack Server running on port ${PORT} (WebSocket /ws active)`);
   });
 }
 
