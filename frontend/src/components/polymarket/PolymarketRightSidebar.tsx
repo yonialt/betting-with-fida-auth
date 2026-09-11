@@ -19,6 +19,7 @@ interface PolymarketRightSidebarProps {
   onSelectTopic: (topicName: string) => void;
   selectedMarket?: PolymarketMarket | null;
   onSelectOutcome?: (trade: PolymarketTradeState) => void;
+  isDarkMode?: boolean;
 }
 
 export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
@@ -28,6 +29,10 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
   selectedMarket,
   onSelectOutcome,
 }) => {
+  // Theme comes from context: the sidebar lives in the body scope, so the
+  // pm-body CSS handles light-mode colors. Flag exposed for native theming
+  // of the chart, which draws its own canvas colors.
+  const { polymarketDarkMode } = useBetting();
   const { language } = useBetting();
   const [activeSecondaryTab, setActiveSecondaryTab] = useState<'trade' | 'chat' | 'topics'>('trade');
   const displayMarket = selectedMarket || POLYMARKET_HERO;

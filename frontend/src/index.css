@@ -40,3 +40,420 @@
   scrollbar-width: none !important;
 }
 
+
+
+/* ============================================================
+   Polymarket native light mode (body only).
+   Scoped to .pm-body which is applied ONLY to body regions
+   (main content, floating chat, trade modal, footer) in light
+   mode. The top navbar, fender logo and header are NEVER given
+   this class, so their navy/white styling is untouched.
+   Each dark hex utility maps to a real light hex value — no
+   filters, no inversion. Colored buttons (green/red/blue) keep
+   their background and white text.
+   ============================================================ */
+
+/* Base text: white/neutral text becomes dark gray inside the body */
+.pm-body .text-white, .pm-body .text-neutral-50, .pm-body .text-neutral-100, .pm-body .text-neutral-200 {
+  color: #1f2937;
+}
+.pm-body .text-neutral-300, .pm-body .text-neutral-400 {
+  color: #4b5563;
+}
+
+/* Colored (green/red/blue) buttons and badges keep WHITE text */
+.pm-body :is([class*="bg-emerald"], [class*="bg-red"], [class*="bg-rose"], [class*="bg-teal"], [class*="bg-blue"], [class*="bg-sky"], [class*="bg-indigo"], [class*="bg-[#0084ff]"], [class*="bg-[#0066ff]"], [class*="from-emerald"], [class*="from-red"], [class*="from-blue"], [class*="from-teal"]).text-white,
+.pm-body :is([class*="bg-emerald"], [class*="bg-red"], [class*="bg-rose"], [class*="bg-teal"], [class*="bg-blue"], [class*="bg-sky"], [class*="bg-indigo"], [class*="bg-[#0084ff]"], [class*="bg-[#0066ff]"], [class*="from-emerald"], [class*="from-red"], [class*="from-blue"], [class*="from-teal"]) .text-white {
+  color: #ffffff;
+}
+
+/* White overlay chips on colored bars stay white-ish */
+.pm-body .bg-white\/90 { background-color: rgba(255,255,255,0.9); }
+.pm-body .bg-white\/10, .pm-body .bg-white\/5 { background-color: rgba(0,0,0,0.05); }
+.pm-body .border-white\/10 { border-color: #e2e5ea; }
+
+/* ---- Panel / surface hex mapping (bg) ---- */
+.pm-body .bg-\[\#0070e0\] { background-color: #0070e0; }
+.pm-body .bg-\[\#0070f3\] { background-color: #0070f3; }
+.pm-body .bg-\[\#090d14\] { background-color: #ffffff; }
+.pm-body .bg-\[\#090e17\]\/80 { background-color: rgba(255,255,255,0.8); }
+.pm-body .bg-\[\#0a0d14\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0a0e17\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0a0f18\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0a0f18\]\/80 { background-color: rgba(255,255,255,0.8); }
+.pm-body .bg-\[\#0a2351\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0b0f17\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0b1018\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0c111a\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0c2340\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0d121c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0d131f\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0d162a\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0d1723\]\/90 { background-color: rgba(255,255,255,0.9); }
+.pm-body .bg-\[\#0e131d\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0e141f\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0e1420\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0e1622\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0f141f\] { background-color: #ffffff; }
+.pm-body .bg-\[\#0f1b2a\] { background-color: #ffffff; }
+.pm-body .bg-\[\#101217\] { background-color: #ffffff; }
+.pm-body .bg-\[\#101520\] { background-color: #ffffff; }
+.pm-body .bg-\[\#101622\] { background-color: #ffffff; }
+.pm-body .bg-\[\#101622\]\/95 { background-color: rgba(255,255,255,0.95); }
+.pm-body .bg-\[\#111622\] { background-color: #ffffff; }
+.pm-body .bg-\[\#111722\] { background-color: #ffffff; }
+.pm-body .bg-\[\#111c29\] { background-color: #ffffff; }
+.pm-body .bg-\[\#121620\] { background-color: #ffffff; }
+.pm-body .bg-\[\#121722\] { background-color: #ffffff; }
+.pm-body .bg-\[\#121824\] { background-color: #ffffff; }
+.pm-body .bg-\[\#121927\] { background-color: #ffffff; }
+.pm-body .bg-\[\#122b20\] { background-color: #ffffff; }
+.pm-body .bg-\[\#13233c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#132c21\] { background-color: #ffffff; }
+.pm-body .bg-\[\#141a26\] { background-color: #ffffff; }
+.pm-body .bg-\[\#141a27\] { background-color: #ffffff; }
+.pm-body .bg-\[\#141b27\] { background-color: #ffffff; }
+.pm-body .bg-\[\#141d2c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#151a24\] { background-color: #ffffff; }
+.pm-body .bg-\[\#151d2a\] { background-color: #ffffff; }
+.pm-body .bg-\[\#151d2c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#161820\] { background-color: #ffffff; }
+.pm-body .bg-\[\#161e2c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#161e2e\] { background-color: #ffffff; }
+.pm-body .bg-\[\#161f2e\] { background-color: #ffffff; }
+.pm-body .bg-\[\#16202f\] { background-color: #ffffff; }
+.pm-body .bg-\[\#162030\] { background-color: #ffffff; }
+.pm-body .bg-\[\#171f2d\] { background-color: #ffffff; }
+.pm-body .bg-\[\#172030\] { background-color: #ffffff; }
+.pm-body .bg-\[\#172133\] { background-color: #ffffff; }
+.pm-body .bg-\[\#18202e\] { background-color: #ffffff; }
+.pm-body .bg-\[\#182232\] { background-color: #ffffff; }
+.pm-body .bg-\[\#182233\] { background-color: #ffffff; }
+.pm-body .bg-\[\#182335\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1a2130\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1a2232\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1a2334\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1a2536\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1a2538\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1b2434\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1b2536\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1b263b\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1b2838\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1c202a\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1e2738\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1e293b\] { background-color: #ffffff; }
+.pm-body .bg-\[\#1e293b\]\/80 { background-color: rgba(229,231,235,0.8); }
+.pm-body .bg-\[\#222936\] { background-color: #ffffff; }
+.pm-body .bg-\[\#222d3f\] { background-color: #ffffff; }
+.pm-body .bg-\[\#223147\] { background-color: #ffffff; }
+.pm-body .bg-\[\#22c55e\] { background-color: #22c55e; color: #ffffff; }
+.pm-body .bg-\[\#262c3c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#2a2914\] { background-color: #ffffff; }
+.pm-body .bg-\[\#2d1419\] { background-color: #ffffff; }
+.pm-body .bg-\[\#2f151a\] { background-color: #ffffff; }
+.pm-body .bg-\[\#36151c\] { background-color: #ffffff; }
+.pm-body .bg-\[\#c6011f\] { background-color: #c6011f; color: #ffffff; }
+.pm-body .bg-\[\#e11d48\] { background-color: #e11d48; color: #ffffff; }
+.pm-body .bg-\[\#e31937\] { background-color: #e31937; color: #ffffff; }
+.pm-body .bg-\[\#ef4444\] { background-color: #ef4444; color: #ffffff; }
+.pm-body .bg-\[\#f59e0b\] { background-color: #f59e0b; color: #ffffff; }
+.pm-body .bg-\[\#f7931a\] { background-color: #f7931a; color: #ffffff; }
+.pm-body .focus\:bg-\[\#16273c\]:focus { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#0080ff\]:hover { background-color: #0080ff; }
+.pm-body .hover\:bg-\[\#121926\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#121f2f\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#131a26\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#141a26\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#142335\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#151c2a\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#161e2e\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#161f30\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#162132\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#16a34a\]:hover { background-color: #16a34a; }
+.pm-body .hover\:bg-\[\#182334\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#182335\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#18392a\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#192334\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#193a2c\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1a2233\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1a2333\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1a2334\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1a2538\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1a2e4e\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#1a75ff\]:hover { background-color: #1a75ff; }
+.pm-body .hover\:bg-\[\#1b2333\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1b2536\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1c2638\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1c2738\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1d2636\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1d2738\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1d273a\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1d2a3e\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#1e2533\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1e2738\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#1f2b3e\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#202b3d\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#202b40\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#222d3f\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#222d42\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#252b39\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#253248\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#262c3a\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#28364e\]:hover { background-color: #e5edf9; }
+.pm-body .hover\:bg-\[\#2c3445\]:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-\[\#38371a\]:hover { background-color: #fef9c3; }
+.pm-body .hover\:bg-\[\#3d1921\]:hover { background-color: #fee2e2; }
+.pm-body .hover\:bg-\[\#3e1b22\]:hover { background-color: #fee2e2; }
+.pm-body .hover\:bg-\[\#481c25\]:hover { background-color: #fee2e2; }
+.pm-body .hover\:bg-\[\#dc2626\]:hover { background-color: #dc2626; }
+
+/* ---- Border hex mapping ---- */
+.pm-body .border-\[\#141d2a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#141d2c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#162030\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#181f2c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#182130\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2233\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2332\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2333\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2334\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2434\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2435\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1a2436\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1b2332\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1b2536\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1b273b\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1b3e2e\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1b4d82\] { border-color: #1b4d82; }
+.pm-body .border-\[\#1c202c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1c2638\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1c263a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1c3e2e\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1d2738\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1d273a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1d2b3f\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1d2d52\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e2738\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e2838\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e293a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e293b\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e2a3c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e2f47\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1e3454\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1f2330\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1f293b\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1f2a3a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#1f2c40\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#20293a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#202b3c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#202c3e\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#212534\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#212b3d\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#212c3e\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222b3b\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222c3d\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222c3e\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222d3d\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222d3f\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222d42\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222e40\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222e42\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#222f42\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#223046\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#223147\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#22354c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#233247\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#23334d\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#243044\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#243248\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#25394f\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#263143\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#26354a\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#293244\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2a374c\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2b3142\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2b3a52\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2b3a56\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2d3342\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2e3748\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2e3b52\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#2e3d55\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#3e3c1d\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#441d24\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#451c24\] { border-color: #e2e5ea; }
+.pm-body .border-\[\#4b1d26\] { border-color: #e2e5ea; }
+.pm-body .divide-\[\#17202f\] > :not([hidden]) ~ :not([hidden]) { border-color: #e2e5ea; }
+.pm-body .divide-\[\#182130\] > :not([hidden]) ~ :not([hidden]) { border-color: #e2e5ea; }
+.pm-body .divide-\[\#182232\] > :not([hidden]) ~ :not([hidden]) { border-color: #e2e5ea; }
+.pm-body .divide-\[\#1e2738\] > :not([hidden]) ~ :not([hidden]) { border-color: #e2e5ea; }
+.pm-body .divide-\[\#1e293b\] > :not([hidden]) ~ :not([hidden]) { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#1d2738\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#25344c\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#26354d\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#26364e\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#26374e\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#26374f\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#28374d\]:hover { border-color: #e2e5ea; }
+.pm-body .hover:border-\[\#2f3d56\]:hover { border-color: #e2e5ea; }
+.pm-body .ring-\[\#0d1622\] { border-color: #e2e5ea; }
+
+/* ---- Muted text hex mapping ---- */
+.pm-body .placeholder-\[\#72859e\]::placeholder { color: #6b7280; }
+.pm-body .text-\[\#38bdf8\] { color: #0369a1; }
+.pm-body .text-\[\#718299\] { color: #6b7280; }
+.pm-body .text-\[\#72859e\] { color: #6b7280; }
+.pm-body .text-\[\#8e9eb3\] { color: #6b7280; }
+
+/* ============================================================
+   Light-mode helpers for overlays rendered OUTSIDE the page's
+   pm-body wrapper (drawer, search dropdown, modals): the panels
+   themselves get .pm-body so the full mapping applies inside,
+   and the dark backdrops soften.
+   ============================================================ */
+.pm-light-backdrop { background-color: rgba(15, 23, 42, 0.35) !important; }
+
+/* ============================================================
+   Light-mode additions (body scope): dark GRADIENT boxes and
+   dark Tailwind-palette boxes → white/light. Colored text
+   (neutral-700/800/900 on light surfaces) is intentionally
+   untouched so dark text stays readable in light mode.
+   ============================================================ */
+
+/* Dark gradient hero/info boxes → light gradients */
+.pm-body .from-\[\#0d1726\] { --tw-gradient-from: #f1f5f9; }
+.pm-body .from-\[\#0d1728\] { --tw-gradient-from: #f1f5f9; }
+.pm-body .from-\[\#121a28\] { --tw-gradient-from: #f8fafc; }
+.pm-body .from-\[\#121b2a\] { --tw-gradient-from: #f8fafc; }
+.pm-body .from-\[\#121f18\] { --tw-gradient-from: #f0fdf4; }
+.pm-body .from-\[\#131f2d\] { --tw-gradient-from: #f8fafc; }
+.pm-body .from-\[\#143457\] { --tw-gradient-from: #dbeafe; }
+.pm-body .hover\:from-\[\#192738\]:hover { --tw-gradient-from: #eef2f7; }
+.pm-body .via-\[\#101b2b\] { --tw-gradient-via: #f8fafc; }
+.pm-body .via-\[\#111e33\] { --tw-gradient-via: #f8fafc; }
+.pm-body .via-\[\#152033\] { --tw-gradient-via: #f8fafc; }
+.pm-body .via-\[\#162235\] { --tw-gradient-via: #f8fafc; }
+.pm-body .to-\[\#0a121e\] { --tw-gradient-to: #ffffff; }
+.pm-body .to-\[\#0d1622\] { --tw-gradient-to: #f1f5f9; }
+.pm-body .to-\[\#10253d\] { --tw-gradient-to: #bfdbfe; }
+.pm-body .to-\[\#111926\] { --tw-gradient-to: #ffffff; }
+.pm-body .to-\[\#121926\] { --tw-gradient-to: #ffffff; }
+.pm-body .to-\[\#121c2d\] { --tw-gradient-to: #ffffff; }
+.pm-body .hover\:to-\[\#121c2b\]:hover { --tw-gradient-to: #f8fafc; }
+
+/* Dark Tailwind-palette boxes → white/light */
+.pm-body .bg-neutral-900, .pm-body .bg-neutral-900\/95 { background-color: #ffffff; }
+.pm-body .bg-neutral-800 { background-color: #f3f4f6; }
+.pm-body .bg-neutral-700 { background-color: #d1d5db; }
+.pm-body .hover\:bg-neutral-800:hover, .pm-body .hover\:bg-neutral-800\/90:hover { background-color: #f3f4f6; }
+.pm-body .hover\:bg-neutral-700:hover { background-color: #d1d5db; }
+
+/* Dark Tailwind-palette borders → light */
+.pm-body .border-neutral-800 { border-color: #e2e5ea; }
+.pm-body .border-neutral-700 { border-color: #e2e5ea; }
+.pm-body .border-neutral-700\/60 { border-color: rgba(226,229,234,0.6); }
+.pm-body .border-neutral-700\/70 { border-color: rgba(226,229,234,0.7); }
+.pm-body .border-neutral-700\/80 { border-color: rgba(226,229,234,0.8); }
+.pm-body .hover\:border-neutral-700:hover { border-color: #d1d5db; }
+
+/* ============================================================
+   Hover TEXT colors (body scope, light mode).
+   hover:text-white would vanish on light hover backgrounds, so
+   it flips to dark; light-shade colored text hovers darken for
+   contrast. Hover BACKGROUNDS for vivid CTAs keep authored color.
+   ============================================================ */
+.pm-body .hover\:text-white:hover { color: #111827; }
+.pm-body .hover\:text-blue-400:hover, .pm-body .hover\:text-blue-300:hover { color: #1d4ed8; }
+.pm-body .hover\:text-rose-400:hover, .pm-body .hover\:text-rose-300:hover { color: #be123c; }
+.pm-body .hover\:text-sky-300:hover { color: #0369a1; }
+.pm-body .hover\:text-purple-300:hover { color: #6d28d9; }
+.pm-body .hover\:text-pink-300:hover { color: #db2777; }
+.pm-body .hover\:text-cyan-300:hover { color: #0e7490; }
+.pm-body .hover\:text-amber-400:hover { color: #b45309; }
+.pm-body .hover\:text-\[\#38bdf8\]:hover { color: #0369a1; }
+
+/* Muted text hovers stay in the gray family, slightly darker on hover */
+.pm-body .hover\:text-neutral-200:hover, .pm-body .hover\:text-neutral-300:hover { color: #374151; }
+.pm-body .hover\:text-neutral-400:hover { color: #1f2937; }
+
+/* Vivid hover backgrounds keep their authored colors (CTAs, colored chips) */
+.pm-body .hover\:bg-blue-500:hover { background-color: #3b82f6; }
+.pm-body .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
+.pm-body .hover\:bg-emerald-500:hover { background-color: #10b981; }
+.pm-body .hover\:bg-red-500:hover { background-color: #ef4444; }
+.pm-body .hover\:bg-rose-500:hover { background-color: #f43f5e; }
+.pm-body .hover\:bg-amber-500:hover { background-color: #f59e0b; }
+.pm-body .hover\:bg-emerald-500\/25:hover { background-color: rgba(16,185,129,0.2); }
+.pm-body .hover\:bg-red-500\/25:hover { background-color: rgba(239,68,68,0.2); }
+.pm-body .hover\:bg-red-500\/30:hover, .pm-body .hover\:bg-red-600\/30:hover { background-color: rgba(239,68,68,0.25); }
+.pm-body .hover\:bg-blue-600\/30:hover { background-color: rgba(37,99,235,0.2); }
+.pm-body .hover\:bg-amber-500\/30:hover { background-color: rgba(245,158,11,0.22); }
+.pm-body .hover\:bg-emerald-900\/30:hover { background-color: rgba(6,78,59,0.12); }
+.pm-body .hover\:bg-red-900\/30:hover { background-color: rgba(127,29,29,0.12); }
+.pm-body .hover\:bg-rose-950\/40:hover, .pm-body .hover\:bg-rose-950\/50:hover { background-color: rgba(76,5,25,0.12); }
+.pm-body .hover\:border-emerald-500\/50:hover { border-color: rgba(16,185,129,0.5); }
+.pm-body .hover\:border-blue-500\/50:hover { border-color: rgba(59,130,246,0.5); }
+.pm-body .hover\:border-cyan-500\/40:hover { border-color: rgba(6,182,212,0.4); }
+.pm-body .hover\:ring-cyan-400\/60:hover { --tw-ring-color: rgba(34,211,238,0.6); }
+
+/* ============================================================
+   RED & GREEN must stay RED & GREEN (body scope, light mode).
+   The YES/NO chips use dark green/red hex surfaces that the
+   neutral mapping whitened — pin them to solid green/red with
+   white text. Light-shade green/red text darkens for contrast
+   on white, except on solid green/red surfaces where it stays
+   light.
+   ============================================================ */
+
+/* YES chips (dark green hexes) -> solid green, white text */
+.pm-body .bg-\[\#122b20\], .pm-body .bg-\[\#132c21\] { background-color: #16a34a; color: #ffffff; }
+.pm-body .hover\:bg-\[\#18392a\]:hover, .pm-body .hover\:bg-\[\#193a2c\]:hover { background-color: #15803d; }
+.pm-body .border-\[\#1b3e2e\], .pm-body .border-\[\#1c3e2e\] { border-color: #15803d; }
+
+/* NO chips (dark red hexes) -> solid red, white text */
+.pm-body .bg-\[\#2f151a\], .pm-body .bg-\[\#36151c\] { background-color: #dc2626; color: #ffffff; }
+.pm-body .hover\:bg-\[\#3e1b22\]:hover, .pm-body .hover\:bg-\[\#481c25\]:hover { background-color: #b91c1c; }
+.pm-body .border-\[\#441d24\], .pm-body .border-\[\#451c24\], .pm-body .border-\[\#4b1d26\] { border-color: #b91c1c; }
+
+/* Olive/dark-yellow chip borders keep their hue instead of graying */
+.pm-body .border-\[\#3e3c1d\] { border-color: #a16207; }
+
+/* Green/red TEXT: light shades darken so they read on white */
+.pm-body .text-emerald-400 { color: #059669; }
+.pm-body .text-emerald-300 { color: #047857; }
+.pm-body .text-red-400 { color: #dc2626; }
+.pm-body .text-red-300 { color: #b91c1c; }
+.pm-body .text-rose-400 { color: #e11d48; }
+.pm-body .text-rose-300 { color: #be123c; }
+
+/* ...but on SOLID green/red surfaces those texts stay light (explicit solid
+   classes only — translucent tints like bg-emerald-500/15 must keep dark text) */
+.pm-body :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-600, .bg-teal-600, .bg-\[\#16a34a\], .bg-\[\#22c55e\], [class*="from-emerald-600"]).text-emerald-400,
+.pm-body :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-600, .bg-teal-600, .bg-\[\#16a34a\], .bg-\[\#22c55e\], [class*="from-emerald-600"]) .text-emerald-400 { color: #a7f3d0; }
+.pm-body :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-600, .bg-teal-600, .bg-\[\#16a34a\], .bg-\[\#22c55e\], [class*="from-emerald-600"]).text-emerald-300,
+.pm-body :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-600, .bg-teal-600, .bg-\[\#16a34a\], .bg-\[\#22c55e\], [class*="from-emerald-600"]) .text-emerald-300 { color: #d1fae5; }
+.pm-body :is(.bg-red-500, .bg-red-600, .bg-rose-500, .bg-rose-600, .bg-\[\#ef4444\], .bg-\[\#dc2626\], [class*="from-red-600"]).text-red-400,
+.pm-body :is(.bg-red-500, .bg-red-600, .bg-rose-500, .bg-rose-600, .bg-\[\#ef4444\], .bg-\[\#dc2626\], [class*="from-red-600"]) .text-red-400 { color: #fecaca; }
+.pm-body :is(.bg-red-500, .bg-red-600, .bg-rose-500, .bg-rose-600, .bg-\[\#ef4444\], .bg-\[\#dc2626\], [class*="from-red-600"]).text-rose-400,
+.pm-body :is(.bg-red-500, .bg-red-600, .bg-rose-500, .bg-rose-600, .bg-\[\#ef4444\], .bg-\[\#dc2626\], [class*="from-red-600"]) .text-rose-400 { color: #fecaca; }
+.pm-body :is(.bg-red-500, .bg-red-600, .bg-rose-500, .bg-rose-600, .bg-\[\#ef4444\], .bg-\[\#dc2626\], [class*="from-red-600"]).text-red-300,
+.pm-body :is(.bg-red-500, .bg-red-600, .bg-rose-500, .bg-rose-600, .bg-\[\#ef4444\], .bg-\[\#dc2626\], [class*="from-red-600"]) .text-red-300 { color: #fee2e2; }
+
+/* Translucent green/red tints (YES/NO price pills) keep their tint */
+.pm-body .bg-emerald-500\/10, .pm-body .bg-emerald-500\/15 { background-color: rgba(16,185,129,0.12); }
+.pm-body .bg-emerald-950\/20 { background-color: rgba(6,78,59,0.08); }
+.pm-body .bg-red-500\/15, .pm-body .bg-red-500\/20 { background-color: rgba(239,68,68,0.12); }
+.pm-body .bg-red-950\/20 { background-color: rgba(127,29,29,0.08); }
+
+/* Capillary ripple waves for the billboard brand emblem (two staggered waves) */
+@keyframes hagerawi-ripple {
+  0%   { transform: scale(0.85); opacity: 0.55; }
+  70%  { opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.hagerawi-ripple {
+  animation: hagerawi-ripple 2.8s ease-out infinite;
+  will-change: transform, opacity;
+}
+.hagerawi-ripple-delay {
+  animation-delay: 1.4s;
+}

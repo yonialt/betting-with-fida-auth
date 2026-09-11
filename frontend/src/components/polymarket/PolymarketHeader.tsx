@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import { useBetting } from '../../context/BettingContext';
 import { HowItWorksModal } from './HowItWorksModal';
+import { PolymarketMoreMenu } from './PolymarketMoreMenu';
 import { PolymarketAuthModal } from './PolymarketAuthModal';
-import { LanguageToggle } from '../LanguageToggle';
 import { t, translateMarketTitle } from '../../data/polymarketTranslations';
 import {
   POLYMARKET_SEARCH_AUTOCOMPLETE,
@@ -58,14 +58,19 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
     setSettingsModalOpen,
     setDepositModalOpen,
     openAuthModal,
+    polymarketDarkMode,
+    togglePolymarketDarkMode,
   } = useBetting();
+  const isLight = !polymarketDarkMode;
 
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState<boolean>(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
   const [searchTab, setSearchTab] = useState<'markets' | 'profiles'>('markets');
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const moreBtnRef = useRef<HTMLButtonElement>(null);
 
   // Close search dropdown on click outside
   useEffect(() => {
@@ -161,7 +166,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
 
             {/* Autocomplete Dropdown */}
             {searchFocused && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#0e1622] border border-[#22354c] rounded-xl shadow-2xl z-50 overflow-hidden text-xs">
+              <div className={`absolute left-0 right-0 top-full mt-1.5 ${isLight ? 'pm-body bg-white' : 'bg-[#0e1622]'} border ${isLight ? 'border-neutral-200' : 'border-[#22354c]'} rounded-xl shadow-2xl z-50 overflow-hidden text-xs`}>
                 {/* Tabs: Markets | Profiles */}
                 <div className="flex items-center border-b border-[#1b2536] bg-[#0b1018] px-3 pt-2">
                   <button
@@ -307,7 +312,11 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
                 {/* User Profile Capsule */}
                 <div
                   id="btn-user-profile"
-                  onClick={() => setLoginModalOpen(true)}
+                  onClick={() => {
+                    // Open the portfolio / predictions profile page
+                    window.history.pushState({}, '', '/profile');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }}
                   className="flex items-center gap-2 pl-1.5 pr-2 sm:pr-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#131f2d] to-[#0d1622] hover:from-[#192738] hover:to-[#121c2b] border border-white/10 hover:border-cyan-500/40 cursor-pointer transition-all shadow-xs group select-none"
                   title="Account Profile & Settings"
                 >
@@ -368,9 +377,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               </>
             )}
 
-            {/* Language Toggle Popout */}
-            <LanguageToggle />
-
             {/* How it works Button */}
             <button
               id="btn-polymarket-how-it-works"
@@ -384,15 +390,25 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               <span>{t('how_it_works', language, 'How it works')}</span>
             </button>
 
-            {/* Settings Gear Modal Button */}
+            {/* Settings Gear — now opens the More pop-out menu (with the Dark mode toggle) */}
             <button
+              ref={moreBtnRef}
               id="btn-settings"
-              onClick={() => setSettingsModalOpen(true)}
+              onClick={() => setMoreMenuOpen((v) => !v)}
               className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-full transition-colors cursor-pointer"
-              title="Settings"
+              title="More"
             >
               <Settings className="w-3.5 h-3.5" />
             </button>
+
+            {/* More pop-out — anchored to the gear icon */}
+            <PolymarketMoreMenu
+              isOpen={moreMenuOpen}
+              onClose={() => setMoreMenuOpen(false)}
+              isDarkMode={polymarketDarkMode}
+              onToggleDarkMode={togglePolymarketDarkMode}
+              anchorRef={moreBtnRef}
+            />
 
             {/* Mobile Hamburger Menu Icon */}
             <button
@@ -478,13 +494,13 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+            className={`fixed inset-0 transition-opacity ${isLight ? 'pm-light-backdrop' : 'bg-black/70 backdrop-blur-xs'}`}
             onClick={() => setDrawerOpen(false)}
           />
 
           {/* Drawer Body */}
           <div
-            className="relative w-full max-w-[340px] bg-[#0c111a] border-l border-[#1c2638] h-full shadow-2xl flex flex-col justify-between text-white p-5 animate-slideLeft z-10"
+            className={`relative w-full max-w-[340px] ${isLight ? 'pm-body bg-white' : 'bg-[#0c111a]'} border-l ${isLight ? 'border-neutral-200' : 'border-[#1c2638]'} h-full shadow-2xl flex flex-col justify-between ${isLight ? 'text-neutral-800' : 'text-white'} p-5 animate-slideLeft z-10`}
             onClick={(e) => e.stopPropagation()}
           >
             <div>
@@ -533,14 +549,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
 
               {/* Navigation Links */}
               <div className="space-y-1.5">
-                {/* Mobile Drawer Language Selector */}
-                <div className="p-2.5 mb-2 rounded-xl bg-[#111722] border border-[#1e2738] flex items-center justify-between">
-                  <span className="text-xs font-semibold text-neutral-300">
-                    {language === 'am' ? 'ቋንቋ ይምረጡ' : 'Language'}
-                  </span>
-                  <LanguageToggle />
-                </div>
-
                 <button
                   onClick={() => {
                     setActiveViewTab('featured');

@@ -57,7 +57,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-balance-power',
       title: 'Balance of Power: 2026 Midterms',
-      volume: '$11M Vol.',
+      volume: '11M ETB Vol.',
       options: [
         { name: 'Democrats Sweep', probability: 51, yesPrice: 51, noPrice: 49 },
         { name: 'R Senate, D House', probability: 36, yesPrice: 36, noPrice: 64 },
@@ -68,7 +68,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-french-presidential',
       title: 'Next French Presidential Election Winner',
-      volume: '$4M Vol.',
+      volume: '4M ETB Vol.',
       options: [
         { name: 'Marine Le Pen', probability: 42, yesPrice: 42, noPrice: 58 },
         { name: 'Jordan Bardella', probability: 28, yesPrice: 28, noPrice: 72 },
@@ -79,7 +79,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-gop-2028',
       title: 'Republican Presidential Nominee 2028',
-      volume: '$8.2M Vol.',
+      volume: '8.2M ETB Vol.',
       options: [
         { name: 'JD Vance', probability: 54, yesPrice: 54, noPrice: 46 },
         { name: 'Nikki Haley', probability: 14, yesPrice: 14, noPrice: 86 },
@@ -90,7 +90,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-israel-pm',
       title: 'Next Prime Minister of Israel',
-      volume: '$6.5M Vol.',
+      volume: '6.5M ETB Vol.',
       options: [
         { name: 'Benjamin Netanyahu', probability: 48, yesPrice: 48, noPrice: 52 },
         { name: 'Naftali Bennett', probability: 31, yesPrice: 31, noPrice: 69 },
@@ -101,7 +101,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-dem-2028',
       title: 'Democratic Presidential Nominee 2028',
-      volume: '$7.4M Vol.',
+      volume: '7.4M ETB Vol.',
       options: [
         { name: 'Kamala Harris', probability: 38, yesPrice: 38, noPrice: 62 },
         { name: 'Gavin Newsom', probability: 24, yesPrice: 24, noPrice: 76 },
@@ -112,7 +112,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-brazil-election',
       title: 'Brazil Presidential Election 2026',
-      volume: '$1.8M Vol.',
+      volume: '1.8M ETB Vol.',
       options: [
         { name: 'Lula da Silva', probability: 55, yesPrice: 55, noPrice: 45 },
         { name: 'Tarcísio de Freitas', probability: 29, yesPrice: 29, noPrice: 71 },
@@ -122,25 +122,25 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     {
       id: 'pol-us-iran-blockade',
       title: 'US announces end of Iranian naval blockade by September 30?',
-      volume: '$3.2M Vol.',
+      volume: '3.2M ETB Vol.',
       chance: '34% chance',
     },
     {
       id: 'pol-china-taiwan',
       title: 'Will China invade Taiwan by end of 2026?',
-      volume: '$4.1M Vol.',
+      volume: '4.1M ETB Vol.',
       chance: '4% chance',
     },
     {
       id: 'pol-putin-out',
       title: 'Vladimir Putin out as President of Russia by December 31, 2026?',
-      volume: '$2.9M Vol.',
+      volume: '2.9M ETB Vol.',
       chance: '14% chance',
     },
     {
       id: 'pol-afd-majority',
       title: 'Will AfD win an absolute majority in any state election in 2026?',
-      volume: '$890K Vol.',
+      volume: '890K ETB Vol.',
       chance: '19% chance',
     },
   ];

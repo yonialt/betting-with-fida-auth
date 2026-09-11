@@ -19,6 +19,7 @@ import { LoginModal } from './components/LoginModal';
 import { AuthModal } from './components/AuthModal';
 import { BonusesModal } from './components/BonusesModal';
 import { SettingsModal } from './components/SettingsModal';
+import { CasinoLobby } from './components/CasinoLobby';
 import { TelebirrDepositModal } from './components/TelebirrDepositModal';
 import { ApiFootballRedisModal } from './components/ApiFootballRedisModal';
 import { AgeVerificationGate } from './components/AgeVerificationGate';
@@ -26,6 +27,8 @@ import { PartnersPanel } from './components/PartnersPanel';
 import { Footer } from './components/Footer';
 import { PolymarketPage } from './components/polymarket/PolymarketPage';
 import { AdminPage } from './components/admin/AdminPage';
+import { ProfilePage } from './components/ProfilePage';
+import { TelebirrWithdrawModal } from './components/TelebirrWithdrawModal';
 import { CheckCircle, Info, AlertTriangle } from 'lucide-react';
 
 const ToastNotification: React.FC = () => {
@@ -87,6 +90,22 @@ const BettingAppContent: React.FC = () => {
     return (
       <>
         <AdminPage onBack={() => navigateTo('/')} />
+        <ToastNotification />
+      </>
+    );
+  }
+
+  // Dedicated /profile route: user portfolio (predictions, positions, P/L).
+  // Opened from the sportsbook header profile capsule.
+  if (currentPath === '/profile' || currentPath.startsWith('/profile')) {
+    return (
+      <>
+        <ProfilePage onBack={() => navigateTo('/')} />
+        <LoginModal />
+        <AuthModal />
+        <TelebirrDepositModal />
+        <TelebirrWithdrawModal />
+        <SettingsModal />
         <ToastNotification />
       </>
     );
@@ -170,6 +189,7 @@ const BettingAppContent: React.FC = () => {
       <AuthModal />
       <BonusesModal />
       <SettingsModal />
+      <CasinoLobby />
       <TelebirrDepositModal />
       <ApiFootballRedisModal
         isOpen={apiFootballModalOpen}

@@ -12,7 +12,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/redis")
-@CrossOrigin(origins = "*")
 @Slf4j
 @RequiredArgsConstructor
 public class RedisManagementController {

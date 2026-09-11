@@ -36,9 +36,15 @@ interface BettingContextType {
   selectedEventMatch: Match | null;
   appMode: '1xbet' | 'polymarket';
   setAppMode: (mode: '1xbet' | 'polymarket') => void;
+  casinoView: 'none' | 'casino' | 'live-casino';
+  setCasinoView: (view: 'none' | 'casino' | 'live-casino') => void;
+  casinoCategory: string;
+  setCasinoCategory: (category: string) => void;
   language: 'en' | 'am';
   setLanguage: (lang: 'en' | 'am') => void;
   toggleLanguage: () => void;
+  polymarketDarkMode: boolean;
+  togglePolymarketDarkMode: () => void;
   oddsDisplayMode: 'simple' | 'detailed';
   setOddsDisplayMode: (mode: 'simple' | 'detailed') => void;
   activeCenterView: 'matches' | 'event';
@@ -46,6 +52,7 @@ interface BettingContextType {
   bonusesModalOpen: boolean;
   settingsModalOpen: boolean;
   depositModalOpen: boolean;
+  withdrawModalOpen: boolean;
   notification: { message: string; type: 'success' | 'info' | 'warning' } | null;
   isBetSlipCollapsed: boolean;
   setIsBetSlipCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
@@ -75,6 +82,7 @@ interface BettingContextType {
   setBonusesModalOpen: (open: boolean) => void;
   setSettingsModalOpen: (open: boolean) => void;
   setDepositModalOpen: (open: boolean) => void;
+  setWithdrawModalOpen: (open: boolean) => void;
   apiFootballModalOpen: boolean;
   setApiFootballModalOpen: (open: boolean) => void;
   setNotification: (n: { message: string; type: 'success' | 'info' | 'warning' } | null) => void;
@@ -92,6 +100,8 @@ interface BettingContextType {
   cashoutBet: (betId: string) => void;
   isOddsSelected: (oddsId: string) => boolean;
   depositFunds: (amount: number) => void;
+  withdrawFunds: (amount: number, accountNumber?: string) => boolean;
+  updateProfile: (updates: Partial<UserProfile>) => void;
   totalOdds: number;
   potentialWin: number;
 }
@@ -113,54 +123,16 @@ const GUEST_USER: UserProfile = {
   phone: '',
 };
 
-// Preload initial bet slip item to match user screenshot precisely:
-const INITIAL_SLIP: BetSlipItem[] = [
-  {
-    id: 'arg1-w1',
-    matchId: 'arg-1',
-    matchCode: '154749',
-    league: 'Argentina. Primera Division',
-    matchTitle: 'Defensa y Justicia - Platense',
-    currentScore: '1:0',
-    marketName: '1X2',
-    selectionName: 'Defensa y Justicia',
-    selectionLabel: 'W1',
-    odds: 1.11,
-    isLive: true,
-  },
-];
+// Bet slip starts empty. Items are added only when the user actually picks
+// an odds selection — nothing is pre-loaded, so a visitor who isn't betting
+// sees no bets in their slip.
+const INITIAL_SLIP: BetSlipItem[] = [];
 
 export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [matches, setMatches] = useState<Match[]>(INITIAL_MATCHES);
   const [betSlip, setBetSlip] = useState<BetSlipItem[]>(INITIAL_SLIP);
-  const [placedBets, setPlacedBets] = useState<PlacedBet[]>([
-    {
-      id: 'BET-849201',
-      placedAt: '10 mins ago',
-      type: 'single',
-      items: [
-        {
-          id: 'ger1-w1-init',
-          matchId: 'ger-1',
-          matchCode: '155234',
-          league: 'Germany. Bundesliga',
-          matchTitle: 'Bayern München - Borussia Dortmund',
-          currentScore: '2:0',
-          marketName: '1X2',
-          selectionName: 'Bayern München',
-          selectionLabel: 'W1',
-          odds: 1.30,
-          isLive: true,
-        },
-      ],
-      totalOdds: 1.30,
-      stake: 100,
-      potentialWin: 130,
-      currency: 'ETB',
-      status: 'active',
-      cashoutValue: 122.5,
-    },
-  ]);
+  // No pre-placed bets. "My Bets" stays empty until the user places a real bet.
+  const [placedBets, setPlacedBets] = useState<PlacedBet[]>([]);
 
   // Start signed-out: a session is only restored on reload when the stored
   // token is still accepted by the backend (see the mount effect below).
@@ -181,6 +153,9 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [selectedEventMatch, setSelectedEventMatch] = useState<Match | null>(INITIAL_MATCHES[0]);
   const [activeCenterView, setActiveCenterView] = useState<'matches' | 'event'>('matches');
   const [appMode, setAppMode] = useState<'1xbet' | 'polymarket'>('polymarket');
+  // Casino / Live Casino lobby overlay (opened from the sportsbook top navigation)
+  const [casinoView, setCasinoView] = useState<'none' | 'casino' | 'live-casino'>('none');
+  const [casinoCategory, setCasinoCategory] = useState<string>('all');
   const [language, setLanguageState] = useState<'en' | 'am'>(() => {
     try {
       const saved = localStorage.getItem('hagerawi_language');
@@ -202,11 +177,33 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'am' : 'en');
   };
+
+  // Polymarket theme (dark = default). Persisted per browser.
+  const [polymarketDarkMode, setPolymarketDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('polymarket_theme') !== 'light';
+    } catch {
+      return true;
+    }
+  });
+
+  const togglePolymarketDarkMode = () => {
+    setPolymarketDarkMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('polymarket_theme', next ? 'dark' : 'light');
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
   const [oddsDisplayMode, setOddsDisplayMode] = useState<'simple' | 'detailed'>('simple');
   const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false);
   const [bonusesModalOpen, setBonusesModalOpen] = useState<boolean>(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState<boolean>(false);
   const [apiFootballModalOpen, setApiFootballModalOpen] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
@@ -570,6 +567,35 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
   };
 
+  // Withdraw funds to Telebirr. Validates against the current balance, deducts
+  // it client-side, and best-effort calls the backend wallet/withdraw endpoint.
+  const withdrawFunds = (amount: number, accountNumber?: string): boolean => {
+    if (!amount || amount <= 0) {
+      setNotification({ message: 'Enter a valid withdrawal amount', type: 'warning' });
+      return false;
+    }
+    if (amount > user.balance) {
+      setNotification({ message: 'Insufficient balance for this withdrawal', type: 'warning' });
+      return false;
+    }
+    setUser((prev) => ({
+      ...prev,
+      balance: +(prev.balance - amount).toFixed(2),
+    }));
+    fidaBetApi.withdraw(amount, 'telebirr', accountNumber || user.phone || '').catch(() => {});
+    setNotification({
+      message: `Withdrawal of ${amount} ${user.currency} sent to Telebirr!`,
+      type: 'success',
+    });
+    return true;
+  };
+
+  // Update the signed-in user's editable profile fields (name, email, phone).
+  const updateProfile = (updates: Partial<UserProfile>) => {
+    setUser((prev) => ({ ...prev, ...updates }));
+    setNotification({ message: 'Profile updated successfully', type: 'success' });
+  };
+
   // ---- Shared Sign up / Log in (one account across sport betting & Polymarket) ----
   const applyAuthUser = (rawUser: any) => {
     setUser({
@@ -669,6 +695,10 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         selectedEventMatch,
         appMode,
         setAppMode,
+        casinoView,
+        setCasinoView,
+        casinoCategory,
+        setCasinoCategory,
         oddsDisplayMode,
         setOddsDisplayMode,
         activeCenterView,
@@ -717,6 +747,10 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         cashoutBet,
         isOddsSelected,
         depositFunds,
+        withdrawFunds,
+        updateProfile,
+        withdrawModalOpen,
+        setWithdrawModalOpen,
         totalOdds,
         potentialWin,
         isBetSlipCollapsed,
@@ -725,6 +759,8 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         language,
         setLanguage,
         toggleLanguage,
+        polymarketDarkMode,
+        togglePolymarketDarkMode,
       }}
     >
       {children}

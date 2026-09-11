@@ -209,8 +209,8 @@ export const MARKET_TITLE_TRANSLATIONS: Record<string, string> = {
   // Crypto
   '5 Minute Ethereum Polymarkets': 'የ5 ደቂቃ የኢቴሪየም የትንበያ ገበያ',
   '5 Minute Bitcoin Polymarkets': 'የ5 ደቂቃ የቢትኮይን የትንበያ ገበያ',
-  'Bitcoin price above $100k in 2026?': 'የቢትኮይን ዋጋ በ2026 ከ$100,000 በላይ ይሆናል?',
-  'Ethereum above $4,000 by end of month?': 'ኢቴሪየም በወሩ መጨረሻ ከ$4,000 በላይ ይሆናል?',
+  'Bitcoin price above 100 ETBk in 2026?': 'የቢትኮይን ዋጋ በ2026 ከ100,000 ETB በላይ ይሆናል?',
+  'Ethereum above 4,000 ETB by end of month?': 'ኢቴሪየም በወሩ መጨረሻ ከ4,000 ETB በላይ ይሆናል?',
   'Solana flips Ethereum in 2026 market cap?': 'ሶላና በገበያ ዋጋ ኢቴሪየምን ይበልጣል?',
   'What price will Ethena hit in 2026?': 'ኤቴና (Ethena) በ2026 ምን ያህል ዋጋ ይደርሳል?',
   'What price will Ethena hit in September?': 'ኤቴና በመስከረም ወር ምን ያህል ዋጋ ይደርሳል?',
@@ -299,8 +299,8 @@ export const formatBirr = (amount: number | string, lang: Language = 'en'): stri
 
 /**
  * Format a volume string into Birr / ETB
- * e.g., "$99,274,089 Vol." -> "99,274,089 ብር ዝውውር" or "99,274,089 ETB Vol."
- * e.g., "$87.4m" -> "87.4M ብር" or "87.4M ETB"
+ * e.g., "99,274,089 ETB Vol." -> "99,274,089 ብር ዝውውር" or "99,274,089 ETB Vol."
+ * e.g., "87.4 ETBm" -> "87.4M ብር" or "87.4M ETB"
  */
 export const formatBirrVolume = (volumeStr: string | undefined, lang: Language = 'en'): string => {
   if (!volumeStr) return '';

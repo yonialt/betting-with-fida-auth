@@ -172,8 +172,8 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
 
       {/* Leverage Trading Modal */}
       {selectedToken && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-md rounded-2xl bg-[#101622] border border-[#222f42] p-5 shadow-2xl relative">
+        <div className={`fixed inset-0 ${isDarkMode ? 'bg-black/70 backdrop-blur-xs' : 'pm-light-backdrop'} flex items-center justify-center p-4 z-50`}>
+          <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#101622] border-[#222f42]' : 'pm-body bg-white border-neutral-200'} border p-5 shadow-2xl relative`}>
             <button
               onClick={() => setSelectedToken(null)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-[#1a2538] transition-colors cursor-pointer"
@@ -252,7 +252,7 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
             <div className="space-y-1.5 mb-4">
               <div className="flex justify-between text-xs text-neutral-400">
                 <span>Margin (USDC)</span>
-                <span>Balance: $1,250.00</span>
+                <span>Balance: 1,250.00 ETB</span>
               </div>
               <div className="flex items-center px-3 py-2 rounded-xl bg-[#0b1018] border border-[#1f2c40]">
                 <span className="text-neutral-400 font-mono text-sm mr-2">$</span>
@@ -270,7 +270,7 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
               <div className="flex justify-between">
                 <span>Position Size</span>
                 <span className="font-mono font-bold text-white">
-                  ${((parseFloat(tradeAmount) || 0) * leverage).toFixed(2)}
+                  {((parseFloat(tradeAmount) || 0) * leverage).toFixed(2)} ETB
                 </span>
               </div>
               <div className="flex justify-between">
@@ -282,7 +282,7 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
               <div className="flex justify-between">
                 <span>Trading Fee (0.05%)</span>
                 <span className="font-mono text-neutral-400">
-                  ${(((parseFloat(tradeAmount) || 0) * leverage * 0.0005)).toFixed(2)}
+                  {(((parseFloat(tradeAmount) || 0) * leverage * 0.0005)).toFixed(2)} ETB
                 </span>
               </div>
             </div>

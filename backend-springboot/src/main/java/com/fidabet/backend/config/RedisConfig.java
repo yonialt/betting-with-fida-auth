@@ -2,7 +2,6 @@ package com.fidabet.backend.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LsfGenericTypeIdResolver;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -38,8 +37,12 @@ public class RedisConfig implements CachingConfigurer {
     @Value("${api-football.cache.ttl-markets-seconds:60}")
     private long ttlMarketsSeconds;
 
-    @Bean
-    public ObjectMapper redisObjectMapper() {
+    /**
+     * Redis-only ObjectMapper (default typing enabled for polymorphic cache values).
+     * Deliberately NOT a @Bean: exposing it would replace Spring Boot's primary plain
+     * ObjectMapper and break JSON parsing elsewhere (e.g. seed file loading).
+     */
+    private ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.activateDefaultTyping(

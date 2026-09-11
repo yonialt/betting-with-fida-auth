@@ -10,13 +10,13 @@ export interface FetchGammaOptions {
 }
 
 function formatVolume(val: number | string | undefined): string {
-  if (!val) return '$0 Vol.';
+  if (!val) return '0 ETB Vol.';
   const num = typeof val === 'string' ? parseFloat(val) : val;
-  if (isNaN(num)) return '$0 Vol.';
-  if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toFixed(1)}B Vol.`;
-  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(1)}M Vol.`;
-  if (num >= 1_000) return `$${(num / 1_000).toFixed(0)}K Vol.`;
-  return `$${Math.round(num)} Vol.`;
+  if (isNaN(num)) return '0 ETB Vol.';
+  if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1)}B ETB Vol.`;
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M ETB Vol.`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(0)}K ETB Vol.`;
+  return `${Math.round(num)} ETB Vol.`;
 }
 
 function parseJsonSafe<T>(val: any, fallback: T): T {

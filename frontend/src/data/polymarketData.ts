@@ -79,13 +79,13 @@ export const POLYMARKET_HERO: PolymarketMarket = {
   iconType: 'person',
   iconBg: '#1e293b',
   imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=128&h=128&fit=crop',
-  volume: '$99,274,089 Vol. • Sep 15, 2026',
+  volume: '99,274,089 ETB Vol. • Sep 15, 2026',
   displayType: 'chart_hero',
   outcomes: [
-    { name: '50+ bps decrease', probability: 0.4, change: '-38%', yesPrice: 0.4, noPrice: 99.7, volume: '$13,163,792 Vol.' },
-    { name: '25 bps decrease', probability: 0.4, change: '-38%', yesPrice: 0.4, noPrice: 99.7, volume: '$30,746,572 Vol.' },
-    { name: 'No change', probability: 50, change: '-1%', yesPrice: 50, noPrice: 51, volume: '$3,246,154 Vol.' },
-    { name: '25 bps increase', probability: 51, change: '+23%', yesPrice: 51, noPrice: 50, volume: '$18,611,811 Vol.' },
+    { name: '50+ bps decrease', probability: 0.4, change: '-38%', yesPrice: 0.4, noPrice: 99.7, volume: '13,163,792 ETB Vol.' },
+    { name: '25 bps decrease', probability: 0.4, change: '-38%', yesPrice: 0.4, noPrice: 99.7, volume: '30,746,572 ETB Vol.' },
+    { name: 'No change', probability: 50, change: '-1%', yesPrice: 50, noPrice: 51, volume: '3,246,154 ETB Vol.' },
+    { name: '25 bps increase', probability: 51, change: '+23%', yesPrice: 51, noPrice: 50, volume: '18,611,811 ETB Vol.' },
   ],
   rulesText: "The FED interest rates are defined in this market by the upper bound of the target federal funds range. The decisions on the target federal funds range are made by the Federal Open Market Committee (FOMC) meetings. This market will resolve to the amount of basis points the upper bound of the target federal funds rate is changed by versus the level it was prior to the Federal Reserve's September 2026 meeting. If the target federal funds rate is changed to a level not expressed in the displayed options, the change will be rounded up to the nearest option.",
   resolutionSource: 'Federal Open Market Committee (FOMC)',
@@ -97,7 +97,7 @@ export const POLYMARKET_HERO: PolymarketMarket = {
       id: 'c-fed-1',
       author: 'WhaleWatch-48493',
       timeAgo: '29m ago',
-      text: 'TheReturnOfDarthMouth holds $3,078,057.91 on 25 bps decrease outcome No. Unrealized profit: $42,067.31. They turned $3,035,990.61 into over $3,078,057.91.',
+      text: 'TheReturnOfDarthMouth holds 3,078,057.91 ETB on 25 bps decrease outcome No. Unrealized profit: 42,067.31 ETB. They turned 3,035,990.61 ETB into over 3,078,057.91 ETB.',
       likes: 0,
       sharesOutcome: '25 bps decrease No',
     },
@@ -157,7 +157,7 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
   category: 'Elections',
   subcategory: 'Ethiopia',
   countryFlag: '🇪🇹',
-  volume: '$285,817,256 Vol. • May 31, 2026',
+  volume: '285,817,256 ETB Vol. • May 31, 2026',
   displayType: 'multi_outcome',
   commentsCount: 43,
   outcomes: [
@@ -167,7 +167,7 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       change: '+11%',
       yesPrice: 97.1,
       noPrice: 4.1,
-      volume: '$142,743 Vol.',
+      volume: '142,743 ETB Vol.',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
     },
     {
@@ -176,7 +176,7 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       change: '-42%',
       yesPrice: 0.8,
       noPrice: 99.8,
-      volume: '$32,288,756 Vol.',
+      volume: '32,288,756 ETB Vol.',
     },
     {
       name: 'Gedion Timothewos',
@@ -184,7 +184,7 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       change: '-62%',
       yesPrice: 1.3,
       noPrice: 99.8,
-      volume: '$15,933,718 Vol.',
+      volume: '15,933,718 ETB Vol.',
     },
     {
       name: 'Berhanu Nega',
@@ -192,35 +192,35 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
       change: '-1%',
       yesPrice: 0.4,
       noPrice: 99.8,
-      volume: '$14,896,151 Vol.',
+      volume: '14,896,151 ETB Vol.',
     },
     {
       name: 'Aleso Mengesho',
       probability: 1,
       yesPrice: 0.6,
       noPrice: 99.6,
-      volume: '$13,577,152 Vol.',
+      volume: '13,577,152 ETB Vol.',
     },
     {
       name: 'Shimelis Abdisa',
       probability: 1,
       yesPrice: 0.5,
       noPrice: 99.5,
-      volume: '$41,422,322 Vol.',
+      volume: '41,422,322 ETB Vol.',
     },
     {
       name: 'Adanech Abiebie',
       probability: 0.4,
       yesPrice: 0.5,
       noPrice: 99.8,
-      volume: '$89,454,616 Vol.',
+      volume: '89,454,616 ETB Vol.',
     },
     {
       name: 'Demeke Mekonnen',
       probability: 0.4,
       yesPrice: 0.4,
       noPrice: 99.9,
-      volume: '$29,298,548 Vol.',
+      volume: '29,298,548 ETB Vol.',
     },
   ],
   rulesText: 'General elections are scheduled to be held in Ethiopia on June 1, 2026. This market will resolve to the next individual who officially assumes the office of Prime Minister of Ethiopia following the 2026 General elections.',
@@ -341,7 +341,7 @@ export const BTC_5M_MARKET: PolymarketMarket = {
   subcategory: '5 Min',
   timeRange: 'September 6, 9:55-10AM ET',
   iconType: 'bitcoin',
-  volume: '$736 Vol.',
+  volume: '736 ETB Vol.',
   displayType: 'up_down_btc',
   isLive: true,
   liveTag: 'LIVE Bitcoin',
@@ -350,7 +350,7 @@ export const BTC_5M_MARKET: PolymarketMarket = {
   priceToBeat: 79812.33,
   currentPrice: 79808.51,
   targetPrice: 79814.00,
-  orderBookVolume: '$240 Vol.',
+  orderBookVolume: '240 ETB Vol.',
   commentsCount: 98342,
   outcomes: [
     { name: 'Up', probability: 51, yesPrice: 51, noPrice: 49 },
@@ -402,11 +402,11 @@ export const BTC_5M_MARKET: PolymarketMarket = {
 };
 
 export const POLYMARKET_HOT_TOPICS: PolymarketHotTopic[] = [
-  { rank: 1, name: 'AfD', volume: '$425K today', isHot: true },
-  { rank: 2, name: 'UFC', volume: '$2M today', isHot: true },
-  { rank: 3, name: 'Sachsen', volume: '$914K today', isHot: true },
-  { rank: 4, name: 'Arsenal', volume: '$1M today', isHot: true },
-  { rank: 5, name: 'Roma', volume: '$1M today', isHot: true },
+  { rank: 1, name: 'AfD', volume: '425K ETB today', isHot: true },
+  { rank: 2, name: 'UFC', volume: '2M ETB today', isHot: true },
+  { rank: 3, name: 'Sachsen', volume: '914K ETB today', isHot: true },
+  { rank: 4, name: 'Arsenal', volume: '1M ETB today', isHot: true },
+  { rank: 5, name: 'Roma', volume: '1M ETB today', isHot: true },
 ];
 
 export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
@@ -415,7 +415,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     ...POLYMARKET_HERO,
     id: 'pm-hero-fed-decision',
     title: 'Fed Decision in September?',
-    volume: '$100M Vol.',
+    volume: '100M ETB Vol.',
     hasRepeat: true,
     hasGift: true,
     displayType: 'multi_outcome',
@@ -446,7 +446,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     id: 'pm-us-open',
     title: "2026 Men's US Open Winner (Tennis)",
     category: 'Sports',
-    volume: '$21M Vol.',
+    volume: '21M ETB Vol.',
     displayType: 'multi_outcome',
     logoType: 'us_open',
     outcomes: [
@@ -461,7 +461,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Spirit vs MOUZ',
     category: 'Esports',
     subcategory: 'CS2',
-    volume: '$8M Vol. · CS2',
+    volume: '8M ETB Vol. · CS2',
     matchStatus: 'GAME 4',
     displayType: 'match_versus',
     outcomes: [
@@ -476,7 +476,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'G2 Esports vs Karmine Corp',
     category: 'Esports',
     subcategory: 'LoL',
-    volume: '$2M Vol. · LoL',
+    volume: '2M ETB Vol. · LoL',
     matchStatus: 'GAME 4',
     displayType: 'match_versus',
     outcomes: [
@@ -491,7 +491,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Brewers vs Reds',
     category: 'Sports',
     subcategory: 'MLB',
-    volume: '$919K Vol. · MLB',
+    volume: '919K ETB Vol. · MLB',
     matchStatus: 'BOT 5TH',
     displayType: 'match_versus',
     outcomes: [
@@ -506,7 +506,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Tigers vs Guardians',
     category: 'Sports',
     subcategory: 'MLB',
-    volume: '$890K Vol. · MLB',
+    volume: '890K ETB Vol. · MLB',
     matchStatus: 'BOT 1ST',
     displayType: 'match_versus',
     outcomes: [
@@ -521,7 +521,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'M. Kostyuk vs L. Noskova',
     category: 'Sports',
     subcategory: 'WTA Tour',
-    volume: '$534K Vol. · WTA Tour',
+    volume: '534K ETB Vol. · WTA Tour',
     matchStatus: 'S2',
     displayType: 'match_versus',
     outcomes: [
@@ -540,7 +540,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Sports',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$12.5M Vol.',
+    volume: '12.5M ETB Vol.',
     displayType: 'multi_outcome',
     outcomes: [
       { name: 'CBE SA (ኢትዮጵያ ንግድ ባንክ)', probability: 46, yesPrice: 46, noPrice: 54 },
@@ -557,7 +557,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Tech',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$67.3M Vol.',
+    volume: '67.3M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 89, yesPrice: 89, noPrice: 11 },
@@ -572,7 +572,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Economy',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$24.6M Vol.',
+    volume: '24.6M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 64, yesPrice: 64, noPrice: 36 },
@@ -587,7 +587,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Geopolitics',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$42.1M Vol.',
+    volume: '42.1M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 74, yesPrice: 74, noPrice: 26 },
@@ -602,7 +602,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Crypto',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$19.8M Vol.',
+    volume: '19.8M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 78, yesPrice: 78, noPrice: 22 },
@@ -617,7 +617,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Sports',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$8.9M Vol.',
+    volume: '8.9M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 88, yesPrice: 88, noPrice: 12 },
@@ -625,14 +625,14 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     ],
   },
 
-  // 16. Coffee Export Revenue $1.8B (Culture & Agriculture)
+  // 16. Coffee Export Revenue 1.8B ETB (Culture & Agriculture)
   {
     id: 'pm-eth-coffee-export',
-    title: 'Ethiopian coffee export revenue exceeds $1.8 Billion in fiscal year 2025/26?',
+    title: 'Ethiopian coffee export revenue exceeds 1.8 ETB Billion in fiscal year 2025/26?',
     category: 'Culture',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$14.1M Vol.',
+    volume: '14.1M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 72, yesPrice: 72, noPrice: 28 },
@@ -647,7 +647,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$6.2M Vol.',
+    volume: '6.2M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 58, yesPrice: 58, noPrice: 42 },
@@ -662,7 +662,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$3.4M Vol.',
+    volume: '3.4M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 48, yesPrice: 48, noPrice: 52 },
@@ -677,7 +677,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$4.8M Vol.',
+    volume: '4.8M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 81, yesPrice: 81, noPrice: 19 },
@@ -692,7 +692,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Politics',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$21.5M Vol.',
+    volume: '21.5M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 68, yesPrice: 68, noPrice: 32 },
@@ -707,7 +707,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Economy',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
-    volume: '$16.8M Vol.',
+    volume: '16.8M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 79, yesPrice: 79, noPrice: 21 },
@@ -721,7 +721,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: '2026 ranks among the top 3 warmest years in recorded history (NOAA/Copernicus)?',
     category: 'Weather',
     subcategory: 'Global',
-    volume: '$31.4M Vol.',
+    volume: '31.4M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 86, yesPrice: 86, noPrice: 14 },
@@ -735,7 +735,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Atlantic Hurricane Season produces 18 or more named tropical storms in 2026?',
     category: 'Weather',
     subcategory: 'Hurricanes',
-    volume: '$19.2M Vol.',
+    volume: '19.2M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 63, yesPrice: 63, noPrice: 37 },
@@ -749,7 +749,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Everton vs Man Utd',
     category: 'Sports',
     subcategory: 'Premier League',
-    volume: '$9M Vol.',
+    volume: '9M ETB Vol.',
     timeInfo: 'Premier League · 91-45',
     displayType: 'multi_outcome',
     outcomes: [
@@ -765,7 +765,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Clemson vs. LSU',
     category: 'CFB',
     subcategory: 'Football • College Football',
-    volume: '$524K Vol.',
+    volume: '524K ETB Vol.',
     scoreHome: 10,
     scoreAway: 51,
     matchStatus: 'FINAL',
@@ -781,7 +781,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     id: 'pm-openai-agi-2027',
     title: 'OpenAI announces it has achieved AGI before 2027?',
     category: 'Tech',
-    volume: '$5M Vol.',
+    volume: '5M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
       { name: 'Yes', probability: 15, yesPrice: 15, noPrice: 85 },

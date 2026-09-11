@@ -20,7 +20,7 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
   onToggleDarkMode,
   onSelectMoreOption,
 }) => {
-  const { language, setAppMode } = useBetting();
+  const { language, setAppMode, polymarketDarkMode, togglePolymarketDarkMode } = useBetting();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
@@ -103,7 +103,7 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
       className="w-full bg-white border-b pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5 select-none"
       style={{
         backgroundColor: '#ffffff',
-        borderColor: '#1b2838',
+        borderColor: '#ffffff',
       }}
     >
       <nav
@@ -143,7 +143,7 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
                 className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 lg:px-3 py-1 rounded transition-all whitespace-nowrap cursor-pointer text-[12px] sm:text-[13px] ${
                   isActive
                     ? 'bg-[#1b2838] text-white shadow-xs font-black'
-                    : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 font-extrabold'
+                    : 'text-neutral-700 hover:text-emerald-600 hover:bg-neutral-100/70 font-extrabold'
                 }`}
               >
                 {item.type === 'icon' && renderItemIcon(item.iconType)}
@@ -152,19 +152,6 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
             );
           })}
 
-          {/* More v dropdown button */}
-          <button
-            id="cat-more-dropdown-btn"
-            onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-            className={`flex items-center gap-1 px-2 py-1 rounded transition-colors whitespace-nowrap cursor-pointer text-[12px] sm:text-[13px] ${
-              moreMenuOpen
-                ? 'bg-neutral-100 text-neutral-950 font-black'
-                : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 font-extrabold'
-            }`}
-          >
-            <span>{language === 'am' ? 'ተጨማሪ' : 'More'}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-          </button>
         </div>
 
         {/* Far-Right: Scroll button & Symmetrical SPORTS LIVE button mirroring Header.tsx */}
@@ -196,17 +183,6 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
           </button>
         </div>
 
-        {/* More dropdown popup */}
-        <PolymarketMoreMenu
-          isOpen={moreMenuOpen}
-          onClose={() => setMoreMenuOpen(false)}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={() => onToggleDarkMode?.()}
-          onSelectOption={(opt) => {
-            onSelectMoreOption?.(opt);
-            setMoreMenuOpen(false);
-          }}
-        />
       </nav>
     </div>
   );

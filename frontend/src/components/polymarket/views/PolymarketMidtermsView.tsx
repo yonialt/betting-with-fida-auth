@@ -302,7 +302,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
           <div>
             <h3 className="font-bold text-base text-white">Trade Senate Majority</h3>
             <div className="text-xs text-neutral-400 mt-0.5">
-              Trade $100 → $194 (+0% past 7d · $4K vol)
+              Trade 100 ETB → 194 ETB (+0% past 7d · 4K ETB vol)
             </div>
           </div>
 
@@ -334,7 +334,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs text-neutral-400">
               <span>Amount</span>
-              <span className="font-mono">$100 preset</span>
+              <span className="font-mono">100 ETB preset</span>
             </div>
             <div className="flex items-center px-3 py-2 rounded-xl bg-[#0b1018] border border-[#1f2c40]">
               <span className="text-neutral-400 font-mono text-sm mr-2">$</span>
@@ -353,7 +353,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
                   onClick={() => setTradeAmount(val)}
                   className="flex-1 py-1 rounded-lg bg-[#141b27] hover:bg-[#1d2738] border border-[#222e40] text-[11px] font-mono text-neutral-300 font-semibold cursor-pointer"
                 >
-                  ${val}
+                  {val} ETB
                 </button>
               ))}
             </div>
@@ -376,7 +376,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
             <div className="flex justify-between font-bold text-sm text-neutral-200 pt-2 border-t border-[#1b2536]">
               <span>Potential Return</span>
               <span className="font-mono text-emerald-400">
-                ${((parseFloat(tradeAmount) || 0) * (1 / (selectedSide === 'Democrat' ? 0.515 : 0.485))).toFixed(2)}
+                {((parseFloat(tradeAmount) || 0) * (1 / (selectedSide === 'Democrat' ? 0.515 : 0.485))).toFixed(2)} ETB
               </span>
             </div>
           </div>

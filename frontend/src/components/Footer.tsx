@@ -165,31 +165,6 @@ export const Footer: React.FC = () => {
                 </p>
               </div>
             </div>
-
-            <div className="h-6 w-px bg-[#262c3c] hidden sm:block" />
-
-            {/* Polymarket Brand */}
-            <div
-              onClick={() => {
-                setAppMode('polymarket');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="flex items-center gap-2.5 cursor-pointer group"
-            >
-              <div className="w-7 h-7 rounded bg-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-                <div className="w-3.5 h-3.5 border-2 border-black rounded-xs flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-black rounded-xs"></div>
-                </div>
-              </div>
-              <div>
-                <span className="font-bold text-base tracking-tight text-white group-hover:text-blue-400 transition-colors">
-                  Polymarket
-                </span>
-                <p className="text-[10px] text-neutral-400 font-normal">
-                  The World's Largest Prediction Market™
-                </p>
-              </div>
-            </div>
           </div>
 
           <div className="flex items-center gap-3">

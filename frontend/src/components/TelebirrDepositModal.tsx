@@ -3,9 +3,19 @@ import { Lock, CheckCircle, X, Phone, AlertCircle } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { fidaBetApi } from '../services/fidaBetApi';
 
-type FlowStep = 'form' | 'phone-entry' | 'pin-entry' | 'processing' | 'success' | 'error';
+type FlowStep =
+  | 'form'
+  | 'phone-entry'
+  | 'name-entry'
+  | 'pin-entry'
+  | 'processing'
+  | 'success'
+  | 'error';
 
 const AMOUNTS = [100, 200, 500, 1000, 2000];
+
+const BRAND = 'Hagerawi Prediction Market';
+const LOGO = '/hagerawi-logo.png';
 
 export const TelebirrDepositModal: React.FC = () => {
   const { depositModalOpen, setDepositModalOpen, user, setNotification } = useBetting();
@@ -15,6 +25,7 @@ export const TelebirrDepositModal: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [receiptRef, setReceiptRef] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [fullName, setFullName] = useState('');
   const [pin, setPin] = useState('');
   const [merchantOrderId, setMerchantOrderId] = useState('');
 
@@ -31,6 +42,7 @@ export const TelebirrDepositModal: React.FC = () => {
       setErrorMsg('');
       setPin('');
       setCheckoutPhone('');
+      setFullName('');
     }
   }, [depositModalOpen]);
 
@@ -126,6 +138,8 @@ export const TelebirrDepositModal: React.FC = () => {
       setStep('form');
       setErrorMsg('');
       setPin('');
+      setCheckoutPhone('');
+      setFullName('');
     }, 300);
   }, [setDepositModalOpen]);
 
@@ -151,9 +165,14 @@ export const TelebirrDepositModal: React.FC = () => {
           </div>
 
           <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '16px 20px' }}>
-            <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>Payment to</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Adera Bet</div>
-            <div style={{ marginTop: 16, padding: '12px 0', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <img src={LOGO} alt={BRAND} style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'contain' }} />
+              <div>
+                <div style={{ fontSize: 13, color: '#666' }}>Payment to</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{BRAND}</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 14, color: '#666' }}>Amount</span>
               <span style={{ fontSize: 22, fontWeight: 800, color: '#d32f2f' }}>{fmtFull(amount)}</span>
             </div>
@@ -170,13 +189,70 @@ export const TelebirrDepositModal: React.FC = () => {
                 placeholder="9XXXXXXXX"
                 value={checkoutPhone}
                 onChange={(e) => setCheckoutPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                onKeyDown={(e) => { if (e.key === 'Enter' && checkoutPhone.length >= 9) { setStep('pin-entry'); } }}
+                onKeyDown={(e) => { if (e.key === 'Enter' && checkoutPhone.length >= 9) { setStep('name-entry'); } }}
                 style={{ flex: 1, border: 'none', outline: 'none', padding: '14px 16px', fontSize: 16 }}
               />
             </div>
             <button
               onClick={() => {
                 if (checkoutPhone.length < 8) { setNotification({ message: 'Enter a valid phone number', type: 'warning' }); return; }
+                setStep('name-entry');
+              }}
+              style={{ width: '100%', marginTop: 20, padding: '16px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
+            >Continue</button>
+          </div>
+
+          <div style={{ textAlign: 'center', padding: '12px 16px', fontSize: 11, color: '#bbb' }}>Powered by Ethio Telecom · telebirr</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Full Name Entry Screen
+  if (step === 'name-entry') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+          <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
+                <div style={{ fontSize: 11, opacity: 0.85 }}>Secure Payment</div>
+              </div>
+            </div>
+            <button onClick={handleClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: 8, padding: '6px 12px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+          </div>
+
+          <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '16px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <img src={LOGO} alt={BRAND} style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'contain' }} />
+              <div>
+                <div style={{ fontSize: 13, color: '#666' }}>Payment to</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{BRAND}</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 14, color: '#666' }}>Amount</span>
+              <span style={{ fontSize: 22, fontWeight: 800, color: '#d32f2f' }}>{fmtFull(amount)}</span>
+            </div>
+          </div>
+
+          <div style={{ background: 'white', margin: '0 16px 16px', borderRadius: 12, padding: '24px 20px' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' }}>Enter your full name</h2>
+            <p style={{ fontSize: 13, color: '#888', margin: '0 0 20px' }}>The full name registered with your telebirr account</p>
+            <input
+              type="text"
+              autoFocus
+              placeholder="Full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}                onKeyDown={(e) => { if (e.key === 'Enter' && fullName.trim().length >= 2) { setStep('pin-entry'); } }}
+              style={{ width: '100%', border: '2px solid #e0e0e0', borderRadius: 10, outline: 'none', padding: '14px 16px', fontSize: 16 }}
+            />
+            <button
+              onClick={() => {
+                if (fullName.trim().length < 2) { setNotification({ message: 'Enter your full name', type: 'warning' }); return; }
                 setStep('pin-entry');
               }}
               style={{ width: '100%', marginTop: 20, padding: '16px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
@@ -209,7 +285,7 @@ export const TelebirrDepositModal: React.FC = () => {
           <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: 13, color: '#666' }}>Paying</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>Adera Bet</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{BRAND}</div>
             </div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#d32f2f' }}>{fmtFull(amount)}</div>
           </div>
@@ -276,7 +352,7 @@ export const TelebirrDepositModal: React.FC = () => {
             <div style={{ width: 56, height: 56, borderRadius: '50%', border: '4px solid #f5f5f5', borderTopColor: '#d32f2f', animation: 'telebirr-spin 0.8s linear infinite', margin: '0 auto 20px' }} />
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' }}>Processing payment...</h2>
             <p style={{ fontSize: 14, color: '#888' }}>Please wait while we confirm your payment</p>
-            <p style={{ fontSize: 13, color: '#aaa', marginTop: 8 }}>{fmtFull(amount)} → Adera Bet</p>
+            <p style={{ fontSize: 13, color: '#aaa', marginTop: 8 }}>{fmtFull(amount)} → {BRAND}</p>
           </div>
           <style>{`@keyframes telebirr-spin { to { transform: rotate(360deg); } }`}</style>
         </div>
@@ -298,7 +374,7 @@ export const TelebirrDepositModal: React.FC = () => {
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 32 }}>✅</div>
             <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px', color: '#2e7d32' }}>Payment Successful</h2>
             <p style={{ fontSize: 14, color: '#666', margin: '0 0 4px' }}>You have paid <strong>{fmtFull(amount)}</strong></p>
-            <p style={{ fontSize: 13, color: '#999', margin: '0 0 20px' }}>to <strong>Adera Bet</strong></p>
+            <p style={{ fontSize: 13, color: '#999', margin: '0 0 20px' }}>to <strong>{BRAND}</strong></p>
             <div style={{ background: '#f5f5f5', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#888', maxWidth: 280, margin: '0 auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <span>Reference</span>
@@ -338,8 +414,8 @@ export const TelebirrDepositModal: React.FC = () => {
 
         <div className="shrink-0 flex items-center justify-between px-6 py-3.5 bg-white border-b border-[#DFE5F0]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: '#0B4A8C', fontFamily: "'Space Grotesk', sans-serif" }}>A</div>
-            <span className="text-sm font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Adera Bet · 18+</span>
+            <img src={LOGO} alt={BRAND} className="w-7 h-7 rounded-lg object-contain" />
+            <span className="text-sm font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{BRAND} · 18+</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-[#4C5C77] pr-7">
             <Lock className="w-3.5 h-3.5" />
@@ -432,11 +508,11 @@ export const TelebirrDepositModal: React.FC = () => {
                       <span className="font-semibold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#10213D' }}>Deposit with telebirr</span>
                     </div>
                     <p className="text-xs sm:text-sm leading-relaxed mb-3" style={{ color: '#4C5C77' }}>
-                      You'll be redirected to telebirr to approve this payment. Adera Bet never sees or stores your telebirr PIN — you enter it only inside telebirr's own app or USSD session.
+                      You'll be redirected to telebirr to approve this payment. {BRAND} never sees or stores your telebirr PIN — you enter it only inside telebirr's own app or USSD session.
                     </p>
                     <div className="flex gap-2.5 items-start rounded-[10px] px-3.5 py-2.5 text-xs leading-relaxed mb-4 bg-[#E4EEFC] border border-[#DFE5F0] text-[#083761]">
                       <Lock className="w-4 h-4 shrink-0 mt-0.5 text-[#0B4A8C]" />
-                      <span>After you tap continue, you'll see the telebirr PIN entry screen where you authorize the payment with your own PIN.</span>
+                      <span>After you tap continue, you'll see the telebirr checkout: phone number, full name, then your telebirr PIN to authorize the payment.</span>
                     </div>
 
                     {step === 'processing' && (

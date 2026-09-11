@@ -66,7 +66,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=64&h=64&fit=crop&crop=faces',
     badge: 'Whale',
     badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-    text: 'Just loaded $35,000 YES position on Gen.G winning LCK 2-0. KT drafting has been shaky all split.',
+    text: 'Just loaded 35,000 ETB YES position on Gen.G winning LCK 2-0. KT drafting has been shaky all split.',
     channel: '#sports',
     timestamp: '1m ago',
     isTradeAlert: true,
@@ -74,7 +74,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
       marketTitle: 'Gen.G vs KT Rolster - Match Winner',
       side: 'YES (Gen.G)',
       price: 92,
-      amount: '$35,000',
+      amount: '35,000 ETB',
     },
     reactions: { '🐋': 28, '🔥': 12 },
   },
@@ -84,7 +84,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
     badge: 'AI Oracle',
     badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-    text: '📊 Market Brief: Claude Mythos by Oct 31 is currently trading at 96¢ (96% probability) with over $971K in 24h trading volume. Order book liquidity depth remains heavily bid.',
+    text: '📊 Market Brief: Claude Mythos by Oct 31 is currently trading at 96¢ (96% probability) with over 971K ETB in 24h trading volume. Order book liquidity depth remains heavily bid.',
     channel: '#general',
     timestamp: 'Just now',
     isAi: true,
@@ -96,7 +96,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&crop=faces',
     badge: 'Pro',
     badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    text: 'Bitcoin holding above $64k. Up or Down Bitcoin market for 5:30 PM is pricing 78% UP right now.',
+    text: 'Bitcoin holding above 64 ETBk. Up or Down Bitcoin market for 5:30 PM is pricing 78% UP right now.',
     channel: '#crypto-perps',
     timestamp: 'Just now',
     reactions: { '🐂': 9, '🚀': 16 },
@@ -174,7 +174,7 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
           ? 'bg-purple-100 text-purple-800 border-purple-300'
           : 'bg-emerald-100 text-emerald-800 border-emerald-300',
         text: isTrade
-          ? `Executed market order: $${(Math.floor(Math.random() * 15) + 5) * 1000} on high volume prediction.`
+          ? `Executed market order: ${(Math.floor(Math.random() * 15) + 5) * 1000} ETB on high volume prediction.`
           : generalPool[randomIdx],
         channel: activeChannel,
         timestamp: 'Just now',
@@ -184,7 +184,7 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
               marketTitle: 'Claude Mythos - Next-Gen Model Release',
               side: 'YES (Oct 31)',
               price: 96,
-              amount: `$${(Math.floor(Math.random() * 25) + 8) * 1000}`,
+              amount: `${(Math.floor(Math.random() * 25) + 8) * 1000} ETB`,
             }
           : undefined,
         reactions: { '🔥': 2, '🚀': 1 },
@@ -269,7 +269,7 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
       return '🧠 Fed Rates Forecast: Polymarket order flow currently prices a 56% probability of 25bps cut and 44% probability of 50bps cut. Key catalyst: upcoming CPI print and Jackson Hole remarks.';
     }
     if (p.includes('claude') || p.includes('model') || p.includes('mythos') || p.includes('ai')) {
-      return '🧠 AI Release Market: "October 31" outcome holds a 96% win probability with massive liquidity ($971K volume). Historical delivery timelines suggest end of Q3/early Q4 target.';
+      return '🧠 AI Release Market: "October 31" outcome holds a 96% win probability with massive liquidity (971K ETB volume). Historical delivery timelines suggest end of Q3/early Q4 target.';
     }
     if (p.includes('btc') || p.includes('bitcoin') || p.includes('crypto')) {
       return '🧠 Crypto Momentum: Real-time order books indicate 78% bullish sentiment on BTC holding above key moving averages through today\'s settlement.';
