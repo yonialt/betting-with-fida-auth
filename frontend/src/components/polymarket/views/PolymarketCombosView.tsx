@@ -375,7 +375,7 @@ export const PolymarketCombosView: React.FC<{ isDarkMode?: boolean }> = ({
                   <div className="flex items-center justify-between font-bold text-sm pt-2 border-t border-[#1b2536]">
                     <span className="text-neutral-200">Potential Return</span>
                     <span className="font-mono text-emerald-400 text-base">
-                      ${potentialPayout.toFixed(2)}
+                      {potentialPayout.toFixed(2)} ETB
                     </span>
                   </div>
                 </div>

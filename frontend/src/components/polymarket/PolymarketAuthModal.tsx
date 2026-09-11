@@ -12,7 +12,8 @@ export const PolymarketAuthModal: React.FC<PolymarketAuthModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { loginUser, registerUser, setNotification } = useBetting();
+  const { loginUser, registerUser, setNotification, polymarketDarkMode } = useBetting();
+  const isLight = !polymarketDarkMode;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -80,10 +81,10 @@ export const PolymarketAuthModal: React.FC<PolymarketAuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+    <div className={`fixed inset-0 z-50 ${isLight ? 'pm-light-backdrop' : 'bg-black/70'} backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150`}>
       <div
         id="polymarket-welcome-modal"
-        className="bg-[#121824] border border-[#1e293b] rounded-2xl w-full max-w-[420px] p-6 sm:p-7 shadow-2xl relative text-white text-center"
+        className={`${isLight ? 'pm-body bg-white text-neutral-800 border-neutral-200' : 'bg-[#121824] text-white border-[#1e293b]'} border rounded-2xl w-full max-w-[420px] p-6 sm:p-7 shadow-2xl relative text-center`}
       >
         {/* Close Button */}
         <button

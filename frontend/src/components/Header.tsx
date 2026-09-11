@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Flame,
   Zap,
@@ -16,7 +16,6 @@ import {
   Check,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
-import { LanguageToggle } from './LanguageToggle';
 
 export const Header: React.FC = () => {
   const {
@@ -28,9 +27,28 @@ export const Header: React.FC = () => {
     logout,
     appMode,
     setAppMode,
+    setActiveSport,
+    setActiveSubTab,
+    setActiveCenterView,
+    setCasinoView,
+    setCasinoCategory,
   } = useBetting();
 
   const [activeNavTab, setActiveNavTab] = useState<string>('live');
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Close any open category dropdown when clicking outside the nav
+  useEffect(() => {
+    if (!openMenu) return;
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [openMenu]);
 
   // Shared presentation for the top-level category items: uniform type,
   // single-color icons, one accent for active/hover (no per-category colors).
@@ -48,9 +66,76 @@ export const Header: React.FC = () => {
 
   const isNavActive = (tab: string) => activeNavTab === tab;
 
-  const handleNavTabClick = (tab: string) => {
-    setActiveNavTab(tab);
+  const toggleMenu = (key: string) => {
+    setOpenMenu((prev) => (prev === key ? null : key));
   };
+
+  // Bring the sportsbook matches grid into view with the chosen sport / time filters
+  const openMatches = (sport: string, subTab: string, navKey: string) => {
+    setActiveSport(sport as any);
+    setActiveSubTab(subTab);
+    setActiveCenterView('matches');
+    setCasinoView('none');
+    setActiveNavTab(navKey);
+    setOpenMenu(null);
+    setTimeout(() => {
+      document
+        .getElementById('huge-match-box')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+  };
+
+  // Launch the Casino / Live Casino lobby overlay on a given category
+  const openCasino = (mode: 'casino' | 'live-casino', category: string, navKey: string) => {
+    setCasinoCategory(category);
+    setCasinoView(mode);
+    setActiveNavTab(navKey);
+    setOpenMenu(null);
+  };
+
+  // ---- Dropdown datasets ----
+  const quickViews = [
+    { emoji: '🔥', label: 'All Matches', sport: 'all', subTab: 'matches' },
+    { emoji: '🔴', label: 'Live Now', sport: 'all', subTab: 'live' },
+    { emoji: '📅', label: 'Today', sport: 'all', subTab: 'today' },
+    { emoji: '🗓️', label: 'Tomorrow', sport: 'all', subTab: 'tomorrow' },
+    { emoji: '⭐', label: 'My Favorites', sport: 'all', subTab: 'recommended' },
+  ];
+
+  const sportsMenu = [
+    { emoji: '⚽', label: 'Football', sport: 'football' },
+    { emoji: '🎾', label: 'Tennis', sport: 'tennis' },
+    { emoji: '🏀', label: 'Basketball', sport: 'basketball' },
+    { emoji: '🏒', label: 'Ice Hockey', sport: 'ice-hockey' },
+    { emoji: '🏐', label: 'Volleyball', sport: 'volleyball' },
+    { emoji: '🏓', label: 'Table Tennis', sport: 'table-tennis' },
+    { emoji: '🏏', label: 'Cricket', sport: 'cricket' },
+    { emoji: '🎮', label: 'Esports', sport: 'esports' },
+    { emoji: '🌐', label: 'All Sports', sport: 'all' },
+  ];
+
+  const casinoMenu = [
+    { emoji: '🎰', label: 'Slots', category: 'slots' },
+    { emoji: '🚀', label: 'Crash Games', category: 'crash' },
+    { emoji: '🎡', label: 'Roulette', category: 'roulette' },
+    { emoji: '🃏', label: 'Blackjack', category: 'blackjack' },
+    { emoji: '💰', label: 'Jackpots', category: 'jackpots' },
+    { emoji: '🎮', label: 'All Games', category: 'all' },
+  ];
+
+  const liveCasinoMenu = [
+    { emoji: '🎡', label: 'Live Roulette', category: 'roulette' },
+    { emoji: '🃏', label: 'Live Blackjack', category: 'blackjack' },
+    { emoji: '🎴', label: 'Baccarat', category: 'baccarat' },
+    { emoji: '📺', label: 'Game Shows', category: 'gameshows' },
+    { emoji: '🕹️', label: 'All Live Tables', category: 'all' },
+  ];
+
+  // Shared dropdown styling (matches the light second navbar)
+  const menuPanelClass =
+    'absolute left-0 top-full mt-1.5 z-40 min-w-[204px] bg-white rounded-lg border border-neutral-200 shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100';
+  const menuItemClass =
+    'w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-neutral-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer text-left';
 
   const handleLogoClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -126,7 +211,11 @@ export const Header: React.FC = () => {
               {/* Modern User Profile Capsule */}
               <div
                 id="btn-user-profile"
-                onClick={() => setLoginModalOpen(true)}
+                onClick={() => {
+                  // Open the portfolio / predictions profile page
+                  window.history.pushState({}, '', '/profile');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
                 className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-gradient-to-r from-[#131f2d] to-[#0d1622] hover:from-[#192738] hover:to-[#121c2b] border border-white/10 hover:border-cyan-500/40 cursor-pointer transition-all shadow-sm group select-none"
                 title="Account Profile & Settings"
               >
@@ -188,9 +277,6 @@ export const Header: React.FC = () => {
             </>
           )}
 
-          {/* Language Selection Popout (Globe Icon) */}
-          <LanguageToggle />
-
           {/* Settings Gear */}
           <button
             id="btn-settings"
@@ -221,33 +307,76 @@ export const Header: React.FC = () => {
           style={{ backgroundColor: '#ffffff' }}
         >
           {/* Left Category Pillar Links */}
-          <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap">
-            {/* TOP-EVENTS */}
-            <button
-              id="nav-top-events"
-              onClick={() => handleNavTabClick('top-events')}
-              className={categoryLinkClass(isNavActive('top-events'))}
-            >
-              <Flame className={categoryIconClass(isNavActive('top-events'))} />
-              <span>TOP-EVENTS</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+          <div
+            ref={navRef}
+            className="flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap"
+          >
+            {/* TOP-EVENTS ▾ — quick match views */}
+            <div className="relative">
+              <button
+                id="nav-top-events"
+                onClick={() => toggleMenu('top-events')}
+                className={categoryLinkClass(isNavActive('top-events'))}
+              >
+                <Flame className={categoryIconClass(isNavActive('top-events'))} />
+                <span>TOP-EVENTS</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    openMenu === 'top-events' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+              {openMenu === 'top-events' && (
+                <div className={menuPanelClass}>
+                  {quickViews.map((it) => (
+                    <button
+                      key={it.label}
+                      onClick={() => openMatches(it.sport, it.subTab, 'top-events')}
+                      className={menuItemClass}
+                    >
+                      <span className="text-sm w-5 text-center">{it.emoji}</span>
+                      <span>{it.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* SPORTS */}
-            <button
-              id="nav-sports"
-              onClick={() => handleNavTabClick('sports')}
-              className={categoryLinkClass(isNavActive('sports'))}
-            >
-              <Zap className={categoryIconClass(isNavActive('sports'))} />
-              <span>SPORTS</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+            {/* SPORTS ▾ */}
+            <div className="relative">
+              <button
+                id="nav-sports"
+                onClick={() => toggleMenu('sports')}
+                className={categoryLinkClass(isNavActive('sports'))}
+              >
+                <Zap className={categoryIconClass(isNavActive('sports'))} />
+                <span>SPORTS</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    openMenu === 'sports' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+              {openMenu === 'sports' && (
+                <div className={menuPanelClass}>
+                  {sportsMenu.map((it) => (
+                    <button
+                      key={it.label}
+                      onClick={() => openMatches(it.sport, 'matches', 'sports')}
+                      className={menuItemClass}
+                    >
+                      <span className="text-sm w-5 text-center">{it.emoji}</span>
+                      <span>{it.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* LIVE */}
+            {/* LIVE → jumps straight to in-play matches */}
             <button
               id="nav-live"
-              onClick={() => handleNavTabClick('live')}
+              onClick={() => openMatches('all', 'live', 'live')}
               className={categoryLinkClass(isNavActive('live'))}
             >
               <Radio
@@ -258,46 +387,78 @@ export const Header: React.FC = () => {
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
-            {/* ESPORTS */}
+            {/* ESPORTS → filters matches to esports */}
             <button
               id="nav-esports"
-              onClick={() => handleNavTabClick('esports')}
+              onClick={() => openMatches('esports', 'matches', 'esports')}
               className={categoryLinkClass(isNavActive('esports'))}
             >
               <Gamepad2 className={categoryIconClass(isNavActive('esports'))} />
-              <span
-                style={{
-                  backgroundColor: '#ffffff',
-                  color: '#000000',
-                  borderColor: '#ffffff',
-                }}
+              <span style={{ color: '#000000' }}>ESPORTS</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+
+            {/* CASINO ▾ — opens the casino lobby */}
+            <div className="relative">
+              <button
+                id="nav-casino"
+                onClick={() => toggleMenu('casino')}
+                className={categoryLinkClass(isNavActive('casino'))}
               >
-                ESPORTS
-              </span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+                <Spade className={categoryIconClass(isNavActive('casino'))} />
+                <span>CASINO</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    openMenu === 'casino' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+              {openMenu === 'casino' && (
+                <div className={menuPanelClass}>
+                  {casinoMenu.map((it) => (
+                    <button
+                      key={it.label}
+                      onClick={() => openCasino('casino', it.category, 'casino')}
+                      className={menuItemClass}
+                    >
+                      <span className="text-sm w-5 text-center">{it.emoji}</span>
+                      <span>{it.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* CASINO */}
-            <button
-              id="nav-casino"
-              onClick={() => handleNavTabClick('casino')}
-              className={categoryLinkClass(isNavActive('casino'))}
-            >
-              <Spade className={categoryIconClass(isNavActive('casino'))} />
-              <span>CASINO</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-
-            {/* LIVE CASINO */}
-            <button
-              id="nav-live-casino"
-              onClick={() => handleNavTabClick('live-casino')}
-              className={categoryLinkClass(isNavActive('live-casino'))}
-            >
-              <Tv className={categoryIconClass(isNavActive('live-casino'))} />
-              <span>LIVE CASINO</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+            {/* LIVE CASINO ▾ — opens the live-dealer lobby */}
+            <div className="relative">
+              <button
+                id="nav-live-casino"
+                onClick={() => toggleMenu('live-casino')}
+                className={categoryLinkClass(isNavActive('live-casino'))}
+              >
+                <Tv className={categoryIconClass(isNavActive('live-casino'))} />
+                <span>LIVE CASINO</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    openMenu === 'live-casino' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+              {openMenu === 'live-casino' && (
+                <div className={menuPanelClass}>
+                  {liveCasinoMenu.map((it) => (
+                    <button
+                      key={it.label}
+                      onClick={() => openCasino('live-casino', it.category, 'live-casino')}
+                      className={menuItemClass}
+                    >
+                      <span className="text-sm w-5 text-center">{it.emoji}</span>
+                      <span>{it.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Anchored: POLYMARKET LIVE (Highlighted blue CTA badge button expanded to right edge) */}

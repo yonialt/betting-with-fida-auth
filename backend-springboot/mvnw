@@ -1,0 +1,29 @@
+#!/bin/sh
+# ==========================================================================
+#  Lightweight Maven bootstrap for the Fida Bet backend (macOS/Linux/WSL).
+#  Downloads Apache Maven into ~/.m2/wrapper on first run, then runs it.
+#  Usage:  ./mvnw spring-boot:run
+# ==========================================================================
+set -e
+
+MAVEN_VERSION=3.9.9
+BASE_DIR="$HOME/.m2/wrapper"
+MAVEN_HOME="$BASE_DIR/apache-maven-$MAVEN_VERSION"
+MVN_EXEC="$MAVEN_HOME/bin/mvn"
+ZIP="$BASE_DIR/maven-dl.zip"
+DIST_URL="https://dlcdn.apache.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.zip"
+ARCHIVE_URL="https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.zip"
+
+if [ ! -x "$MVN_EXEC" ]; then
+  echo "[mvnw] Apache Maven $MAVEN_VERSION not found - downloading once, please wait..."
+  mkdir -p "$BASE_DIR"
+  curl -fsSL "$DIST_URL" -o "$ZIP" || curl -fsSL "$ARCHIVE_URL" -o "$ZIP"
+  ( cd "$BASE_DIR" && unzip -q -o "$ZIP" && rm -f "$ZIP" )
+fi
+
+if [ ! -x "$MVN_EXEC" ]; then
+  echo "[mvnw] ERROR: could not download Maven automatically. Install Maven manually and use 'mvn'."
+  exit 1
+fi
+
+exec "$MVN_EXEC" "$@"

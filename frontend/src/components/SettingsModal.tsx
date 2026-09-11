@@ -11,6 +11,8 @@ import {
   Coins,
   ArrowRight,
   Sparkles,
+  Gift,
+  Copy,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { OddsAcceptanceMode } from '../types';
@@ -51,8 +53,38 @@ export const SettingsModal: React.FC = () => {
   });
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [copiedReferral, setCopiedReferral] = useState<boolean>(false);
 
   if (!settingsModalOpen) return null;
+
+  // Personal referral link — earn 2 Birr for every bet a friend places.
+  const referralCode =
+    user?.isLoggedIn && user?.username && user.username !== 'Guest'
+      ? user.username.replace(/\s+/g, '').toUpperCase().slice(0, 14)
+      : 'HAGERAWI2BIRR';
+  const referralLink = `https://hagerawi.bet/join?ref=${referralCode}`;
+
+  const handleCopyReferral = async () => {
+    try {
+      await navigator.clipboard.writeText(referralLink);
+    } catch {
+      // Fallback for browsers without the async clipboard API
+      try {
+        const tmp = document.createElement('textarea');
+        tmp.value = referralLink;
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+      } catch {
+        // ignore
+      }
+    }
+    setCopiedReferral(true);
+    setTimeout(() => setCopiedReferral(false), 1800);
+  };
 
   const handleSave = () => {
     try {
@@ -146,6 +178,56 @@ export const SettingsModal: React.FC = () => {
 
         {/* Modal White Scrollable Body */}
         <div className="p-5 space-y-5 overflow-y-auto custom-scrollbar text-xs bg-white">
+          {/* Refer & Earn — personal referral link (this is where the INVITE & EARN banner CTA lands) */}
+          <div
+            id="referral-link-section"
+            className="space-y-2.5 p-3.5 rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white"
+          >
+            <div className="flex items-center justify-between">
+              <label className="font-bold text-neutral-800 text-xs flex items-center gap-1.5">
+                <Gift className="w-3.5 h-3.5 text-emerald-600" />
+                Refer &amp; Earn — 2 Birr per bet
+              </label>
+              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wide">
+                Rewards
+              </span>
+            </div>
+            <p className="text-[11px] text-neutral-600 leading-snug">
+              Share your personal link — you earn{' '}
+              <span className="font-bold text-emerald-700">2 Birr</span> cashback on every bet a
+              friend places on ሃገራዊ.
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                readOnly
+                value={referralLink}
+                onFocus={(e) => e.currentTarget.select()}
+                className="flex-1 min-w-0 bg-white border border-neutral-300 rounded-xl px-3 py-2 text-[11px] font-mono font-semibold text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-2xs truncate"
+              />
+              <button
+                type="button"
+                id="btn-copy-referral"
+                onClick={handleCopyReferral}
+                className={`shrink-0 flex items-center gap-1 px-3 py-2 rounded-xl font-extrabold text-[11px] transition-all cursor-pointer shadow-2xs active:scale-[0.98] text-white ${
+                  copiedReferral ? 'bg-emerald-700' : 'bg-emerald-600 hover:bg-emerald-700'
+                }`}
+              >
+                {copiedReferral ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    <span>Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
           {/* Section 1: Odds Format Segmented Grid */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

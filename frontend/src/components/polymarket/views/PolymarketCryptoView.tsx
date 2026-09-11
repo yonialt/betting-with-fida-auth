@@ -9,6 +9,7 @@ import {
   Gift,
   Search,
 } from 'lucide-react';
+import { PolymarketCryptoLiveChart } from '../PolymarketCryptoLiveChart';
 
 interface Crypto5MinMarket {
   symbol: string;
@@ -28,6 +29,7 @@ export const PolymarketCryptoView: React.FC<{
   const [activeInterval, setActiveInterval] = useState<string>('5 Min');
   const [activeFilterPill, setActiveFilterPill] = useState<string>('All');
   const [countdownSecs, setCountdownSecs] = useState<number>(233); // 3:53
+  const [selectedCrypto, setSelectedCrypto] = useState<Crypto5MinMarket | null>(null);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -66,15 +68,25 @@ export const PolymarketCryptoView: React.FC<{
   ];
 
   const shortTermMarkets: Crypto5MinMarket[] = [
-    { symbol: 'BTC', name: 'Bitcoin', priceToBeat: 79829, currentPrice: 79834, upMultiplier: 'UP 2.74X', downMultiplier: 'DOWN 1.57X', volume: '$11M Vol.', color: '#f59e0b' },
-    { symbol: 'ETH', name: 'Ethereum', priceToBeat: 2492.5, currentPrice: 2491.8, upMultiplier: 'UP 1.88X', downMultiplier: 'DOWN 2.12X', volume: '$4.2M Vol.', color: '#627eea' },
-    { symbol: 'SOL', name: 'Solana', priceToBeat: 106.4, currentPrice: 106.6, upMultiplier: 'UP 2.05X', downMultiplier: 'DOWN 1.94X', volume: '$3.8M Vol.', color: '#14b8a6' },
-    { symbol: 'XRP', name: 'XRP', priceToBeat: 0.584, currentPrice: 0.585, upMultiplier: 'UP 2.30X', downMultiplier: 'DOWN 1.76X', volume: '$1.9M Vol.', color: '#38bdf8' },
-    { symbol: 'DOGE', name: 'Dogecoin', priceToBeat: 0.0891, currentPrice: 0.0890, upMultiplier: 'UP 1.95X', downMultiplier: 'DOWN 2.05X', volume: '$1.4M Vol.', color: '#eab308' },
-    { symbol: 'HYPE', name: 'Hyperliquid', priceToBeat: 87.89, currentPrice: 88.02, upMultiplier: 'UP 2.50X', downMultiplier: 'DOWN 1.66X', volume: '$2.1M Vol.', color: '#ec4899' },
-    { symbol: 'BNB', name: 'BNB', priceToBeat: 747.98, currentPrice: 748.20, upMultiplier: 'UP 1.82X', downMultiplier: 'DOWN 2.20X', volume: '$1.2M Vol.', color: '#f59e0b' },
-    { symbol: 'ZEC', name: 'Zcash', priceToBeat: 1213.3, currentPrice: 1215.1, upMultiplier: 'UP 3.10X', downMultiplier: 'DOWN 1.45X', volume: '$980K Vol.', color: '#10b981' },
+    { symbol: 'BTC', name: 'Bitcoin', priceToBeat: 79829, currentPrice: 79834, upMultiplier: 'UP 2.74X', downMultiplier: 'DOWN 1.57X', volume: '11M ETB Vol.', color: '#f59e0b' },
+    { symbol: 'ETH', name: 'Ethereum', priceToBeat: 2492.5, currentPrice: 2491.8, upMultiplier: 'UP 1.88X', downMultiplier: 'DOWN 2.12X', volume: '4.2M ETB Vol.', color: '#627eea' },
+    { symbol: 'SOL', name: 'Solana', priceToBeat: 106.4, currentPrice: 106.6, upMultiplier: 'UP 2.05X', downMultiplier: 'DOWN 1.94X', volume: '3.8M ETB Vol.', color: '#14b8a6' },
+    { symbol: 'XRP', name: 'XRP', priceToBeat: 0.584, currentPrice: 0.585, upMultiplier: 'UP 2.30X', downMultiplier: 'DOWN 1.76X', volume: '1.9M ETB Vol.', color: '#38bdf8' },
+    { symbol: 'DOGE', name: 'Dogecoin', priceToBeat: 0.0891, currentPrice: 0.0890, upMultiplier: 'UP 1.95X', downMultiplier: 'DOWN 2.05X', volume: '1.4M ETB Vol.', color: '#eab308' },
+    { symbol: 'HYPE', name: 'Hyperliquid', priceToBeat: 87.89, currentPrice: 88.02, upMultiplier: 'UP 2.50X', downMultiplier: 'DOWN 1.66X', volume: '2.1M ETB Vol.', color: '#ec4899' },
+    { symbol: 'BNB', name: 'BNB', priceToBeat: 747.98, currentPrice: 748.20, upMultiplier: 'UP 1.82X', downMultiplier: 'DOWN 2.20X', volume: '1.2M ETB Vol.', color: '#f59e0b' },
+    { symbol: 'ZEC', name: 'Zcash', priceToBeat: 1213.3, currentPrice: 1215.1, upMultiplier: 'UP 3.10X', downMultiplier: 'DOWN 1.45X', volume: '980K ETB Vol.', color: '#10b981' },
   ];
+
+  if (selectedCrypto) {
+    return (
+      <PolymarketCryptoLiveChart
+        crypto={selectedCrypto}
+        onBack={() => setSelectedCrypto(null)}
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white">
@@ -118,10 +130,6 @@ export const PolymarketCryptoView: React.FC<{
             <div>
               <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 <span>{activeInterval} Crypto Markets</span>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Ends in {formatTimer(countdownSecs)}
-                </span>
               </h2>
             </div>
 
@@ -148,7 +156,9 @@ export const PolymarketCryptoView: React.FC<{
             {shortTermMarkets.map((m) => (
               <div
                 key={m.symbol}
-                className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between"
+                onClick={() => setSelectedCrypto(m)}
+                title="Open live chart"
+                className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between cursor-pointer"
               >
                 <div>
                   {/* Symbol Header */}
@@ -165,9 +175,6 @@ export const PolymarketCryptoView: React.FC<{
                         <div className="text-[10px] text-neutral-400">{m.name}</div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      LIVE {activeInterval}
-                    </span>
                   </div>
 
                   {/* Prices box */}
@@ -175,17 +182,17 @@ export const PolymarketCryptoView: React.FC<{
                     <div className="flex justify-between text-neutral-400">
                       <span>Price to Beat</span>
                       <span className="font-mono text-white font-semibold">
-                        ${m.priceToBeat.toLocaleString()}
+                        {m.priceToBeat.toLocaleString()} ETB
                       </span>
                     </div>
                     <div className="flex justify-between text-neutral-400">
                       <span>Current Price</span>
                       <span
                         className={`font-mono font-bold ${
-                          m.currentPrice >= m.priceToBeat ? 'text-amber-400' : 'text-red-400'
+                          m.currentPrice >= m.priceToBeat ? 'text-emerald-400' : 'text-red-400'
                         }`}
                       >
-                        ${m.currentPrice.toLocaleString()}
+                        {m.currentPrice.toLocaleString()} ETB
                       </span>
                     </div>
                   </div>
@@ -193,28 +200,30 @@ export const PolymarketCryptoView: React.FC<{
                   {/* Multiplier buttons */}
                   <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onSelectOutcome({
                           marketId: `crypto-${m.symbol}-up`,
                           outcomeName: `${m.symbol} Up`,
                           price: 52,
                           side: 'yes',
-                        })
-                      }
-                      className="py-2 px-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        });
+                      }}
+                      className="py-2 px-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1"
                     >
                       <ArrowUpRight className="w-3.5 h-3.5" />
                       <span>{m.upMultiplier}</span>
                     </button>
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onSelectOutcome({
                           marketId: `crypto-${m.symbol}-down`,
                           outcomeName: `${m.symbol} Down`,
                           price: 48,
                           side: 'no',
-                        })
-                      }
+                        });
+                      }}
                       className="py-2 px-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1"
                     >
                       <ArrowDownRight className="w-3.5 h-3.5" />

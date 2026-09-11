@@ -1,6 +1,8 @@
 import React from 'react';
 import { X, ArrowRight, ShieldCheck, DollarSign, TrendingUp, HelpCircle } from 'lucide-react';
 
+import { useBetting } from '../../context/BettingContext';
+
 interface HowItWorksModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -12,19 +14,21 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
   onClose,
   onOpenSignUp,
 }) => {
+  const { polymarketDarkMode } = useBetting();
+  const isLight = !polymarketDarkMode;
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+        className={`fixed inset-0 transition-opacity ${isLight ? 'pm-light-backdrop' : 'bg-black/75'} backdrop-blur-sm`}
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
       <div
-        className="relative w-full max-w-2xl bg-[#0e1420] border border-[#222d42] rounded-2xl shadow-2xl overflow-hidden text-white my-auto max-h-[92vh] flex flex-col"
+        className={`relative w-full max-w-2xl ${isLight ? 'pm-body bg-white text-neutral-800 border-neutral-200' : 'bg-[#0e1420] text-white border-[#222d42]'} border rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -76,8 +80,8 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
                 Prices reflect real-time probabilities
               </h3>
               <p className="text-[#8e9eb3] text-xs leading-relaxed">
-                Shares trade between <span className="text-white font-semibold">$0.00</span> and{' '}
-                <span className="text-white font-semibold">$1.00</span>. If a "Yes" share costs{' '}
+                Shares trade between <span className="text-white font-semibold">0.00 ETB</span> and{' '}
+                <span className="text-white font-semibold">1.00 ETB</span>. If a "Yes" share costs{' '}
                 <span className="text-[#38bdf8] font-semibold">57¢</span>, the market sees a{' '}
                 <span className="text-[#38bdf8] font-semibold">57%</span> chance of that event occurring.
               </p>
@@ -112,7 +116,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
               </h3>
               <p className="text-[#8e9eb3] text-xs leading-relaxed">
                 You don't need to wait until the end. You can sell your shares at any time if the price moves in your favor to lock in profit, or hold until the market resolves for{' '}
-                <span className="text-white font-semibold">$1.00</span> per winning share.
+                <span className="text-white font-semibold">1.00 ETB</span> per winning share.
               </p>
             </div>
           </div>
@@ -142,7 +146,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
         {/* Footer */}
         <div className="px-6 py-3.5 border-t border-[#1c263a] bg-[#0a0e17] flex items-center justify-between">
           <div className="text-xs text-[#718299]">
-            Over <span className="text-white font-bold">$3.2 Billion</span> traded
+            Over <span className="text-white font-bold">3.2 ETB Billion</span> traded
           </div>
           <div className="flex items-center gap-2">
             <button

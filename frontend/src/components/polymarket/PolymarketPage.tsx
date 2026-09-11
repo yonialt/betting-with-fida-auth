@@ -29,9 +29,34 @@ import { PolymarketElectionsView } from './views/PolymarketElectionsView';
 import { PolymarketArtView } from './views/PolymarketArtView';
 import { PolymarketEsportsView } from './views/PolymarketEsportsView';
 import { PolymarketEthiopiaView } from './views/PolymarketEthiopiaView';
+import { HERO_CAROUSEL_SLIDES, HeroSlideItem } from '../../data/polymarketExtendedData';
+
+// Build a tradeable market object from the current hero carousel slide, so the
+// right-hand trade box always matches whichever slide is animating on the left.
+const heroSlideToMarket = (slide: HeroSlideItem): PolymarketMarket => ({
+  id: slide.id,
+  title: slide.title,
+  category: slide.category,
+  subcategory: slide.subcategory,
+  volume: slide.volume,
+  displayType:
+    slide.id === 'btc-up-down'
+      ? 'up_down_btc'
+      : slide.outcomes.length > 2
+      ? 'multi_outcome'
+      : 'binary_buttons',
+  priceToBeat: slide.priceToBeat,
+  currentPrice: slide.currentPrice,
+  outcomes: slide.outcomes.map((o) => ({
+    name: o.name,
+    probability: o.probability,
+    yesPrice: o.yesPrice ?? Math.round(o.probability),
+    noPrice: o.noPrice ?? Math.round(100 - o.probability),
+  })),
+});
 
 export const PolymarketPage: React.FC = () => {
-  const { language } = useBetting();
+  const { language, polymarketDarkMode } = useBetting();
   const [activeCategory, setActiveCategory] = useState<string>('trending');
   const [activeViewTab, setActiveViewTab] = useState<'featured' | 'all'>('featured');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -40,6 +65,12 @@ export const PolymarketPage: React.FC = () => {
   const [selectedMarketForChat, setSelectedMarketForChat] = useState<PolymarketMarket | null>(null);
   const [selectedDetailMarket, setSelectedDetailMarket] = useState<PolymarketMarket | null>(null);
   const [showMidtermsView, setShowMidtermsView] = useState<boolean>(false);
+  // Which hero-carousel slide is currently showing. Lifted here so the right-hand
+  // trade box can follow the animated slide instead of staying on one market.
+  const [heroSlideIndex, setHeroSlideIndex] = useState<number>(0);
+  const activeHeroMarket = heroSlideToMarket(
+    HERO_CAROUSEL_SLIDES[heroSlideIndex] || HERO_CAROUSEL_SLIDES[0]
+  );
 
   const handleSelectOutcome = (trade: PolymarketTradeState) => {
     setActiveTrade(trade);
@@ -118,7 +149,7 @@ export const PolymarketPage: React.FC = () => {
     }
 
     if (activeCategory === 'perps') {
-      return <PolymarketPerpsView />;
+      return <PolymarketPerpsView isDarkMode={polymarketDarkMode} />;
     }
 
     if (activeCategory === 'breaking') {
@@ -211,6 +242,9 @@ export const PolymarketPage: React.FC = () => {
               <PolymarketHeroCard
                 onSelectOutcome={handleSelectOutcome}
                 onOpenDetail={handleOpenDetail}
+                activeSlideIndex={heroSlideIndex}
+                onSlideChange={setHeroSlideIndex}
+                isDarkMode={polymarketDarkMode}
               />
             </div>
 
@@ -220,7 +254,7 @@ export const PolymarketPage: React.FC = () => {
                 onOpenPerps={handleOpenPerps}
                 onOpenCombos={handleOpenCombos}
                 onSelectTopic={handleSelectTopic}
-                selectedMarket={selectedMarketForChat}
+                selectedMarket={activeHeroMarket}
                 onSelectOutcome={handleSelectOutcome}
               />
             </div>
@@ -260,7 +294,13 @@ export const PolymarketPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#0a0d14] text-white flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white relative">
+    <div
+      className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col font-sans antialiased relative ${
+        polymarketDarkMode
+          ? 'bg-[#0a0d14] text-white selection:bg-blue-600 selection:text-white'
+          : 'bg-[#f8f9fb] text-[#1f2937] selection:bg-blue-600 selection:text-white'
+      }`}
+    >
       {/* 1. Main Polymarket Header (Navy Top Navbar + Second Categories Navbar + Fender Arch Logo) */}
       <PolymarketHeader
         searchQuery={searchQuery}
@@ -287,8 +327,8 @@ export const PolymarketPage: React.FC = () => {
         />
       </PolymarketHeader>
 
-      {/* 3. Main Polymarket Content Area */}
-      <main className="flex-1 max-w-[1920px] w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-8">
+      {/* 3. Main Polymarket Content Area (body-only light-mode scope) */}
+      <main className={`flex-1 max-w-[1920px] w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-8 ${polymarketDarkMode ? '' : 'pm-body'}`}>
         {renderMainContent()}
       </main>
 
@@ -296,7 +336,9 @@ export const PolymarketPage: React.FC = () => {
       {floatingChatOpen && (
         <div
           id="floating-polymarket-chat-drawer"
-          className="fixed bottom-4 right-4 z-50 w-[95vw] sm:w-[420px] max-w-[440px] shadow-2xl rounded-2xl overflow-hidden animate-slideUp border border-[#2e3b52] bg-[#121824]"
+          className={`fixed bottom-4 right-4 z-50 w-[95vw] sm:w-[420px] max-w-[440px] shadow-2xl rounded-2xl overflow-hidden animate-slideUp border ${
+            polymarketDarkMode ? 'border-[#2e3b52] bg-[#121824]' : 'pm-body border-[#e2e5ea] bg-white'
+          }`}
         >
           <div className="relative">
             <button
@@ -330,13 +372,19 @@ export const PolymarketPage: React.FC = () => {
       )}
 
       {/* Trade Execution Modal */}
-      <PolymarketTradeModal
-        trade={activeTrade}
-        onClose={() => setActiveTrade(null)}
-      />
+      <div className={polymarketDarkMode ? '' : 'pm-body'}>
+        <PolymarketTradeModal
+          trade={activeTrade}
+          onClose={() => setActiveTrade(null)}
+        />
+      </div>
 
-      {/* Polymarket Footer */}
-      <PolymarketFooter />
+      {/* Polymarket Footer (shared component) — intentionally NOT wrapped in
+          pm-body, so it keeps its native dark theme in light mode too and looks
+          identical in both modes (same as the sportsbook footer). */}
+      <div>
+        <PolymarketFooter />
+      </div>
     </div>
   );
 };

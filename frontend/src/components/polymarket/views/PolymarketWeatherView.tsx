@@ -582,7 +582,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-neutral-400">
                 <span>Amount (USDC)</span>
-                <span className="font-mono">$1,250 balance</span>
+                <span className="font-mono">1,250 ETB balance</span>
               </div>
               <div className="flex items-center px-3 py-2 rounded-xl bg-[#0b1018] border border-[#1f2c40]">
                 <span className="text-neutral-400 font-mono text-sm mr-2">$</span>
@@ -602,7 +602,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
                     onClick={() => setTradeAmount(val)}
                     className="flex-1 py-1 rounded-lg bg-[#141b27] hover:bg-[#1d2738] border border-[#222e40] text-[11px] font-mono text-neutral-300 font-semibold cursor-pointer"
                   >
-                    ${val}
+                    {val} ETB
                   </button>
                 ))}
               </div>
@@ -620,7 +620,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
               </div>
               <div className="flex justify-between font-bold text-sm text-neutral-200 pt-2 border-t border-[#1b2536]">
                 <span>Potential Payout</span>
-                <span className="font-mono text-emerald-400 font-extrabold">${potentialPayout}</span>
+                <span className="font-mono text-emerald-400 font-extrabold">{potentialPayout} ETB</span>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { PolymarketMarket } from '../../types/polymarket';
 import { PolymarketTradingChart } from './PolymarketTradingChart';
+import { CryptoLivePriceChart } from './CryptoLivePriceChart';
 import {
   CandleData,
   OrderbookDepthData,
@@ -9,6 +10,50 @@ import {
   subscribeToMockPriceFeed,
 } from '../../services/mockMarketFeed';
 import { LineChart, BarChart2, Layers } from 'lucide-react';
+import { useBetting } from '../../context/BettingContext';
+
+// Deterministic PRNG seeded from a string, so each market's chart is stable across re-renders
+// (a random walk that jumps every render would flicker on hover).
+function makeSeededRand(seed: string): () => number {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return () => {
+    h += 0x6d2b79f5;
+    let t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Build a realistic probability walk of `points` values that lands exactly on `end` (0-100).
+function buildProbabilitySeries(seed: string, end: number, points = 24): number[] {
+  const rand = makeSeededRand(seed);
+  const target = Math.max(1, Math.min(99, end));
+  let v = Math.max(2, Math.min(98, target + (rand() * 2 - 1) * 22));
+  const out: number[] = [];
+  for (let i = 0; i < points; i++) {
+    const drift = (target - v) * 0.06; // gently pull toward the current probability
+    const noise = (rand() * 2 - 1) * 6; // volatility
+    v = Math.max(1, Math.min(99, v + drift + noise));
+    out.push(+v.toFixed(1));
+  }
+  out[points - 1] = +target.toFixed(1); // end exactly on the live probability
+  return out;
+}
+
+// N date labels spanning ~5 months up to today (used for the hover read-out).
+function buildDateLabels(points = 24): string[] {
+  const now = Date.now();
+  const span = 150 * 24 * 3600 * 1000; // ~5 months
+  return Array.from({ length: points }, (_, i) => {
+    const d = new Date(now - (span * (points - 1 - i)) / (points - 1));
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+}
 
 export interface PolymarketInteractiveChartProps {
   market: PolymarketMarket;
@@ -32,12 +77,24 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
   defaultChartMode,
   allowTradingMode = true,
 }) => {
+  // The chart canvas draws its own colors, so it needs the theme flag
+  // natively (CSS scoping can't reach into canvas rendering).
+  const { polymarketDarkMode: isDarkMode } = useBetting();
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoverX, setHoverX] = useState<number | null>(null);
   const [isHovering, setIsHovering] = useState<boolean>(false);
 
   const isBtc5m = market.displayType === 'up_down_btc' || market.id === 'pm-btc-5m';
-  const isTradingMarket = isBtc5m || market.category === 'Crypto' || market.subcategory === 'Crypto';
+  // "Pricing" markets (crypto, stocks, and anything with a live price) get the
+  // K-Line candlestick + Orderbook Depth views. Prediction (yes/no) markets do not.
+  const isTradingMarket =
+    isBtc5m ||
+    market.category === 'Crypto' ||
+    market.subcategory === 'Crypto' ||
+    market.category === 'Stocks' ||
+    market.subcategory === 'Stocks' ||
+    market.displayType === 'up_down_btc' ||
+    (typeof market.priceToBeat === 'number' && typeof market.currentPrice === 'number');
 
   // Active chart view mode: probability line vs K-line candlestick vs orderbook depth
   const [chartMode, setChartMode] = useState<'probability' | 'candles' | 'depth'>(
@@ -108,36 +165,59 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
 
   const isEthiopia = market.id === 'pm-ethiopia-pm' || market.subcategory === 'Ethiopia';
 
-  // Extract or synthesize high-fidelity series data
+  // Context: a market is single-line when it is binary / up-down / a head-to-head match, or simply
+  // has two or fewer outcomes. Multi-outcome markets get one line per outcome. This is what makes
+  // the graph match the market — one probability line for single, several for multi.
+  const isSingleLine =
+    (market.outcomes?.length ?? 0) <= 2 ||
+    ['binary_buttons', 'up_down_btc', 'versus_match', 'match_versus', 'football_match'].includes(
+      market.displayType
+    );
+
+  // Extract or synthesize high-fidelity series data, driven by the market context.
   const { labels, seriesList } = useMemo(() => {
+    const POINTS = 24;
+    const palette = ['#38bdf8', '#f97316', '#eab308', '#a855f7'];
+
+    // Respect authored chartData when present — but collapse to a single line for single markets.
     if (market.chartData && market.chartData.series.length > 0) {
+      const series = isSingleLine
+        ? market.chartData.series.slice(0, 1)
+        : market.chartData.series;
+      return { labels: market.chartData.labels, seriesList: series };
+    }
+
+    const dateLabels = buildDateLabels(POINTS);
+
+    if (isSingleLine) {
+      // Single / binary market → ONE line: the primary ("Yes") outcome's probability over time.
+      const primary = market.outcomes?.[0];
+      const end = primary?.probability ?? 50;
       return {
-        labels: market.chartData.labels,
-        seriesList: market.chartData.series,
+        labels: dateLabels,
+        seriesList: [
+          {
+            name: primary?.name || 'Yes',
+            color: palette[0],
+            currentVal: end,
+            data: buildProbabilitySeries(`${market.id}|${primary?.name || 'yes'}`, end, POINTS),
+          },
+        ],
       };
     }
 
-    // Default synthesized series if market does not have custom chartData
-    const defaultLabels = ['May', 'Jun', 'Jul', 'Aug', 'Sep'];
-    const defaultSeries = market.outcomes.slice(0, 4).map((o, idx) => {
-      const colors = ['#38bdf8', '#f97316', '#eab308', '#a855f7'];
-      const baseProb = o.probability || 50;
+    // Multi-outcome market → one line per outcome (up to 4), each ending on its live probability.
+    const series = market.outcomes.slice(0, 4).map((o, idx) => {
+      const end = o.probability ?? 50;
       return {
         name: o.name,
-        color: colors[idx % colors.length],
-        currentVal: baseProb,
-        data: [
-          Math.max(0.1, baseProb - 3),
-          Math.max(0.1, baseProb - 1),
-          Math.max(0.1, baseProb + 1),
-          Math.max(0.1, baseProb - 0.5),
-          baseProb,
-        ],
+        color: palette[idx % palette.length],
+        currentVal: end,
+        data: buildProbabilitySeries(`${market.id}|${o.name}`, end, POINTS),
       };
     });
-
-    return { labels: defaultLabels, seriesList: defaultSeries };
-  }, [market]);
+    return { labels: dateLabels, seriesList: series };
+  }, [market, isSingleLine]);
 
   // Coordinate scales
   const getX = useCallback(
@@ -327,15 +407,68 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
           priceToBeat={market.priceToBeat}
           currentPrice={market.currentPrice}
           initialViewMode={chartMode === 'depth' ? 'depth' : 'candles'}
+          isDarkMode={isDarkMode}
         />
+      </div>
+    );
+  }
+
+  // Crypto markets: the Probability tab shows the yellow live price chart (the "new" style).
+  if (chartMode === 'probability' && isTradingMarket) {
+    return (
+      <div className="w-full flex flex-col gap-2.5">
+        {allowTradingMode && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 bg-[#090d14] p-1 rounded-xl border border-[#1b2536]">
+              <button
+                type="button"
+                onClick={() => setChartMode('probability')}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-[#1e2738] text-white transition-colors cursor-pointer"
+              >
+                <LineChart className="w-3.5 h-3.5" />
+                <span>Probability</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartMode('candles')}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <BarChart2 className="w-3.5 h-3.5" />
+                <span>K-Line Candles</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartMode('depth')}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Orderbook Depth</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="relative w-full bg-[#090d14] rounded-xl border border-[#182130] p-2 overflow-hidden">
+          <CryptoLivePriceChart
+            symbol={
+              market.id === 'pm-btc-5m'
+                ? 'BTC'
+                : (market.title || 'BTC').replace(/[^A-Za-z]/g, '').slice(0, 4).toUpperCase() || 'BTC'
+            }
+            priceToBeat={market.priceToBeat || market.currentPrice || 100}
+            currentPrice={market.currentPrice || market.priceToBeat || 100}
+            color="#f59e0b"
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full flex flex-col gap-2.5">
-      {/* Mode Selector Pill Bar (if trading is allowed for this market) */}
-      {allowTradingMode && (
+      {/* Mode Selector Pill Bar — only price-based markets get K-Line / Depth;
+          prediction (yes/no) markets show just their probability chart, no pills. */}
+      {allowTradingMode && isTradingMarket && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 bg-[#090d14] p-1 rounded-xl border border-[#1b2536]">
             <button
@@ -442,7 +575,7 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
               fontFamily="monospace"
               fontWeight="bold"
             >
-              Target $79,814
+              Target 79,814 ETB
             </text>
           </g>
         )}
@@ -705,17 +838,32 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
           </g>
         )}
 
-        {/* Watermark in bottom left corner (matches video "Source: Polymarket.com") */}
+        {/* Brand watermark — bottom-left source line */}
         <text
           x={padLeft + 6}
           y={svgHeight - padBottom - 10}
           fill="#475569"
           fontSize="9.5"
           fontWeight="500"
-          fontFamily="system-ui, sans-serif"
+          fontFamily="'Nyala', 'Noto Sans Ethiopic', system-ui, sans-serif"
           className="select-none"
         >
-          Source: Polymarket.com
+          Source: ሃገራዊ
+        </text>
+
+        {/* Brand watermark — faint mark in the top-right corner */}
+        <text
+          x={svgWidth - padRight - 4}
+          y={padTop - 8}
+          textAnchor="end"
+          fill="#64748b"
+          fontSize="13"
+          fontWeight="700"
+          fontFamily="'Nyala', 'Noto Sans Ethiopic', system-ui, sans-serif"
+          opacity="0.5"
+          className="select-none"
+        >
+          ሃገራዊ
         </text>
 
         {/* X Axis Month Labels: May, Jun, Jul, Aug, Sep */}

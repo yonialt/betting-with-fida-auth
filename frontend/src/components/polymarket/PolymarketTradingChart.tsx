@@ -23,6 +23,7 @@ export interface PolymarketTradingChartProps {
   isDarkMode?: boolean;
   onTickPrice?: (price: number) => void;
   initialViewMode?: 'candles' | 'depth';
+  hideViewToggle?: boolean;
 }
 
 export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
@@ -35,9 +36,16 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
   height = 320,
   isDarkMode = true,
   initialViewMode = 'candles',
+  hideViewToggle = false,
 }) => {
   const [viewMode, setViewMode] = useState<'candles' | 'depth'>(initialViewMode);
   const [chartError, setChartError] = useState<string | null>(null);
+
+  // When a parent drives the view via initialViewMode (e.g. outer mode pills),
+  // keep the internal view in sync so switching Candles/Depth always works.
+  useEffect(() => {
+    setViewMode(initialViewMode);
+  }, [initialViewMode]);
 
   // OHLCV crosshair hover state
   const [hoveredBar, setHoveredBar] = useState<{
@@ -298,7 +306,11 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
         chart.remove();
       }
     }
-  }, [viewMode, height, isDarkMode, sanitizedCandles, targetPrice, priceToBeat, formatTime]);
+    // Init once per view/theme/market — live candle ticks are applied by the
+    // separate update effect below, so sanitizedCandles is intentionally omitted
+    // here (keeping it would tear down & rebuild the whole chart on every tick).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode, height, isDarkMode, targetPrice, priceToBeat, formatTime]);
 
   // Handle incoming real-time candle update
   useEffect(() => {
@@ -355,7 +367,7 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
           {/* Active Price & Change */}
           <div className="flex items-center gap-2">
             <span className="font-mono font-black text-sm text-white">
-              ${activePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {activePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB
             </span>
             <span
               className={`font-mono text-xs font-bold ${
@@ -371,16 +383,16 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
           {hoveredBar && (
             <div className="hidden md:flex items-center gap-2.5 font-mono text-[10px] text-neutral-400">
               <span>
-                O: <strong className="text-white">${hoveredBar.open.toFixed(2)}</strong>
+                O: <strong className="text-white">{hoveredBar.open.toFixed(2)} ETB</strong>
               </span>
               <span>
-                H: <strong className="text-emerald-400">${hoveredBar.high.toFixed(2)}</strong>
+                H: <strong className="text-emerald-400">{hoveredBar.high.toFixed(2)} ETB</strong>
               </span>
               <span>
-                L: <strong className="text-rose-400">${hoveredBar.low.toFixed(2)}</strong>
+                L: <strong className="text-rose-400">{hoveredBar.low.toFixed(2)} ETB</strong>
               </span>
               <span>
-                C: <strong className="text-white">${hoveredBar.close.toFixed(2)}</strong>
+                C: <strong className="text-white">{hoveredBar.close.toFixed(2)} ETB</strong>
               </span>
               <span>
                 Vol: <strong className="text-sky-400">{hoveredBar.volume.toLocaleString()}</strong>
@@ -390,7 +402,8 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
           )}
         </div>
 
-        {/* Right: View Toggle (Candles vs Depth) */}
+        {/* Right: View Toggle (Candles vs Depth) — hidden when a parent drives the view */}
+        {!hideViewToggle && (
         <div className="flex items-center gap-1 bg-[#090d14] p-0.5 rounded-lg border border-[#1b2536]">
           <button
             type="button"
@@ -417,6 +430,7 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
             <span>Depth</span>
           </button>
         </div>
+        )}
       </div>
 
       {/* Main Chart Canvas Container */}
@@ -470,7 +484,7 @@ export const PolymarketTradingChart: React.FC<PolymarketTradingChartProps> = ({
           {targetPrice && (
             <>
               <span>•</span>
-              <span className="text-amber-400">Target ${targetPrice.toLocaleString()}</span>
+              <span className="text-amber-400">Target {targetPrice.toLocaleString()} ETB</span>
             </>
           )}
         </div>
@@ -681,7 +695,7 @@ const OrderbookDepthVisualizer: React.FC<{
           fontFamily="monospace"
           fontWeight="bold"
         >
-          Mid: ${depthData.midPrice.toFixed(2)}
+          Mid: {depthData.midPrice.toFixed(2)} ETB
         </text>
 
         {/* Spread badge */}
@@ -693,7 +707,7 @@ const OrderbookDepthVisualizer: React.FC<{
           fontSize="9.5"
           fontFamily="monospace"
         >
-          Spread: ${depthData.spread.toFixed(2)}
+          Spread: {depthData.spread.toFixed(2)} ETB
         </text>
 
         {/* Bottom price bounds */}
@@ -706,7 +720,7 @@ const OrderbookDepthVisualizer: React.FC<{
           fontFamily="monospace"
           fontWeight="bold"
         >
-          ${depthData.bids[depthData.bids.length - 1]?.price.toFixed(2)} (Bids)
+          {depthData.bids[depthData.bids.length - 1]?.price.toFixed(2)} ETB (Bids)
         </text>
 
         <text
@@ -718,7 +732,7 @@ const OrderbookDepthVisualizer: React.FC<{
           fontFamily="monospace"
           fontWeight="bold"
         >
-          ${depthData.asks[depthData.asks.length - 1]?.price.toFixed(2)} (Asks)
+          {depthData.asks[depthData.asks.length - 1]?.price.toFixed(2)} ETB (Asks)
         </text>
 
         {/* Hover Crosshair & Tooltip */}
@@ -753,7 +767,7 @@ const OrderbookDepthVisualizer: React.FC<{
                 fontFamily="monospace"
                 fontWeight="bold"
               >
-                ${hoverDepth.price.toFixed(2)}
+                {hoverDepth.price.toFixed(2)} ETB
               </text>
               <text
                 x="0"

@@ -2,6 +2,19 @@
 
 Production-ready sports betting match and odds engine built with **Spring Boot 3.3.3**, **Redis 7**, and **API-Football v3** (`v3.football.api-sports.io`).
 
+## Quick Start (TL;DR)
+
+Requires Docker Desktop (for Redis) and Java 17+. The Maven wrapper (`mvnw`) downloads Maven automatically — no separate Maven install needed.
+
+```bash
+cd backend-springboot
+
+docker compose up -d redis
+./mvnw spring-boot:run
+```
+
+App starts on **http://localhost:8080** — health check: `curl http://localhost:8080/actuator/health`
+
 ## Architecture & Caching Strategy
 
 ```
@@ -44,6 +57,8 @@ Production-ready sports betting match and odds engine built with **Spring Boot 3
 
 ## Running with Docker Compose
 
+Starts both Redis and the backend container together. Requires Docker Desktop running.
+
 ```bash
 cd backend-springboot
 docker compose up -d
@@ -56,17 +71,31 @@ docker compose logs -f fidabet-backend
 
 ---
 
-## Running Locally with Maven
+## Running Locally with Maven Wrapper (recommended for dev)
 
 Prerequisites:
-- Java 17+
-- Maven 3.8+
-- Local Redis running on port 6379
+- Java 17+ (any modern JDK works; `mvnw` handles Maven itself)
+- Docker Desktop running — needed for Redis (`docker compose up -d redis`)
 
 ```bash
 cd backend-springboot
+
+# 1. Start Redis (backend tolerates Redis being down, but caching endpoints need it)
+docker compose up -d redis
+
+# 2. Run the app (add API key only if you have one — demo fallback data is used without it)
+./mvnw spring-boot:run
+# or on Windows CMD/PowerShell: mvnw.cmd spring-boot:run
+
+# Optional: real API-Football data
 export API_FOOTBALL_KEY="your_api_sports_key_here"
-mvn spring-boot:run
+./mvnw spring-boot:run
+```
+
+Run without Redis at all (caching endpoints will log errors but the app still starts):
+
+```bash
+API_FOOTBALL_SYNC_ENABLED=false ./mvnw spring-boot:run
 ```
 
 ---

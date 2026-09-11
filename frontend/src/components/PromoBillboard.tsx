@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
 interface BillboardSlide {
@@ -7,50 +7,95 @@ interface BillboardSlide {
   title: string;
   subtitle: string;
   ctaText: string;
-  badge?: string;
-  partnerLogo?: string;
+  badge: string;
   bgGradient: string;
   accentColor: string;
-  visualType: 'serie-a' | 'ucl' | 'welcome' | 'el-clasico';
+  ctaAction?: 'polymarket' | 'play2birr' | 'invite';
 }
 
 const BILLBOARD_SLIDES: BillboardSlide[] = [
   {
-    id: 'serie-a',
-    title: 'ሃገራዊ BETTING: THE OFFICIAL PARTNER OF SERIE A',
-    subtitle: 'Feel the passion of Serie A by winning with ሃገራዊ Betting!',
-    ctaText: 'FIND OUT MORE',
-    badge: 'OFFICIAL PARTNER',
-    bgGradient: 'from-[#050b14] via-[#091b36] to-[#04439c]',
-    accentColor: '#76b82a',
-    visualType: 'serie-a',
+    id: 'two-birr-entry',
+    title: 'BET & PREDICT FROM JUST 2 BIRR',
+    subtitle: 'Get in the game with only 2 ETB — the smallest stake, the biggest thrills on ሃገራዊ.',
+    ctaText: 'PLAY WITH 2 BIRR',
+    badge: 'ONLY 2 BIRR',
+    bgGradient: 'from-[#0a0f1c] via-[#10241a] to-[#15803d]',
+    accentColor: '#ffc600',
+    ctaAction: 'play2birr',
   },
   {
-    id: 'champions-league',
-    title: 'UEFA CHAMPIONS LEAGUE SUPREME ODDS',
-    subtitle: 'Boosted odds up to +25% on every knockout stage match!',
-    ctaText: 'BET NOW',
-    badge: 'SUPER BOOST',
+    id: 'prediction-market',
+    title: 'ሃገራዊ PREDICTION MARKET IS LIVE',
+    subtitle: 'Trade YES / NO on politics, sports & crypto outcomes — shares from only 2 Birr.',
+    ctaText: 'EXPLORE MARKETS',
+    badge: 'NEW',
     bgGradient: 'from-[#030712] via-[#0b1d3a] to-[#1e3a8a]',
     accentColor: '#00e5ff',
-    visualType: 'ucl',
+    ctaAction: 'polymarket',
   },
   {
     id: 'welcome-bonus',
     title: '300% WELCOME BONUS UP TO 10,000 ETB',
-    subtitle: 'Register today and triple your first deposit instantly.',
+    subtitle: 'Register today and triple your very first deposit instantly.',
     ctaText: 'CLAIM BONUS',
     badge: 'EXCLUSIVE',
     bgGradient: 'from-[#0f172a] via-[#1e1b4b] to-[#4338ca]',
     accentColor: '#ffc600',
-    visualType: 'welcome',
+  },
+  {
+    id: 'world-football',
+    title: 'ሃገራዊ — YOUR HOME FOR WORLD FOOTBALL',
+    subtitle: 'Back the giants of Serie A, La Liga and the Premier League every matchday.',
+    ctaText: 'FIND OUT MORE',
+    badge: 'OFFICIAL PARTNER',
+    bgGradient: 'from-[#050b14] via-[#091b36] to-[#04439c]',
+    accentColor: '#76b82a',
+  },
+  {
+    id: 'champions-league',
+    title: 'UEFA CHAMPIONS LEAGUE SUPREME ODDS',
+    subtitle: 'Boosted odds up to +25% on every knockout-stage match.',
+    ctaText: 'BET NOW',
+    badge: 'SUPER BOOST',
+    bgGradient: 'from-[#030712] via-[#0b1d3a] to-[#1e3a8a]',
+    accentColor: '#00e5ff',
+  },
+  {
+    id: 'daily-jackpot',
+    title: 'DAILY 2 BIRR JACKPOT PREDICTIONS',
+    subtitle: 'Stake just 2 Birr on the daily jackpot and chase up to 500,000 ETB.',
+    ctaText: 'ENTER JACKPOT',
+    badge: 'DAILY 2 BIRR',
+    bgGradient: 'from-[#0a0f1c] via-[#101f3e] to-[#1d4ed8]',
+    accentColor: '#ffc600',
+  },
+  {
+    id: 'crypto-5m',
+    title: 'CRYPTO 5-MINUTE UP OR DOWN',
+    subtitle: 'Predict Bitcoin every 5 minutes — enter from 2 Birr and cash out fast.',
+    ctaText: 'TRADE NOW',
+    badge: 'FAST MARKETS',
+    bgGradient: 'from-[#030712] via-[#0a1a33] to-[#0369a1]',
+    accentColor: '#38bdf8',
+    ctaAction: 'polymarket',
+  },
+  {
+    id: 'refer-friends',
+    title: 'REFER FRIENDS, EARN 2 BIRR PER BET',
+    subtitle: 'Invite friends to ሃገራዊ and earn 2 Birr cashback on every bet they place.',
+    ctaText: 'INVITE & EARN',
+    badge: 'REWARDS',
+    bgGradient: 'from-[#04140a] via-[#0a2e1a] to-[#166534]',
+    accentColor: '#22c55e',
+    ctaAction: 'invite',
   },
 ];
 
 export const PromoBillboard: React.FC = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const { setBonusesModalOpen } = useBetting();
+  const { setBonusesModalOpen, setAppMode, user, openAuthModal, setSettingsModalOpen } = useBetting();
 
   useEffect(() => {
     if (isPaused) return;
@@ -73,10 +118,10 @@ export const PromoBillboard: React.FC = () => {
   return (
     <div id="promo-billboard-container" className="w-full bg-[#0a1118] select-none border-b border-neutral-800">
       {/* ========================================================
-          MAIN HERO BILLBOARD CAROUSEL (Serie A / Promo Banner)
+          MAIN HERO BILLBOARD CAROUSEL (ሃገራዊ Promo Banner)
          ======================================================== */}
       <div
-        className="relative w-full overflow-hidden min-h-[150px] sm:min-h-[180px] md:min-h-[210px] flex items-center justify-between"
+        className="relative w-full overflow-hidden h-[192px] sm:h-[210px] md:h-[228px] flex items-center justify-between"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -102,19 +147,44 @@ export const PromoBillboard: React.FC = () => {
         </button>
 
         {/* Content Container */}
-        <div className="relative z-10 max-w-[1920px] w-full mx-auto px-10 sm:px-16 md:px-20 py-4 sm:py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="relative z-10 max-w-[1920px] w-full mx-auto px-10 sm:px-16 md:px-20 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           {/* Left Text & CTA */}
-          <div className="max-w-xl flex flex-col items-start gap-1.5 sm:gap-2.5">
-            <h1 className="text-white font-black text-lg sm:text-2xl md:text-3xl lg:text-[28px] tracking-tight uppercase leading-tight drop-shadow-md">
+          <div className="max-w-xl flex flex-col items-start gap-2">
+            <h1 className="text-white font-black text-lg sm:text-2xl md:text-3xl lg:text-[28px] tracking-tight uppercase leading-tight drop-shadow-md line-clamp-2">
               {currentSlide.title}
             </h1>
-            <p className="text-neutral-200 text-xs sm:text-sm font-medium tracking-wide drop-shadow-xs">
+            <p className="text-neutral-200 text-xs sm:text-sm font-medium tracking-wide drop-shadow-xs line-clamp-2">
               {currentSlide.subtitle}
             </p>
 
             <div className="pt-2 flex items-center gap-3">
               <button
-                onClick={() => setBonusesModalOpen(true)}
+                onClick={() => {
+                  const action = currentSlide.ctaAction;
+                  if (action === 'polymarket') {
+                    // EXPLORE MARKETS / TRADE NOW → open the Polymarket prediction-market page
+                    setAppMode('polymarket');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (action === 'play2birr') {
+                    // PLAY WITH 2 BIRR → guests must log in first; players jump down to the matches
+                    if (!user.isLoggedIn) {
+                      openAuthModal('login');
+                    } else {
+                      document
+                        .getElementById('huge-match-box')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  } else if (action === 'invite') {
+                    // INVITE & EARN → guests log in first; players open Settings to grab their referral link
+                    if (!user.isLoggedIn) {
+                      openAuthModal('login');
+                    } else {
+                      setSettingsModalOpen(true);
+                    }
+                  } else {
+                    setBonusesModalOpen(true);
+                  }
+                }}
                 className="px-4 sm:px-5 py-2 sm:py-2.5 rounded text-black font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer hover:brightness-110 flex items-center gap-1.5"
                 style={{ backgroundColor: currentSlide.accentColor }}
               >
@@ -123,64 +193,44 @@ export const PromoBillboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Partner & 3D Visual Artwork */}
+          {/* Right Brand — seamless flat Prediction Market button + glowing logo badge */}
           <div className="hidden md:flex items-center gap-4 relative shrink-0">
-            {/* Serie A / Partner Badge Box */}
-            <div className="bg-white/95 backdrop-blur-xs rounded px-3 py-1.5 flex items-center gap-3 shadow-lg border border-white/20">
-              <div className="flex items-center gap-1">
-                {/* Serie A Logo Glyph */}
-                <div className="w-5 h-5 bg-[#003882] rounded-xs flex items-center justify-center text-white font-black text-[10px] tracking-tighter">
-                  A
-                </div>
-                <span className="text-[10px] font-black text-[#003882] tracking-tighter uppercase leading-none">
-                  SERIE A
-                </span>
-              </div>
-              <div className="w-px h-4 bg-neutral-300"></div>
-              <div className="flex items-center">
-                <span className="text-[#0091ff] font-black italic text-xs tracking-tight">1x</span>
-                <span className="text-[#ffb700] font-black italic text-xs tracking-tight">BET</span>
-              </div>
+            {/* Prediction Market — borderless icon + text (+2px, nudged 4px left) */}
+            <div className="flex items-center gap-2 -translate-x-[4px]">
+              <TrendingUp
+                className="w-[18px] h-[18px] shrink-0"
+                strokeWidth={2.75}
+                style={{ color: currentSlide.accentColor }}
+              />
+              <span className="text-[13px] font-black text-white tracking-tight leading-none drop-shadow-xs">
+                ሃገራዊ
+              </span>
+              <span className="text-[12px] font-bold text-white/85 tracking-wide uppercase leading-none drop-shadow-xs">
+                Prediction Market
+              </span>
             </div>
 
-            {/* Futuristic 3D Serie A Crest Silhouette Graphic */}
-            <div className="relative w-28 h-28 lg:w-36 lg:h-36 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/30 to-cyan-400/20 rounded-full blur-xl animate-pulse"></div>
-              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(0,145,255,0.7)] text-cyan-400">
-                <polygon
-                  points="50,5 90,25 90,75 50,95 10,75 10,25"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  className="opacity-60"
-                />
-                <polygon
-                  points="50,15 80,30 80,70 50,85 20,70 20,30"
-                  fill="url(#crestGrad)"
-                  stroke="rgba(255,255,255,0.8)"
-                  strokeWidth="2"
-                />
-                {/* Stylized Serie A 'A' Letterform */}
-                <text
-                  x="50"
-                  y="62"
-                  fontSize="38"
-                  fontWeight="900"
-                  fontFamily="sans-serif"
-                  fill="#ffffff"
-                  textAnchor="middle"
-                  className="italic"
-                >
-                  A
-                </text>
-                <defs>
-                  <linearGradient id="crestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#00c6ff" />
-                    <stop offset="50%" stopColor="#0072ff" />
-                    <stop offset="100%" stopColor="#003882" />
-                  </linearGradient>
-                </defs>
-              </svg>
+            {/* Glowing brand emblem — the logo is already a finished circular badge,
+                so it sits directly on the gradient with a soft, slide-tinted halo. */}
+            <div className="relative w-24 h-24 lg:w-32 lg:h-32 flex items-center justify-center">
+              <div
+                className="absolute inset-2 rounded-full blur-2xl opacity-60 animate-pulse"
+                style={{ backgroundColor: currentSlide.accentColor }}
+              />
+              {/* Capillary waves — two staggered ripple rings radiating from the logo */}
+              <span
+                className="hagerawi-ripple absolute inset-0 rounded-full border-2 pointer-events-none"
+                style={{ borderColor: currentSlide.accentColor }}
+              />
+              <span
+                className="hagerawi-ripple hagerawi-ripple-delay absolute inset-0 rounded-full border-2 pointer-events-none"
+                style={{ borderColor: currentSlide.accentColor }}
+              />
+              <img
+                src="/hagerawi-logo.png"
+                alt="ሃገራዊ Logo"
+                className="relative w-full h-full object-contain drop-shadow-[0_0_16px_rgba(0,0,0,0.45)] select-none pointer-events-none"
+              />
             </div>
           </div>
         </div>
@@ -207,10 +257,6 @@ export const PromoBillboard: React.FC = () => {
               }`}
               aria-label={`Slide ${idx + 1}`}
             />
-          ))}
-          {/* Extended aesthetic indicator dots matching 1xBet style */}
-          {[...Array(6)].map((_, i) => (
-            <div key={`extra-${i}`} className="w-1.5 h-1.5 rounded-full bg-white/20 hidden sm:block" />
           ))}
         </div>
       </div>

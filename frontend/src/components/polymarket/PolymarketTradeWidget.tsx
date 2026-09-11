@@ -10,6 +10,25 @@ interface PolymarketTradeWidgetProps {
   className?: string;
 }
 
+// Pick a logo/emblem that matches the market instead of a generic stock photo.
+const getMarketEmoji = (m: PolymarketMarket): string => {
+  const s = `${m.category || ''} ${m.subcategory || ''} ${m.title || ''}`.toLowerCase();
+  if (/mlb|baseball|brewers|reds|yankees|dodgers|tigers|guardians/.test(s)) return '⚾';
+  if (/nba|basketball/.test(s)) return '🏀';
+  if (/nfl|american football/.test(s)) return '🏈';
+  if (/soccer|premier|la liga|serie a|uefa|fifa|world cup/.test(s)) return '⚽';
+  if (/tennis|kostyuk|noskova/.test(s)) return '🎾';
+  if (/esport|cs2|counter-strike|league of legends|valorant|dota|spirit|mouz|g2/.test(s)) return '🎮';
+  if (/crypto|bitcoin|\bbtc\b|\beth\b|solana|coin/.test(s)) return '🪙';
+  if (/politic|election|senate|midterm|congress|president|fed |fomc/.test(s)) return '🏛️';
+  if (/geopolit|china|taiwan|russia|ukraine|\bwar\b|invasion|red sea/.test(s)) return '🌍';
+  if (/\bai\b|anthropic|openai|gemini|tech|model|clarity act/.test(s)) return '🤖';
+  if (/weather|hurricane|temperature|rain|storm/.test(s)) return '🌦️';
+  if (/addis|ethiop|federal city|military service/.test(s)) return '🇪🇹';
+  if (/sport/.test(s)) return '🏆';
+  return '📊';
+};
+
 export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
   market,
   onTradeExecuted,
@@ -31,8 +50,18 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
     noPrice: 43,
   };
 
-  const yesPrice = activeOutcome.yesPrice || 58;
-  const noPrice = activeOutcome.noPrice || 43;
+  // Derive consistent Yes/No prices (in Santim/cents). Prefer explicit prices,
+  // fall back to the outcome probability, and keep them in a valid 1–99 range so
+  // Yes + No always make sense (no degenerate 0 / 100 pairs).
+  const rawYes =
+    activeOutcome.yesPrice && activeOutcome.yesPrice > 0
+      ? activeOutcome.yesPrice
+      : activeOutcome.probability ?? 50;
+  const yesPrice = Math.min(99, Math.max(1, Math.round(rawYes)));
+  const noPrice =
+    activeOutcome.noPrice && activeOutcome.noPrice > 0 && activeOutcome.noPrice < 100
+      ? Math.round(activeOutcome.noPrice)
+      : 100 - yesPrice;
   const currentPrice = selectedOutcomeSide === 'yes' ? yesPrice : noPrice;
 
   // Potential payout calculation: shares = (amount / (price / 100))
@@ -84,16 +113,23 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
       {/* 1. Market Header Item */}
       <div>
         <div className="flex items-center gap-3 pb-3 border-b border-[#1e293b]">
-          {/* Avatar Thumbnail */}
-          <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-[#2e3b52] bg-[#1a2232]">
-            <img
-              src={
-                market.imageUrl ||
-                'https://images.unsplash.com/photo-1544717305-2782549b5136?w=128&h=128&fit=crop'
-              }
-              alt={market.title}
-              className="w-full h-full object-cover"
-            />
+          {/* Avatar Thumbnail — real market image, else a category-matched emblem */}
+          <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-[#2e3b52] bg-[#1a2232] flex items-center justify-center">
+            {market.imageUrl ? (
+              <img
+                src={market.imageUrl}
+                alt={market.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span
+                className="text-xl leading-none select-none"
+                role="img"
+                aria-label={market.category || 'market'}
+              >
+                {getMarketEmoji(market)}
+              </span>
+            )}
           </div>
 
           {/* Titles */}
@@ -189,7 +225,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               selectedOutcomeSide === 'yes'
                 ? 'bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/50'
-                : 'bg-[#1b2434] hover:bg-[#222d42] text-neutral-400 border border-[#2e3d55]'
+                : 'bg-[#22c55e]/15 hover:bg-[#22c55e]/25 text-[#22c55e] border border-[#22c55e]/40'
             }`}
           >
             <span>{translateOutcomeName('Yes', language)}</span>
@@ -202,7 +238,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               selectedOutcomeSide === 'no'
                 ? 'bg-[#ef4444] hover:bg-[#dc2626] text-white shadow-lg shadow-rose-950/40 ring-2 ring-rose-400/50'
-                : 'bg-[#1b2434] hover:bg-[#222d42] text-neutral-400 border border-[#2e3d55]'
+                : 'bg-[#ef4444]/15 hover:bg-[#ef4444]/25 text-[#ef4444] border border-[#ef4444]/40'
             }`}
           >
             <span>{translateOutcomeName('No', language)}</span>
@@ -210,17 +246,31 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           </button>
         </div>
 
-        {/* 4. Amount Input Section */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-neutral-400">
-              {t('amount', language, 'Amount')} ({language === 'am' ? 'ብር' : 'ETB'})
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-white">
-                {amount}
+        {/* 4. Amount Input Section — typeable, comma-formatted (like the reference) */}
+        <div className="mb-3">
+          <div className="flex items-start justify-between mb-2 gap-3">
+            <div className="shrink-0">
+              <span className="text-sm font-semibold text-white block">
+                {t('amount', language, 'Amount')}
               </span>
-              <span className="text-xs font-bold text-amber-400 font-mono self-end mb-1">
+              <span className="text-[11px] text-neutral-500">
+                {user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
+                {language === 'am' ? 'ብር ቀሪ' : 'ETB cash'}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1 flex-1 justify-end min-w-0">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={amount ? amount.toLocaleString() : ''}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/[^0-9]/g, '');
+                  setAmount(digits ? Math.min(parseInt(digits, 10), 99999999) : 0);
+                }}
+                placeholder="0"
+                className="min-w-0 flex-1 text-right bg-transparent text-3xl sm:text-4xl font-extrabold font-mono text-white placeholder-neutral-600 focus:outline-none"
+              />
+              <span className="text-xs font-bold text-amber-400 font-mono self-end mb-1.5 shrink-0">
                 {language === 'am' ? 'ብር' : 'ETB'}
               </span>
             </div>
@@ -234,7 +284,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                 onClick={() => handleQuickAdd(val)}
                 className="px-2.5 py-1 rounded-lg bg-[#1a2232] hover:bg-[#253248] text-neutral-300 hover:text-white border border-[#2e3b52] text-xs font-semibold font-mono transition-all active:scale-95 cursor-pointer"
               >
-                +{val} {language === 'am' ? 'ብር' : 'ETB'}
+                +{val}
               </button>
             ))}
             {amount > 0 && (
@@ -249,22 +299,21 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           </div>
         </div>
 
-        {/* Trade Details Preview if Amount > 0 */}
+        {/* To win payout (prominent, like the reference) */}
         {amount > 0 && (
-          <div className="bg-[#171f2d] border border-[#26354a] rounded-xl p-2.5 mb-4 text-xs space-y-1">
-            <div className="flex items-center justify-between text-neutral-400">
-              <span>{t('avg_price', language, 'Avg Price:')}</span>
-              <span className="font-mono font-bold text-white">{formatSantim(currentPrice, language)}</span>
+          <div className="flex items-center justify-between gap-3 mb-4 pt-3 border-t border-[#1e293b]">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 text-sm font-extrabold text-white">
+                <span>{language === 'am' ? 'ለማሸነፍ' : 'To win'}</span>
+                <span aria-hidden="true">💵</span>
+              </div>
+              <div className="text-[11px] text-neutral-500 mt-0.5">
+                {t('avg_price', language, 'Avg. Price')} {formatSantim(currentPrice, language)}
+              </div>
             </div>
-            <div className="flex items-center justify-between text-neutral-400">
-              <span>{t('shares', language, 'Shares:')}</span>
-              <span className="font-mono font-bold text-emerald-400">{calculatedShares}</span>
-            </div>
-            <div className="flex items-center justify-between text-neutral-400">
-              <span>{t('potential_return', language, 'Potential Return:')}</span>
-              <span className="font-mono font-bold text-emerald-400">
-                {potentialReturn} {language === 'am' ? 'ብር' : 'ETB'} ({(100 - currentPrice).toFixed(0)}%{language === 'am' ? ' ትርፍ' : ' profit'})
-              </span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono text-right truncate">
+              {Number(potentialReturn).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
+              {language === 'am' ? 'ብር' : 'ETB'}
             </div>
           </div>
         )}

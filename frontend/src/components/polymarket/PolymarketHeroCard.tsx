@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Code2,
   Link2,
@@ -52,6 +52,19 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
 
   const slide = HERO_CAROUSEL_SLIDES[slideIndex] || HERO_CAROUSEL_SLIDES[0];
 
+  // Auto-rotate the hero carousel in a loop; pause while the user hovers the card.
+  const [paused, setPaused] = useState(false);
+  const slideRef = useRef(slideIndex);
+  slideRef.current = slideIndex;
+  useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setSlide(slideRef.current + 1);
+    }, 5000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paused]);
+
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeDateTab, setActiveDateTab] = useState<string>('Sep 16');
@@ -71,7 +84,9 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
   const svgHeight = 240;
   const paddingLeft = 10;
   const paddingRight = 45;
-  const paddingTop = 20;
+  // Extra top padding reserves a clean band under the timeframe pills and above
+  // the top price/% axis label — that is where the ሃገራዊ watermark now sits.
+  const paddingTop = 40;
   const paddingBottom = 30;
   const chartInnerWidth = svgWidth - paddingLeft - paddingRight;
   const chartInnerHeight = svgHeight - paddingTop - paddingBottom;
@@ -130,6 +145,24 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
             { name: 'Google', color: '#f59e0b', points: [10, 8, 7, 4, 2] },
           ],
         };
+      case 'eth-addis-federal-city':
+        return {
+          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
+          yTicks: ['80%', '60%', '40%', '20%', '0%'],
+          lines: [{ name: 'Yes', color: '#10b981', points: [12, 15, 19, 22, 24, 26, 25, 26] }],
+        };
+      case 'eth-military-service':
+        return {
+          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
+          yTicks: ['80%', '60%', '40%', '20%', '0%'],
+          lines: [{ name: 'Yes', color: '#10b981', points: [18, 20, 24, 22, 26, 30, 28, 29] }],
+        };
+      case 'eth-red-sea-access':
+        return {
+          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
+          yTicks: ['90%', '75%', '60%', '45%', '30%'],
+          lines: [{ name: 'Yes', color: '#10b981', points: [58, 63, 61, 69, 72, 70, 73, 74] }],
+        };
       default:
         // Fed Decision step chart
         return {
@@ -146,6 +179,35 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
   };
 
   const chartData = getSlideChartData(slide.id);
+
+  // Auto-scale the chart to its own data range so the plotted line always lines
+  // up with the axis labels (fixes the price chart and low-probability markets).
+  const allYValues = chartData.lines.flatMap((l) => l.points as number[]);
+  const rawMin = Math.min(...allYValues);
+  const rawMax = Math.max(...allYValues);
+  const isPriceChart = rawMax > 1000;
+  let scaleMin: number;
+  let scaleMax: number;
+  if (isPriceChart) {
+    const pad = Math.max((rawMax - rawMin) * 0.3, 2);
+    scaleMin = rawMin - pad;
+    scaleMax = rawMax + pad;
+  } else {
+    const pad = Math.max((rawMax - rawMin) * 0.25, 6);
+    scaleMin = Math.max(0, rawMin - pad);
+    scaleMax = Math.min(100, rawMax + pad);
+    if (scaleMax - scaleMin < 12) scaleMax = Math.min(100, scaleMin + 12);
+  }
+  const scaleSpan = scaleMax - scaleMin || 1;
+  const plotY = (val: number) =>
+    paddingTop + (1 - (val - scaleMin) / scaleSpan) * chartInnerHeight;
+  const TICK_COUNT = 5;
+  const computedYTicks = Array.from({ length: TICK_COUNT }, (_, i) => {
+    const v = scaleMax - (i / (TICK_COUNT - 1)) * scaleSpan;
+    return isPriceChart ? `${Math.round(v).toLocaleString()} ETB` : `${Math.round(v)}%`;
+  });
+  const fmtHover = (v: number) =>
+    isPriceChart ? `${Math.round(v).toLocaleString()} ETB` : `${v}%`;
 
   // Handle Chart Cursor Movement
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -177,6 +239,8 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
       {/* Main Hero Card Container */}
       <div
         id="polymarket-hero-main-card"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
         className={`w-full rounded-2xl border transition-all duration-300 relative overflow-hidden ${
           isDarkMode
             ? 'bg-[#101622] border-[#1f293b] text-white shadow-xl'
@@ -202,11 +266,6 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
 
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
                 <span>{translateMarketTitle(slide.title, language)}</span>
-                {slide.chanceBadge && (
-                  <span className="text-sm sm:text-base font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">
-                    {slide.chanceBadge}
-                  </span>
-                )}
               </h1>
             </div>
 
@@ -366,7 +425,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
         {/* Middle: Interactive Chart & Comments Ticker */}
         <div className="px-4 sm:px-5 py-2 border-t border-[#1a2434] grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
           {/* Chart Section (8 cols) */}
-          <div className="lg:col-span-8 relative">
+          <div className="lg:col-span-12 relative">
             {/* Chart Toolbar (Date Tabs & Timeframes) */}
             <div className="flex items-center justify-between text-xs text-neutral-400 mb-2">
               <div className="flex items-center gap-1">
@@ -412,6 +471,21 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
+                {/* Brand watermark — faint mark in the top-right corner */}
+                <text
+                  x={svgWidth - paddingRight - 4}
+                  y={paddingTop - 14}
+                  textAnchor="end"
+                  fill="#64748b"
+                  fontSize="22"
+                  fontWeight="700"
+                  fontFamily="'Nyala', 'Noto Sans Ethiopic', system-ui, sans-serif"
+                  opacity="0.45"
+                  className="select-none"
+                >
+                  ሃገራዊ
+                </text>
+
                 {/* Horizontal Grid lines */}
                 {[0.2, 0.4, 0.6, 0.8].map((ratio, i) => (
                   <line
@@ -427,9 +501,9 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                 ))}
 
                 {/* Y-Axis Ticks */}
-                {chartData.yTicks.map((tick, i) => {
+                {computedYTicks.map((tick, i) => {
                   const yPos =
-                    paddingTop + (i / (chartData.yTicks.length - 1)) * chartInnerHeight;
+                    paddingTop + (i / (computedYTicks.length - 1)) * chartInnerHeight;
                   return (
                     <text
                       key={i}
@@ -453,14 +527,14 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   let d = '';
                   pts.forEach((val, idx) => {
                     const x = paddingLeft + (idx / (pts.length - 1)) * chartInnerWidth;
-                    const y = getY(val);
+                    const y = plotY(val);
                     if (idx === 0) {
                       d += `M ${x} ${y}`;
                     } else {
                       // Smooth curve to next point
                       const prevX =
                         paddingLeft + ((idx - 1) / (pts.length - 1)) * chartInnerWidth;
-                      const prevY = getY(pts[idx - 1]);
+                      const prevY = plotY(pts[idx - 1]);
                       const midX = (prevX + x) / 2;
                       d += ` C ${midX} ${prevY}, ${midX} ${y}, ${x} ${y}`;
                     }
@@ -494,7 +568,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                     />
                     <circle
                       cx={hoverX}
-                      cy={getY(hoverVal ?? 50)}
+                      cy={plotY(hoverVal ?? scaleMin)}
                       r="4.5"
                       fill="#38bdf8"
                       stroke="#ffffff"
@@ -530,48 +604,14 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                     left: Math.min(chartInnerWidth - 40, Math.max(10, hoverX)),
                   }}
                 >
-                  Value: {hoverVal}%
+                  Value: {fmtHover(hoverVal)}
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Right Section: Comments & Activity Ticker (4 cols) */}
-          <div className="lg:col-span-4 h-full border-t lg:border-t-0 lg:border-l border-[#1b2536] lg:pl-4 flex flex-col justify-between py-1">
-            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2">
-              <span className="font-semibold text-neutral-300">Live Comments</span>
-              <span className="font-mono text-emerald-400 text-[11px] font-bold">
-                {slide.volume}
-              </span>
-            </div>
-
-            <div className="space-y-2 overflow-y-auto max-h-[170px] pr-1">
-              {slide.commentsTicker.map((c, i) => (
-                <div
-                  key={i}
-                  className="p-2 rounded-xl bg-[#141b27] border border-[#1e2838] text-xs"
-                >
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className="font-bold text-neutral-200 truncate">{c.user}</span>
-                    {c.amount && (
-                      <span
-                        className={`text-[11px] font-mono font-semibold ${
-                          c.positive ? 'text-emerald-400' : 'text-red-400'
-                        }`}
-                      >
-                        {c.amount}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-neutral-400 text-[11px] leading-relaxed line-clamp-2">
-                    {c.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-
+            {/* Resolution date caption (kept after removing the Live Comments panel) */}
             {slide.resolutionDate && (
-              <div className="mt-2 pt-2 border-t border-[#1b2536] text-[11px] text-neutral-400 flex items-center justify-between">
+              <div className="mt-3 pt-2 border-t border-[#1b2536] text-[11px] text-neutral-400 flex items-center justify-end gap-2">
                 <span>Resolution Date</span>
                 <span className="font-semibold text-neutral-300">{slide.resolutionDate}</span>
               </div>

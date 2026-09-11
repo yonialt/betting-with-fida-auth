@@ -113,7 +113,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
     const amt = amountToTrade !== undefined ? amountToTrade : tradeAmount;
     if (amt <= 0) {
       setNotification?.({
-        message: 'Please enter a trade amount greater than $0',
+        message: 'Please enter a trade amount greater than 0 ETB',
         type: 'warning',
       });
       return;
@@ -131,7 +131,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
     });
 
     setNotification?.({
-      message: `Trade prepared: $${amt} on ${out.name} (${side.toUpperCase()})`,
+      message: `Trade prepared: ${amt} ETB on ${out.name} (${side.toUpperCase()})`,
       type: 'success',
     });
     setTradeAmount(0);
@@ -259,7 +259,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                       <path d="M2.5 8L21.5 16" />
                       <path d="M2.5 16L21.5 8" />
                     </svg>
-                    <span>Polymarket</span>
+                    <span>ሃገራዊ</span>
                   </div>
                 </div>
               )}
@@ -271,7 +271,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                 <div className="bg-[#090d14] rounded-xl p-3 border border-[#1e293b]">
                   <div className="text-[11px] text-neutral-400 font-medium">Price to Beat</div>
                   <div className="text-base sm:text-lg font-mono font-bold text-neutral-200">
-                    ${(market.priceToBeat || 79812.33).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {(market.priceToBeat || 79812.33).toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB
                   </div>
                 </div>
 
@@ -281,14 +281,14 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                     Current Price
                   </div>
                   <div className="text-base sm:text-lg font-mono font-black text-emerald-400">
-                    ${currentBtcPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {currentBtcPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB
                   </div>
                 </div>
 
                 <div className="bg-[#090d14] rounded-xl p-3 border border-[#1e293b]">
                   <div className="text-[11px] text-neutral-400 font-medium">Target Line</div>
                   <div className="text-base sm:text-lg font-mono font-bold text-amber-400">
-                    ${(market.targetPrice || 79814.00).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {(market.targetPrice || 79814.00).toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB
                   </div>
                 </div>
 
@@ -327,10 +327,10 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                   </div>
                 ) : isBtc5m ? (
                   <div className="flex items-center gap-2 text-neutral-400 font-mono text-[11px]">
-                    <span className="text-emerald-400 font-bold">+ $8</span>
-                    <span className="text-emerald-400 font-bold">+ $15</span>
-                    <span className="text-emerald-400 font-bold">+ $8</span>
-                    <span className="text-rose-400 font-bold">- $3</span>
+                    <span className="text-emerald-400 font-bold">+ 8 ETB</span>
+                    <span className="text-emerald-400 font-bold">+ 15 ETB</span>
+                    <span className="text-emerald-400 font-bold">+ 8 ETB</span>
+                    <span className="text-rose-400 font-bold">- 3 ETB</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 text-xs font-semibold text-neutral-300">
@@ -472,7 +472,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white">Order Book</span>
-                  <span className="text-xs font-mono text-neutral-400">{market.orderBookVolume || '$240 Vol.'}</span>
+                  <span className="text-xs font-mono text-neutral-400">{market.orderBookVolume || '240 ETB Vol.'}</span>
                 </div>
                 {orderBookOpen ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
               </button>
@@ -481,15 +481,15 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                 <div className="p-4 pt-0 border-t border-[#1e2738] grid grid-cols-2 gap-4 text-xs font-mono">
                   <div>
                     <div className="text-[11px] font-bold text-emerald-400 mb-2">BIDS (UP)</div>
-                    <div className="flex justify-between text-neutral-300 py-1"><span>51.0¢</span><span>$120.50</span></div>
-                    <div className="flex justify-between text-neutral-400 py-1"><span>50.5¢</span><span>$84.00</span></div>
-                    <div className="flex justify-between text-neutral-500 py-1"><span>49.0¢</span><span>$35.50</span></div>
+                    <div className="flex justify-between text-neutral-300 py-1"><span>51.0¢</span><span>120.50 ETB</span></div>
+                    <div className="flex justify-between text-neutral-400 py-1"><span>50.5¢</span><span>84.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-500 py-1"><span>49.0¢</span><span>35.50 ETB</span></div>
                   </div>
                   <div>
                     <div className="text-[11px] font-bold text-rose-400 mb-2">ASKS (DOWN)</div>
-                    <div className="flex justify-between text-neutral-300 py-1"><span>51.5¢</span><span>$95.00</span></div>
-                    <div className="flex justify-between text-neutral-400 py-1"><span>52.0¢</span><span>$45.00</span></div>
-                    <div className="flex justify-between text-neutral-500 py-1"><span>53.0¢</span><span>$100.00</span></div>
+                    <div className="flex justify-between text-neutral-300 py-1"><span>51.5¢</span><span>95.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-400 py-1"><span>52.0¢</span><span>45.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-500 py-1"><span>53.0¢</span><span>100.00 ETB</span></div>
                   </div>
                 </div>
               )}
@@ -715,8 +715,8 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                       onClick={() => handleExecuteTrade(preset.amount)}
                       className="bg-[#090d14] hover:bg-[#182335] border border-[#1e293b] rounded-xl p-2.5 flex flex-col items-center transition-all active:scale-95 cursor-pointer"
                     >
-                      <span className="text-xs font-black text-white">${preset.amount}</span>
-                      <span className="text-[10px] text-neutral-400 font-mono">win ${preset.win}</span>
+                      <span className="text-xs font-black text-white">{preset.amount} ETB</span>
+                      <span className="text-[10px] text-neutral-400 font-mono">win {preset.win} ETB</span>
                     </button>
                   ))}
                 </div>
@@ -730,7 +730,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                     className={`py-3 rounded-xl font-black text-sm flex flex-col items-center transition-all cursor-pointer ${
                       tradeSide === 'yes'
                         ? 'bg-emerald-600 text-white shadow-lg'
-                        : 'bg-[#182233] text-neutral-400 hover:text-white border border-[#2b3a52]'
+                        : 'bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-500 border border-emerald-600/40'
                     }`}
                   >
                     <span>Yes {selectedOutcome.yesPrice || selectedOutcome.probability}¢</span>
@@ -740,7 +740,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                     className={`py-3 rounded-xl font-black text-sm flex flex-col items-center transition-all cursor-pointer ${
                       tradeSide === 'no'
                         ? 'bg-rose-600 text-white shadow-lg'
-                        : 'bg-[#182233] text-neutral-400 hover:text-white border border-[#2b3a52]'
+                        : 'bg-rose-600/15 hover:bg-rose-600/25 text-rose-500 border border-rose-600/40'
                     }`}
                   >
                     <span>No {selectedOutcome.noPrice || 100 - selectedOutcome.probability}¢</span>
@@ -751,7 +751,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                 <div>
                   <div className="flex justify-between text-xs text-neutral-400 mb-1.5 font-medium">
                     <span>Amount</span>
-                    <span className="font-mono">Balance: ${user.balance.toFixed(2)}</span>
+                    <span className="font-mono">Balance: {user.balance.toFixed(2)} ETB</span>
                   </div>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-neutral-400 text-base">
@@ -775,7 +775,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                         onClick={() => setTradeAmount((prev) => prev + amt)}
                         className="py-1.5 bg-[#090d14] hover:bg-[#182335] border border-[#1e293b] text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold transition-all cursor-pointer active:scale-95"
                       >
-                        +${amt}
+                        +{amt} ETB
                       </button>
                     ))}
                   </div>
