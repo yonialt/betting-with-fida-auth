@@ -20,7 +20,6 @@ import { useBetting } from '../context/BettingContext';
 export const Header: React.FC = () => {
   const {
     user,
-    setLoginModalOpen,
     setSettingsModalOpen,
     setDepositModalOpen,
     openAuthModal,
@@ -176,12 +175,12 @@ export const Header: React.FC = () => {
                 id="header-balance-wallet-pill"
                 className="flex items-center rounded-full bg-[#0d1723]/90 hover:bg-[#121f2f] border border-neutral-700/70 hover:border-emerald-500/50 p-0.5 transition-all shadow-inner group"
               >
-                {/* Balance Display (opens Wallet modal on click) */}
+                {/* Balance Display (opens Deposit modal on click) */}
                 <button
                   type="button"
-                  onClick={() => setLoginModalOpen(true)}
+                  onClick={() => setDepositModalOpen(true)}
                   className="flex items-center gap-1.5 pl-2.5 pr-2 py-0.5 text-left cursor-pointer focus:outline-none"
-                  title="Wallet balance — click for details"
+                  title="Wallet balance — click to deposit"
                 >
                   <div className="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
                     <Wallet className="w-2.5 h-2.5 text-emerald-400" />
@@ -204,7 +203,7 @@ export const Header: React.FC = () => {
                   title="Deposit Funds"
                 >
                   <Plus className="w-3 h-3 stroke-[3]" />
-                  <span className="hidden md:inline">DEPOSIT</span>
+                  <span className="hidden sm:inline">DEPOSIT</span>
                 </button>
               </div>
 

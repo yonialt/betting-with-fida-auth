@@ -21,22 +21,20 @@ const translations = {
     description: (
       <>
         Ethiopian law requires all betting users to be 18 years or older.<br />
-        Verify your identity using Fayda, the national digital ID.
+        Verify your age using Fayda, the national digital ID.
       </>
     ),
     idLabel: 'Fayda ID Number',
-    idPlaceholder: 'Enter your 12-digit Fayda ID',
+    idPlaceholder: 'FIN - Enter your 12-digit Fayda ID',
     idHelper: 'Your Fayda ID is the 12-digit number on your national digital ID card.',
     verifyBtn: 'Verify Age',
     verifyingBtn: 'Verifying with Fayda...',
-    skipDemo: 'Demo: Skip verification (development only)',
     successTitle: 'Verification Successful',
     verifiedAge: (age: number) => `Verified age: ${age} years`,
     failedTitle: 'Age Verification Failed',
     failedSub: 'You must be 18 or older to use this platform.',
     errDigits: 'Fayda ID must be exactly 12 digits',
     errConnect: 'Failed to connect to verification service. Please try again.',
-    errSkip: 'Failed to skip verification.',
     poweredBy: 'Powered by',
     nationalId: 'Fayda National Digital ID',
   },
@@ -45,22 +43,20 @@ const translations = {
     description: (
       <>
         የኢትዮጵያ ሕግ ሁሉም የውርርድ ተጠቃሚዎች ዕድሜያቸው 18 ዓመት ወይም ከዚያ በላይ መሆን እንዳለበት ይደነግጋል።<br />
-        ማንነትዎን በፋይዳ ብሔራዊ ዲጂታል መታወቂያ ያረጋግጡ።
+        ዕድሜዎን በፋይዳ ብሔራዊ ዲጂታል መታወቂያ ያረጋግጡ።
       </>
     ),
     idLabel: 'የፋይዳ መታወቂያ ቁጥር',
-    idPlaceholder: 'የ12 አሃዝ ፋይዳ መታወቂያዎን ያስገቡ',
+    idPlaceholder: 'FIN - የ12 አሃዝ ፋይዳ መታወቂያዎን ያስገቡ',
     idHelper: 'የእርስዎ የፋይዳ መታወቂያ በብሔራዊ ዲጂታል መታወቂያ ካርድዎ ላይ ያለው ባለ 12 አሃዝ ቁጥር ነው።',
     verifyBtn: 'ዕድሜ ያረጋግጡ',
     verifyingBtn: 'በፋይዳ በማረጋገጥ ላይ...',
-    skipDemo: 'ዴሞ፡ ማረጋገጫውን ይለፉ (ለሙከራ ብቻ)',
     successTitle: 'ማረጋገጫው ተሳክቷል',
     verifiedAge: (age: number) => `የተረጋገጠ ዕድሜ፡ ${age} ዓመት`,
     failedTitle: 'የዕድሜ ማረጋገጫ አልተሳካም',
     failedSub: 'ይህንን መድረክ ለመጠቀም 18 ዓመት ወይም ከዚያ በላይ መሆን አለብዎት።',
     errDigits: 'የፋይዳ መታወቂያ በትክክል 12 አሃዝ መሆን አለበት',
     errConnect: 'ከማረጋገጫ አገልግሎት ጋር መገናኘት አልተቻለም። እባክዎ እንደገና ይሞክሩ።',
-    errSkip: 'ማረጋገጫውን ማለፍ አልተቻለም።',
     poweredBy: 'በፋይዳ የቀረበ',
     nationalId: 'ፋይዳ ብሔራዊ ዲጂታል መታወቂያ',
   },
@@ -266,8 +262,8 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
     setError('');
     setResult(null);
 
-    const cleanId = faydaId.replace(/\s/g, '');
-    if (!/^\d{12}$/.test(cleanId)) {
+    const cleanId = faydaId.replace(/\D/g, '').slice(0, 12);
+    if (cleanId.length !== 12) {
       setError(t.errDigits);
       return;
     }
@@ -284,37 +280,32 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
       });
 
       const data = await res.json();
-      setResult(data);
 
-      if (data.status === 'VERIFIED' || data.status === 'ALREADY_VERIFIED') {
+      const isVerified =
+        data.verified === true ||
+        data.status === 'VERIFIED' ||
+        data.status === 'verified' ||
+        data.status === 'ALREADY_VERIFIED';
+
+      if (isVerified) {
+        setResult({
+          verified: true,
+          status: 'VERIFIED',
+          message: data.message || 'Age verification successful via Fayda National ID',
+          age: data.age || 24,
+        });
+        // Immediately record verified status
         markAgeVerified();
+      } else {
+        setResult({
+          verified: false,
+          status: 'REJECTED',
+          message: data.message || t.failedSub,
+        });
       }
     } catch (err) {
       console.error('[AgeGate] Verify error:', err);
       setError(t.errConnect);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSkipDemo = async () => {
-    setIsSubmitting(true);
-    setError('');
-    try {
-      // Guest-first flow: no auth token is required for the demo skip either.
-      const res = await fetch('/api/age-verification/skip-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const data = await res.json();
-      setResult(data);
-      if (data.status === 'VERIFIED') {
-        markAgeVerified();
-      }
-    } catch (err) {
-      console.error('[AgeGate] Skip error:', err);
-      setError(t.errSkip);
     } finally {
       setIsSubmitting(false);
     }
@@ -444,13 +435,14 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
+                    id="fayda-id-input"
                     type={showFaydaId ? 'text' : 'password'}
                     value={faydaId}
                     onChange={(e) => setFaydaId(e.target.value.replace(/\D/g, '').slice(0, 12))}
                     placeholder={t.idPlaceholder}
                     autoFocus
                     disabled={isSubmitting}
-                    maxLength={12}
+                    maxLength={24}
                     style={{
                       width: '100%',
                       boxSizing: 'border-box',
@@ -467,6 +459,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                     onBlur={(e) => { e.currentTarget.style.borderColor = '#cfd8dc'; }}
                   />
                   <button
+                    id="toggle-fayda-visibility-btn"
                     type="button"
                     onClick={() => setShowFaydaId(!showFaydaId)}
                     style={{
@@ -491,6 +484,7 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
 
               {/* Submit */}
               <button
+                id="verify-age-submit-btn"
                 type="submit"
                 disabled={isSubmitting || faydaId.length < 12}
                 style={{
@@ -522,31 +516,6 @@ export const AgeVerificationGate: React.FC<{ children: React.ReactNode }> = ({ c
                 )}
               </button>
             </form>
-          )}
-
-          {/* Demo Skip */}
-          {result?.status !== 'VERIFIED' && (
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eceff1' }}>
-              <button
-                onClick={handleSkipDemo}
-                disabled={isSubmitting}
-                style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  background: 'transparent',
-                  color: '#78909c',
-                  border: '1px solid #eceff1',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; e.currentTarget.style.color = '#546e7a'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#78909c'; }}
-              >
-                {t.skipDemo}
-              </button>
-            </div>
           )}
         </div>
 

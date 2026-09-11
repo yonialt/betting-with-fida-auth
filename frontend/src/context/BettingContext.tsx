@@ -474,7 +474,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
     if (user.balance < stakeAmount) {
       setNotification({ message: 'Insufficient balance! Please deposit funds.', type: 'warning' });
-      setLoginModalOpen(true);
+      setDepositModalOpen(true);
       return false;
     }
 
