@@ -11,7 +11,6 @@ export const Footer: React.FC = () => {
     setActiveSport,
     setActiveSubTab,
     setBonusesModalOpen,
-    setLoginModalOpen,
     openAuthModal,
   } = useBetting();
 
@@ -104,12 +103,8 @@ export const Footer: React.FC = () => {
     setBonusesModalOpen(true);
   };
 
-  const handleSupportLinkClick = (linkName: string) => {
-    if (linkName === 'Contact Us' || linkName === 'Telegram Support') {
-      setLoginModalOpen(true);
-    } else if (linkName === 'Help Center') {
-      setBonusesModalOpen(true);
-    }
+  const handleSupportLinkClick = (_linkName: string) => {
+    setBonusesModalOpen(true);
   };
 
   const handlePolymarketLinkClick = (linkName: string) => {

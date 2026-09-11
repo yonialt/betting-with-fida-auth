@@ -15,7 +15,6 @@ import { EventDetailedView } from './components/EventDetailedView';
 import { BetSlip } from './components/BetSlip';
 import { MarketDetailsModal } from './components/MarketDetailsModal';
 import { LiveMatchTrackerModal } from './components/LiveMatchTrackerModal';
-import { LoginModal } from './components/LoginModal';
 import { AuthModal } from './components/AuthModal';
 import { BonusesModal } from './components/BonusesModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -101,7 +100,6 @@ const BettingAppContent: React.FC = () => {
     return (
       <>
         <ProfilePage onBack={() => navigateTo('/')} />
-        <LoginModal />
         <AuthModal />
         <TelebirrDepositModal />
         <TelebirrWithdrawModal />
@@ -117,7 +115,6 @@ const BettingAppContent: React.FC = () => {
         <PolymarketPage />
 
         {/* Global Interactive Modals so deposit, settings, wallet, auth work seamlessly */}
-        <LoginModal />
         <AuthModal />
         <BonusesModal />
         <SettingsModal />
@@ -185,7 +182,6 @@ const BettingAppContent: React.FC = () => {
       {/* Global Interactive Modals */}
       <MarketDetailsModal />
       <LiveMatchTrackerModal />
-      <LoginModal />
       <AuthModal />
       <BonusesModal />
       <SettingsModal />

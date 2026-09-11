@@ -37,7 +37,6 @@ export const BetSlip: React.FC = () => {
     placeBet,
     cashoutBet,
     user,
-    setLoginModalOpen,
     isBetSlipCollapsed,
     setIsBetSlipCollapsed,
     openAuthModal,

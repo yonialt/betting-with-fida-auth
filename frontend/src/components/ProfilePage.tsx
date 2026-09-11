@@ -28,7 +28,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
     placedBets,
     setDepositModalOpen,
     setWithdrawModalOpen,
-    setLoginModalOpen,
     setNotification,
     updateProfile,
   } = useBetting();

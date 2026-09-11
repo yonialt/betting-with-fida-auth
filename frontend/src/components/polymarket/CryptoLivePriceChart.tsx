@@ -126,9 +126,11 @@ export const CryptoLivePriceChart: React.FC<Props> = ({ symbol, priceToBeat, cur
   }, [series.length, cur]);
 
   const leftDeltas = useMemo(() => {
-    return yTicks.slice(1, 6).map((tick) => {
+    const tradeSizes = [1, 24, 2, 6, 3, 11, 1];
+    return yTicks.slice(1, 6).map((tick, i) => {
       const d = tick - beat;
-      return { y: getY(tick), val: Math.abs(d), pos: d >= 0 };
+      const amt = tradeSizes[i % tradeSizes.length];
+      return { y: getY(tick), val: amt, pos: d >= 0 };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [yTicks, beat, min, max]);
@@ -177,8 +179,17 @@ export const CryptoLivePriceChart: React.FC<Props> = ({ symbol, priceToBeat, cur
           <path d={areaPath} fill={`url(#clpc-fill-${symbol})`} />
           <path d={linePath} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
-          {/* current point */}
-          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} stroke="#ffffff" strokeWidth="2" />
+          {/* current point with live pulsing aura matching video */}
+          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} opacity="0.6">
+            <animate attributeName="r" values="4.5;16" dur="2.2s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.65;0" dur="2.2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} opacity="0.45">
+            <animate attributeName="r" values="4.5;11" dur="2.2s" begin="0.8s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.5;0" dur="2.2s" begin="0.8s" repeatCount="indefinite" />
+          </circle>
+          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="7" fill={lineColor} opacity="0.28" />
+          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} stroke="#ffffff" strokeWidth="1.8" />
 
           {/* y labels */}
           {yTicks.map((tk, i) => (
@@ -236,10 +247,10 @@ export const CryptoLivePriceChart: React.FC<Props> = ({ symbol, priceToBeat, cur
           {leftDeltas.map((d, i) => (
             <div
               key={i}
-              className={`absolute text-[10px] font-bold font-mono ${d.pos ? 'text-emerald-500' : 'text-rose-500'}`}
+              className={`absolute text-[10px] font-bold font-mono ${d.pos ? 'text-amber-400' : 'text-orange-400'}`}
               style={{ top: `${(d.y / H) * 100}%`, transform: 'translateY(-50%)' }}
             >
-              + {Math.round(d.val).toLocaleString()} ETB
+              + ${d.val}
             </div>
           ))}
         </div>

@@ -8,8 +8,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [phase, setPhase] = useState<'animation' | 'fading'>('animation');
 
   useEffect(() => {
-    const timer = setTimeout(() => setPhase('fading'), 5000);
-    const doneTimer = setTimeout(() => onComplete(), 5800);
+    const timer = setTimeout(() => setPhase('fading'), 3200);
+    const doneTimer = setTimeout(() => onComplete(), 3600);
     return () => {
       clearTimeout(timer);
       clearTimeout(doneTimer);
@@ -18,6 +18,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
   return (
     <div
+      id="app-splash-screen"
+      onClick={onComplete}
       style={{
         position: 'fixed',
         inset: 0,
@@ -27,7 +29,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         justifyContent: 'center',
         background: '#0a0a1a',
         opacity: phase === 'fading' ? 0 : 1,
-        transition: 'opacity 0.6s ease-in-out',
+        transition: 'opacity 0.5s ease-in-out',
+        cursor: 'pointer',
       }}
     >
       <iframe
