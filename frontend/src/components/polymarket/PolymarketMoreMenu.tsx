@@ -9,8 +9,6 @@ import {
   Code,
   Moon,
   Sun,
-  CheckCircle2,
-  Radio,
   FileText,
   HelpCircle,
   Shield,
@@ -150,6 +148,7 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
         >
           <Code className="w-4 h-4 text-cyan-400 shrink-0" />
           <span>APIs</span>
+          <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">SOON</span>
         </button>
       </div>
 
@@ -181,32 +180,6 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
 
       {/* Informational Links */}
       <div className="py-1 px-1.5 space-y-0.5">
-        <button
-          onClick={() => {
-            onSelectOption?.('Accuracy');
-            onClose();
-          }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
-            isDarkMode ? 'hover:bg-[#182334] text-neutral-300' : 'hover:bg-neutral-100 text-neutral-600'
-          }`}
-        >
-          <CheckCircle2 className="w-4 h-4 text-neutral-400 shrink-0" />
-          <span>Accuracy</span>
-        </button>
-
-        <button
-          onClick={() => {
-            onSelectOption?.('Status');
-            onClose();
-          }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
-            isDarkMode ? 'hover:bg-[#182334] text-neutral-300' : 'hover:bg-neutral-100 text-neutral-600'
-          }`}
-        >
-          <Radio className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Status</span>
-        </button>
-
         <button
           onClick={() => {
             onSelectOption?.('Documentation');

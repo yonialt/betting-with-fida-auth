@@ -36,6 +36,7 @@ interface PolymarketHeaderProps {
   onToggleChat?: () => void;
   chatOpen?: boolean;
   onOpenMarketDetail?: (market: PolymarketMarket) => void;
+  onSelectMoreOption?: (option: string) => void;
   children?: React.ReactNode;
 }
 
@@ -47,6 +48,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   onToggleChat,
   chatOpen: _chatOpen,
   onOpenMarketDetail,
+  onSelectMoreOption,
   children,
 }) => {
   const {
@@ -406,6 +408,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               onClose={() => setMoreMenuOpen(false)}
               isDarkMode={polymarketDarkMode}
               onToggleDarkMode={togglePolymarketDarkMode}
+              onSelectOption={onSelectMoreOption}
               anchorRef={moreBtnRef}
             />
 

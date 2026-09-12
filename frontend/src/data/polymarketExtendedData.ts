@@ -218,45 +218,7 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
       { user: 'DeepMindEnthusiast', text: 'Gemini Flash 2.0 release could shake up the leaderboard', amount: '+17 ETB', positive: true },
     ],
   },
-  // Slide 5: CS2 Spirit vs MOUZ
-  {
-    id: 'cs2-spirit-mouz',
-    category: 'Esports',
-    subcategory: 'CS2 BLAST Open',
-    title: 'Spirit vs MOUZ · Game 4 of 5',
-    volume: '4.4M ETB Vol',
-    chartType: 'line',
-    prevSlideLabel: 'Best AI',
-    nextSlideLabel: 'Brewers vs Reds',
-    outcomes: [
-      { name: 'Spirit', probability: 83, color: '#38bdf8', yesPrice: 83, noPrice: 17 },
-      { name: 'MOUZ', probability: 17, color: '#ef4444', yesPrice: 17, noPrice: 83 },
-    ],
-    commentsTicker: [
-      { user: 'DonkCS', text: 'Donk with 1.45 rating on Mirage is unfair', amount: '+210 ETB', positive: true },
-      { user: 'siuhyFan', text: 'MOUZ force buy comeback incoming on map 4', amount: '+40 ETB', positive: true },
-    ],
-  },
-  // Slide 6: Brewers vs Reds
-  {
-    id: 'mlb-brewers-reds',
-    category: 'Sports',
-    subcategory: 'MLB',
-    title: 'Brewers vs Reds · Bot 5th',
-    volume: '938.1K ETB Vol',
-    chartType: 'line',
-    prevSlideLabel: 'Spirit vs MOUZ',
-    nextSlideLabel: 'Taiwan Invasion',
-    outcomes: [
-      { name: 'Brewers (88-55)', probability: 15, color: '#3b82f6', yesPrice: 15, noPrice: 85 },
-      { name: 'Reds (68-74)', probability: 86, color: '#ef4444', yesPrice: 86, noPrice: 14 },
-    ],
-    commentsTicker: [
-      { user: 'EllyDeLaCruz', text: 'Bases loaded 2 outs in bottom of the 5th', amount: '+85 ETB', positive: true },
-      { user: 'BrewCrew99', text: 'Bullpen warming up, still have 4 innings', amount: '+12 ETB', positive: true },
-    ],
-  },
-  // Slide 7: Will China invade Taiwan by end of 2026?
+  // Slide 5: Will China invade Taiwan by end of 2026?
   {
     id: 'china-taiwan-2026',
     category: 'Geopolitics',
@@ -266,7 +228,7 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
     volume: '4.1M ETB Vol',
     chartType: 'line',
     resolutionDate: 'Ends Dec 31, 2026',
-    prevSlideLabel: 'Brewers vs Reds',
+    prevSlideLabel: 'Best AI',
     nextSlideLabel: 'Fed Decision',
     outcomes: [
       { name: 'Yes', probability: 4, color: '#10b981', yesPrice: 4, noPrice: 96, side: 'yes' },
@@ -442,20 +404,20 @@ export interface BreakingNewsItem {
 }
 
 export const BREAKING_NEWS_ITEMS: BreakingNewsItem[] = [
-  { rank: 1, title: 'Will Kimi Antonelli win the 2026 F1 Italian Grand Prix?', probability: 100, change: '95%', isUp: true, category: 'Sports', badge: 'F1' },
-  { rank: 2, title: 'Will CDU win less than 20% of all valid second votes?', probability: 99, change: '87%', isUp: true, category: 'Politics', badge: 'CDU' },
-  { rank: 3, title: 'Will the AfD win the 2026 Sachsen-Anhalt parliamentary election by at least 25%?', probability: 89, change: '70%', isUp: true, category: 'Politics', badge: 'AfD' },
-  { rank: 4, title: 'Will Sven Schulze be the next Minister-President of Sachsen-Anhalt?', probability: 17, change: '56%', isUp: false, category: 'Politics' },
-  { rank: 5, title: 'Will Apple release a foldable iPhone by September 30?', probability: 59, change: '38%', isUp: true, category: 'Tech' },
-  { rank: 6, title: 'Will Google be the second-best Math AI lab at the end of October 2026?', probability: 26, change: '37%', isUp: false, category: 'Tech' },
-  { rank: 7, title: 'Will Russia enter Ternuvate again by October 31?', probability: 90, change: '27%', isUp: true, category: 'World' },
-  { rank: 8, title: 'Will Julianne Moore win Best Actress at the 99th Academy Awards?', probability: 53, change: '23%', isUp: true, category: 'Culture' },
-  { rank: 9, title: 'Israel military action against Lebanon on September 9?', probability: 78, change: '25%', isUp: true, category: 'World' },
-  { rank: 10, title: 'Will Waymo operate in 16-19 cities on December 31 2026?', probability: 28, change: '18%', isUp: false, category: 'Tech' },
-  { rank: 11, title: 'SSI public model released by September 30, 2026?', probability: 9, change: '17%', isUp: false, category: 'Tech' },
-  { rank: 12, title: 'Will CMI declare a Millennium Prize Problem solved by December 31, 2027?', probability: 26, change: '18%', isUp: true, category: 'Culture' },
-  { rank: 13, title: "Will OpenAI's Astra Model debut on the Arena Leaderboard at a score of at least 1500?", probability: 28, change: '15%', isUp: false, category: 'Tech' },
-  { rank: 14, title: 'Will Russia and Ukraine hold any diplomatic meeting by September 15, 2026?', probability: 22, change: '13%', isUp: false, category: 'World' },
+  { rank: 1, title: 'Fed holds rates steady in September FOMC meeting?', probability: 51, change: '+12%', isUp: true, category: 'Politics', badge: 'FOMC' },
+  { rank: 2, title: 'Ethiopia Red Sea port access accord signed before 2027?', probability: 74, change: '+8%', isUp: true, category: 'Geopolitics', badge: 'Ethiopia 🇪🇹' },
+  { rank: 3, title: 'GERD hits 100% full capacity in 2026?', probability: 89, change: '+5%', isUp: true, category: 'Tech', badge: 'Energy' },
+  { rank: 4, title: 'OpenAI announces AGI achievement before 2027?', probability: 15, change: '+3%', isUp: true, category: 'Tech', badge: 'AI' },
+  { rank: 5, title: 'Ethiopia Birr (USD/ETB) exceeds 150 before end of 2026?', probability: 64, change: '+7%', isUp: true, category: 'Economy', badge: 'Forex' },
+  { rank: 6, title: 'Sudan civil war ceasefire agreed before end of 2026?', probability: 28, change: '-4%', isUp: false, category: 'World', badge: 'Sudan' },
+  { rank: 7, title: 'Clarity Act (H.R.3633) crypto bill signed into law in 2026?', probability: 16, change: '+2%', isUp: true, category: 'Crypto', badge: 'Regulation' },
+  { rank: 8, title: 'Ethiopia becomes top 3 Bitcoin mining hub in Africa by Q4 2026?', probability: 78, change: '+6%', isUp: true, category: 'Crypto', badge: 'Mining' },
+  { rank: 9, title: 'Ethiopian coffee export revenue exceeds 1.8 ETB Billion in FY 2025/26?', probability: 72, change: '+4%', isUp: true, category: 'Economy', badge: 'Coffee' },
+  { rank: 10, title: '2026 Ethiopian General Election voter turnout exceeds 40 Million?', probability: 68, change: '+9%', isUp: true, category: 'Politics', badge: 'Election' },
+  { rank: 11, title: 'Russia-Ukraine ceasefire by end of 2026?', probability: 22, change: '-3%', isUp: false, category: 'World', badge: 'Conflict' },
+  { rank: 12, title: 'Ethiopia-Eritrea border normalization before 2027?', probability: 18, change: '+1%', isUp: true, category: 'Geopolitics', badge: 'Horn' },
+  { rank: 13, title: 'Ethiopian Securities Exchange lists 5+ IPOs in 2026?', probability: 79, change: '+5%', isUp: true, category: 'Economy', badge: 'ESX' },
+  { rank: 14, title: 'Addis Ababa becomes federally administered city before 2029?', probability: 26, change: '+2%', isUp: true, category: 'Politics', badge: 'Charter' },
 ];
 
 // 5. Mention Polymarkets (From 01:57 - 02:04 in the video)
