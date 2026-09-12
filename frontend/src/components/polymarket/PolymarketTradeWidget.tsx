@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
-import { t, translateMarketTitle, translateOutcomeName, formatSantim } from '../../data/polymarketTranslations';
+import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
 
 interface PolymarketTradeWidgetProps {
   market: PolymarketMarket;
@@ -43,6 +43,31 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tradeSuccess, setTradeSuccess] = useState(false);
 
+  // Real-time live drift & price tick simulation (matching chart live behavior)
+  const [liveDriftOffset, setLiveDriftOffset] = useState<number>(0);
+  const [priceFlash, setPriceFlash] = useState<'up' | 'down' | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Micro drift (-1, 0, +1)
+      const delta = (Math.random() - 0.5) > 0 ? 0.4 : -0.4;
+      setLiveDriftOffset((prev) => {
+        const next = Math.max(-1.4, Math.min(1.4, prev + delta));
+        const diff = Math.round(next) - Math.round(prev);
+        if (diff > 0) {
+          setPriceFlash('up');
+          setTimeout(() => setPriceFlash(null), 750);
+        } else if (diff < 0) {
+          setPriceFlash('down');
+          setTimeout(() => setPriceFlash(null), 750);
+        }
+        return next;
+      });
+    }, 2200);
+
+    return () => clearInterval(interval);
+  }, [market.id]);
+
   const activeOutcome = market.outcomes[0] || {
     name: '25 bps increase',
     probability: 57,
@@ -50,18 +75,14 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
     noPrice: 43,
   };
 
-  // Derive consistent Yes/No prices (in Santim/cents). Prefer explicit prices,
-  // fall back to the outcome probability, and keep them in a valid 1–99 range so
-  // Yes + No always make sense (no degenerate 0 / 100 pairs).
+  // Derive consistent Yes/No prices with live drift applied
   const rawYes =
     activeOutcome.yesPrice && activeOutcome.yesPrice > 0
       ? activeOutcome.yesPrice
       : activeOutcome.probability ?? 50;
-  const yesPrice = Math.min(99, Math.max(1, Math.round(rawYes)));
-  const noPrice =
-    activeOutcome.noPrice && activeOutcome.noPrice > 0 && activeOutcome.noPrice < 100
-      ? Math.round(activeOutcome.noPrice)
-      : 100 - yesPrice;
+  const baseYesPrice = Math.min(99, Math.max(1, Math.round(rawYes)));
+  const yesPrice = Math.min(99, Math.max(1, Math.round(baseYesPrice + liveDriftOffset)));
+  const noPrice = 100 - yesPrice;
   const currentPrice = selectedOutcomeSide === 'yes' ? yesPrice : noPrice;
 
   // Potential payout calculation: shares = (amount / (price / 100))
@@ -222,27 +243,69 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           {/* YES Button */}
           <button
             onClick={() => setSelectedOutcomeSide('yes')}
-            className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer relative overflow-hidden ${
               selectedOutcomeSide === 'yes'
                 ? 'bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/50'
                 : 'bg-[#22c55e]/15 hover:bg-[#22c55e]/25 text-[#22c55e] border border-[#22c55e]/40'
             }`}
           >
+            {/* Pulsing Radar Dot */}
+            <span className="relative flex h-2.5 w-2.5 items-center justify-center shrink-0">
+              <span
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 duration-1000 ${
+                  selectedOutcomeSide === 'yes' ? 'bg-white' : 'bg-emerald-400'
+                }`}
+              />
+              <span
+                className={`relative inline-flex rounded-full h-1.5 w-1.5 ${
+                  selectedOutcomeSide === 'yes' ? 'bg-white' : 'bg-emerald-400'
+                }`}
+              />
+            </span>
             <span>{translateOutcomeName('Yes', language)}</span>
-            <span className="font-extrabold">{formatSantim(yesPrice, language)}</span>
+            <span
+              className={`font-extrabold transition-all duration-300 ${
+                priceFlash === 'up' && selectedOutcomeSide === 'yes'
+                  ? 'scale-110 text-emerald-100'
+                  : ''
+              }`}
+            >
+              {yesPrice}%
+            </span>
           </button>
 
           {/* NO Button */}
           <button
             onClick={() => setSelectedOutcomeSide('no')}
-            className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer relative overflow-hidden ${
               selectedOutcomeSide === 'no'
                 ? 'bg-[#ef4444] hover:bg-[#dc2626] text-white shadow-lg shadow-rose-950/40 ring-2 ring-rose-400/50'
                 : 'bg-[#ef4444]/15 hover:bg-[#ef4444]/25 text-[#ef4444] border border-[#ef4444]/40'
             }`}
           >
+            {/* Pulsing Radar Dot */}
+            <span className="relative flex h-2.5 w-2.5 items-center justify-center shrink-0">
+              <span
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 duration-1000 ${
+                  selectedOutcomeSide === 'no' ? 'bg-white' : 'bg-rose-400'
+                }`}
+              />
+              <span
+                className={`relative inline-flex rounded-full h-1.5 w-1.5 ${
+                  selectedOutcomeSide === 'no' ? 'bg-white' : 'bg-rose-400'
+                }`}
+              />
+            </span>
             <span>{translateOutcomeName('No', language)}</span>
-            <span className="font-extrabold">{formatSantim(noPrice, language)}</span>
+            <span
+              className={`font-extrabold transition-all duration-300 ${
+                priceFlash === 'down' && selectedOutcomeSide === 'no'
+                  ? 'scale-110 text-rose-100'
+                  : ''
+              }`}
+            >
+              {noPrice}%
+            </span>
           </button>
         </div>
 
@@ -308,7 +371,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
                 <span aria-hidden="true">💵</span>
               </div>
               <div className="text-[11px] text-neutral-500 mt-0.5">
-                {t('avg_price', language, 'Avg. Price')} {formatSantim(currentPrice, language)}
+                {t('avg_price', language, 'Avg. Price')} {currentPrice}%
               </div>
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono text-right truncate">

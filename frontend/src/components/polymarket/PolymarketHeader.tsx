@@ -493,7 +493,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Backdrop */}
           <div
-            className={`fixed inset-0 transition-opacity ${isLight ? 'pm-light-backdrop' : 'bg-black/70 backdrop-blur-xs'}`}
+            className={`fixed inset-0 transition-opacity backdrop-blur-sm ${isLight ? 'bg-black/40' : 'bg-black/70'}`}
             onClick={() => setDrawerOpen(false)}
           />
 

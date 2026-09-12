@@ -331,13 +331,3 @@ export const formatBirrVolume = (volumeStr: string | undefined, lang: Language =
   }
 };
 
-/**
- * Format cents / santim (sub-unit of Ethiopian Birr)
- * 1 Birr (ETB) = 100 Santim (ሳንቲም)
- * e.g. 52 or "52¢" -> "52 ሳንቲም" or "52 Santim"
- */
-export const formatSantim = (cents: number | string | undefined, lang: Language = 'en'): string => {
-  if (cents === undefined || cents === null) return '';
-  const clean = typeof cents === 'string' ? cents.replace(/[¢$]/g, '').trim() : String(cents);
-  return lang === 'am' ? `${clean} ሳንቲም` : `${clean} Santim`;
-};

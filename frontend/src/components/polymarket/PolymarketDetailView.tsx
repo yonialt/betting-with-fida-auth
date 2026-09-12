@@ -323,7 +323,6 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                   <div className="flex items-center gap-3 text-xs font-semibold text-neutral-300">
                     <span className="text-blue-400 font-bold">{hoveredChartPoint.leadName}</span>
                     <span className="font-mono text-white text-sm">{hoveredChartPoint.leadVal.toFixed(1)}%</span>
-                    <span className="text-neutral-400 font-mono text-xs">{hoveredChartPoint.date}</span>
                   </div>
                 ) : isBtc5m ? (
                   <div className="flex items-center gap-2 text-neutral-400 font-mono text-[11px]">
@@ -440,7 +439,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                         className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer flex flex-col items-center leading-tight"
                       >
                         <span>Buy Yes</span>
-                        <span className="font-mono text-[10px] opacity-90">{yesPrice}¢</span>
+                        <span className="font-mono text-[10px] opacity-90">{yesPrice}%</span>
                       </button>
 
                       {/* Buy No Button */}
@@ -454,7 +453,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                         className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer flex flex-col items-center leading-tight"
                       >
                         <span>Buy No</span>
-                        <span className="font-mono text-[10px] opacity-90">{noPrice}¢</span>
+                        <span className="font-mono text-[10px] opacity-90">{noPrice}%</span>
                       </button>
                     </div>
                   </div>
@@ -481,15 +480,15 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                 <div className="p-4 pt-0 border-t border-[#1e2738] grid grid-cols-2 gap-4 text-xs font-mono">
                   <div>
                     <div className="text-[11px] font-bold text-emerald-400 mb-2">BIDS (UP)</div>
-                    <div className="flex justify-between text-neutral-300 py-1"><span>51.0¢</span><span>120.50 ETB</span></div>
-                    <div className="flex justify-between text-neutral-400 py-1"><span>50.5¢</span><span>84.00 ETB</span></div>
-                    <div className="flex justify-between text-neutral-500 py-1"><span>49.0¢</span><span>35.50 ETB</span></div>
+                    <div className="flex justify-between text-neutral-300 py-1"><span>51.0%</span><span>120.50 ETB</span></div>
+                    <div className="flex justify-between text-neutral-400 py-1"><span>50.5%</span><span>84.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-500 py-1"><span>49.0%</span><span>35.50 ETB</span></div>
                   </div>
                   <div>
                     <div className="text-[11px] font-bold text-rose-400 mb-2">ASKS (DOWN)</div>
-                    <div className="flex justify-between text-neutral-300 py-1"><span>51.5¢</span><span>95.00 ETB</span></div>
-                    <div className="flex justify-between text-neutral-400 py-1"><span>52.0¢</span><span>45.00 ETB</span></div>
-                    <div className="flex justify-between text-neutral-500 py-1"><span>53.0¢</span><span>100.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-300 py-1"><span>51.5%</span><span>95.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-400 py-1"><span>52.0%</span><span>45.00 ETB</span></div>
+                    <div className="flex justify-between text-neutral-500 py-1"><span>53.0%</span><span>100.00 ETB</span></div>
                   </div>
                 </div>
               )}
@@ -687,7 +686,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                     }}
                     className="py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm flex flex-col items-center justify-center transition-all active:scale-95 shadow-md cursor-pointer"
                   >
-                    <span>Up 50¢</span>
+                    <span>Up 50%</span>
                   </button>
                   <button
                     onClick={() => {
@@ -696,7 +695,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                     }}
                     className="py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black text-sm flex flex-col items-center justify-center transition-all active:scale-95 shadow-md cursor-pointer"
                   >
-                    <span>Down 51¢</span>
+                    <span>Down 51%</span>
                   </button>
                 </div>
 
@@ -733,7 +732,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                         : 'bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-500 border border-emerald-600/40'
                     }`}
                   >
-                    <span>Yes {selectedOutcome.yesPrice || selectedOutcome.probability}¢</span>
+                    <span>Yes {selectedOutcome.yesPrice || selectedOutcome.probability}%</span>
                   </button>
                   <button
                     onClick={() => setTradeSide('no')}
@@ -743,7 +742,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
                         : 'bg-rose-600/15 hover:bg-rose-600/25 text-rose-500 border border-rose-600/40'
                     }`}
                   >
-                    <span>No {selectedOutcome.noPrice || 100 - selectedOutcome.probability}¢</span>
+                    <span>No {selectedOutcome.noPrice || 100 - selectedOutcome.probability}%</span>
                   </button>
                 </div>
 

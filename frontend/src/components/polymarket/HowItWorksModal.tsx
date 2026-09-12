@@ -22,7 +22,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 transition-opacity ${isLight ? 'pm-light-backdrop' : 'bg-black/75'} backdrop-blur-sm`}
+        className={`fixed inset-0 transition-opacity backdrop-blur-sm ${isLight ? 'bg-black/40' : 'bg-black/75'}`}
         onClick={onClose}
       />
 
@@ -82,7 +82,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
               <p className="text-[#8e9eb3] text-xs leading-relaxed">
                 Shares trade between <span className="text-white font-semibold">0.00 ETB</span> and{' '}
                 <span className="text-white font-semibold">1.00 ETB</span>. If a "Yes" share costs{' '}
-                <span className="text-[#38bdf8] font-semibold">57¢</span>, the market sees a{' '}
+                <span className="text-[#38bdf8] font-semibold">57%</span>, the market sees a{' '}
                 <span className="text-[#38bdf8] font-semibold">57%</span> chance of that event occurring.
               </p>
             </div>

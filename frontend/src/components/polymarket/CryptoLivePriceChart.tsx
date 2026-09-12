@@ -165,6 +165,16 @@ export const CryptoLivePriceChart: React.FC<Props> = ({ symbol, priceToBeat, cur
               <stop offset="0%" stopColor={lineColor} stopOpacity="0.18" />
               <stop offset="100%" stopColor={lineColor} stopOpacity="0" />
             </linearGradient>
+
+            {/* Dynamic clipPath for scrubbing lines left and right with cursor */}
+            <clipPath id={`clpc-clip-${symbol}`}>
+              <rect
+                x="0"
+                y="0"
+                width={hoverIdx != null ? getX(hoverIdx) : W}
+                height={H}
+              />
+            </clipPath>
           </defs>
 
           {/* grid */}
@@ -176,20 +186,31 @@ export const CryptoLivePriceChart: React.FC<Props> = ({ symbol, priceToBeat, cur
           <line x1={padL} y1={getY(beat)} x2={W - padR} y2={getY(beat)} stroke={lineColor} strokeWidth="1.5" strokeDasharray="6 5" opacity="0.7" />
 
           {/* area + line */}
-          <path d={areaPath} fill={`url(#clpc-fill-${symbol})`} />
-          <path d={linePath} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={areaPath} fill={`url(#clpc-fill-${symbol})`} clipPath={`url(#clpc-clip-${symbol})`} />
+          {hoverIdx != null && (
+            <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity={0.16} />
+          )}
+          <path d={linePath} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" clipPath={`url(#clpc-clip-${symbol})`} />
 
-          {/* current point with live pulsing aura matching video */}
-          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} opacity="0.6">
-            <animate attributeName="r" values="4.5;16" dur="2.2s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.65;0" dur="2.2s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} opacity="0.45">
-            <animate attributeName="r" values="4.5;11" dur="2.2s" begin="0.8s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.5;0" dur="2.2s" begin="0.8s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="7" fill={lineColor} opacity="0.28" />
-          <circle cx={getX(series.length - 1)} cy={getY(cur)} r="4.5" fill={lineColor} stroke="#ffffff" strokeWidth="1.8" />
+          {/* live pulsating aura tracking cursor left/right when scrubbing */}
+          {(() => {
+            const activePtX = hoverIdx != null ? getX(hoverIdx) : getX(series.length - 1);
+            const activePtY = hoverIdx != null ? getY(series[hoverIdx]) : getY(cur);
+            return (
+              <g className="pointer-events-none">
+                <circle cx={activePtX} cy={activePtY} r="4.5" fill={lineColor} opacity="0.6">
+                  <animate attributeName="r" values="4.5;16" dur="2.2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.65;0" dur="2.2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx={activePtX} cy={activePtY} r="4.5" fill={lineColor} opacity="0.45">
+                  <animate attributeName="r" values="4.5;11" dur="2.2s" begin="0.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.5;0" dur="2.2s" begin="0.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx={activePtX} cy={activePtY} r="7" fill={lineColor} opacity="0.28" />
+                <circle cx={activePtX} cy={activePtY} r="4.5" fill={lineColor} stroke="#ffffff" strokeWidth="1.8" />
+              </g>
+            );
+          })()}
 
           {/* y labels */}
           {yTicks.map((tk, i) => (
@@ -212,11 +233,12 @@ export const CryptoLivePriceChart: React.FC<Props> = ({ symbol, priceToBeat, cur
             </text>
           ))}
 
-          {/* hover cursor */}
+          {/* hover cursor hairline + target beacon ring */}
           {hoverIdx != null && (
-            <g>
-              <line x1={getX(hoverIdx)} y1={padT} x2={getX(hoverIdx)} y2={padT + innerH} stroke={T.axis} strokeWidth="1" strokeDasharray="3 3" />
-              <circle cx={getX(hoverIdx)} cy={getY(series[hoverIdx])} r="4" fill="#ffffff" stroke={lineColor} strokeWidth="2.5" />
+            <g className="pointer-events-none">
+              <line x1={getX(hoverIdx)} y1={padT} x2={getX(hoverIdx)} y2={padT + innerH} stroke="rgba(255, 255, 255, 0.35)" strokeWidth="1.2" strokeDasharray="3 3" />
+              <circle cx={getX(hoverIdx)} cy={getY(series[hoverIdx])} r="11" fill="none" stroke="#38bdf8" strokeWidth="2.5" opacity="0.9" />
+              <circle cx={getX(hoverIdx)} cy={getY(series[hoverIdx])} r="3.5" fill="#38bdf8" opacity="0.95" />
             </g>
           )}
         </svg>

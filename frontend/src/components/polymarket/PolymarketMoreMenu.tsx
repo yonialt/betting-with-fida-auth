@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useBetting } from '../../context/BettingContext';
 import {
   Activity,
   Trophy,
@@ -39,6 +40,7 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
   onSelectOption,
   anchorRef,
 }) => {
+  const { language, setLanguage } = useBetting();
   const usePortal = !!anchorRef;
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
 
@@ -246,12 +248,21 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
       </div>
 
       {/* Language Selection */}
-      <div className="py-2 px-3 flex items-center justify-between text-[11px] text-neutral-400">
-        <div className="flex items-center gap-2">
+      <div className="py-2 px-3 flex items-center justify-between text-[11px]">
+        <div className="flex items-center gap-2 text-neutral-400">
           <Globe className="w-3.5 h-3.5" />
           <span>Language</span>
         </div>
-        <span className="font-semibold text-neutral-300">English (US)</span>
+        <button
+          onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
+          className={`font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+            isDarkMode
+              ? 'text-neutral-200 hover:bg-[#182334]'
+              : 'text-neutral-700 hover:bg-neutral-100'
+          }`}
+        >
+          {language === 'en' ? 'English (US)' : 'አማርኛ'}
+        </button>
       </div>
     </div>
   );

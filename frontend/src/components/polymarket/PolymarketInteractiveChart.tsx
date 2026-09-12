@@ -11,6 +11,7 @@ import {
 } from '../../services/mockMarketFeed';
 import { LineChart, BarChart2, Layers } from 'lucide-react';
 import { useBetting } from '../../context/BettingContext';
+import { getRealisticChartForMarket } from '../../services/polymarketChartProfiles';
 
 // Deterministic PRNG seeded from a string, so each market's chart is stable across re-renders
 function makeSeededRand(seed: string): () => number {
@@ -46,6 +47,23 @@ function buildProbabilitySeries(seed: string, end: number, points = 32): number[
     out.push(+v.toFixed(1));
   }
   out[points - 1] = +target.toFixed(1);
+  return out;
+}
+
+// Interpolate realistic profile points to high-density chart steps
+function interpolatePoints(source: number[], targetCount = 32): number[] {
+  if (source.length === 0) return [];
+  if (source.length === 1) return Array(targetCount).fill(source[0]);
+  const out: number[] = [];
+  for (let i = 0; i < targetCount; i++) {
+    const t = i / (targetCount - 1);
+    const srcIndex = t * (source.length - 1);
+    const low = Math.floor(srcIndex);
+    const high = Math.ceil(srcIndex);
+    const frac = srcIndex - low;
+    const v = source[low] + (source[high] - source[low]) * frac;
+    out.push(+v.toFixed(1));
+  }
   return out;
 }
 
@@ -246,31 +264,44 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
       };
     }
 
+    const realisticProfile = getRealisticChartForMarket(
+      market.id,
+      market.title,
+      market.outcomes,
+      market.category
+    );
+
     if (isSingleLine) {
       const primary = market.outcomes?.[0];
       const end = primary?.probability ?? 50;
+      const profileLine = realisticProfile.lines[0];
+      const pts =
+        profileLine && profileLine.points.length > 0
+          ? interpolatePoints(profileLine.points, POINTS)
+          : buildProbabilitySeries(`${market.id}|${primary?.name || 'yes'}`, end, POINTS);
+
       return {
         dateLabels: labels,
         seriesList: [
           {
             name: primary?.name || 'Yes',
-            color: palette[0],
-            currentVal: end,
-            data: buildProbabilitySeries(`${market.id}|${primary?.name || 'yes'}`, end, POINTS),
+            color: profileLine?.color || palette[0],
+            currentVal: pts[pts.length - 1],
+            data: pts,
           },
         ],
       };
     }
 
-    // Multi-outcome lines (up to 4)
-    const outcomesToRender = (market.outcomes || []).slice(0, 4);
-    const series = outcomesToRender.map((o, idx) => {
-      const end = o.probability ?? 33;
+    // Multi-outcome lines or versus match lines
+    const profileLines = realisticProfile.lines;
+    const series = profileLines.slice(0, 4).map((line, idx) => {
+      const pts = interpolatePoints(line.points, POINTS);
       return {
-        name: o.name,
-        color: palette[idx % palette.length],
-        currentVal: end,
-        data: buildProbabilitySeries(`${market.id}|${o.name}`, end, POINTS),
+        name: line.name,
+        color: line.color || palette[idx % palette.length],
+        currentVal: pts[pts.length - 1],
+        data: pts,
       };
     });
 
@@ -405,17 +436,23 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
 
     // Collision avoidance relaxation for floating tags along the vertical hairline
     const sorted = [...interpolated].sort((a, b) => a.y - b.y);
-    const minGap = 24;
+    const minGap = 30;
+    const tagH = 24;
     const adjustedY = sorted.map((item) => item.y);
 
-    for (let pass = 0; pass < 3; pass++) {
+    // More passes for better convergence with many lines
+    for (let pass = 0; pass < 6; pass++) {
       for (let i = 1; i < adjustedY.length; i++) {
         if (adjustedY[i] - adjustedY[i - 1] < minGap) {
           const overlap = minGap - (adjustedY[i] - adjustedY[i - 1]);
-          adjustedY[i - 1] = Math.max(padTop + 4, adjustedY[i - 1] - overlap / 2);
-          adjustedY[i] = Math.min(svgHeight - padBottom - 10, adjustedY[i] + overlap / 2);
+          adjustedY[i - 1] = Math.max(padTop + tagH / 2, adjustedY[i - 1] - overlap / 2);
+          adjustedY[i] = Math.min(svgHeight - padBottom - tagH / 2, adjustedY[i] + overlap / 2);
         }
       }
+    }
+    // Clamp all tags within chart bounds
+    for (let i = 0; i < adjustedY.length; i++) {
+      adjustedY[i] = Math.max(padTop + tagH / 2, Math.min(svgHeight - padBottom - tagH / 2, adjustedY[i]));
     }
 
     const tagItems = sorted.map((item, idx) => ({
@@ -615,18 +652,9 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
           })}
         </div>
 
-        {/* Hover Date Stamp or Live Beacon */}
+        {/* Active Market Mode / Live Status */}
         <div className="flex items-center gap-2 shrink-0">
-          {isHovering && hoverData ? (
-            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-[#162032] text-neutral-200 border border-[#23334d]">
-              {hoverData.date}
-            </span>
-          ) : (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              LIVE
-            </div>
-          )}
+          {/* Cleared time and live indicator per user request */}
         </div>
       </div>
 
@@ -649,6 +677,26 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
             <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
               <feDropShadow dx="0" dy="1" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.8" />
             </filter>
+
+            {/* Dynamic ClipPath: clips solid lines exactly to cursor X position when hovering */}
+            <clipPath id="poly-interactive-reveal-clip">
+              <rect
+                x="0"
+                y="0"
+                width={isHovering && hoverData ? hoverData.x : svgWidth}
+                height={svgHeight}
+              />
+            </clipPath>
+            <style>{`
+              @keyframes chartRadarPulse {
+                0% { r: 4.5; opacity: 0.65; }
+                100% { r: 16; opacity: 0; }
+              }
+              @keyframes chartRadarPulse2 {
+                0% { r: 4.5; opacity: 0.5; }
+                100% { r: 11; opacity: 0; }
+              }
+            `}</style>
           </defs>
 
           {/* Horizontal Grid lines */}
@@ -679,7 +727,7 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
             );
           })}
 
-          {/* Stepped Series Lines (authentic Polymarket step-after curves) */}
+          {/* Stepped Series Lines: Dynamically reveals/retracts left & right with cursor */}
           {activeSeries.map((s, sIdx) => {
             const points = s.data.map((d, i) => ({
               x: getX(i, s.data.length),
@@ -689,16 +737,29 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
 
             return (
               <g key={s.name}>
-                {/* Stepped probability stroke */}
+                {/* 1. Ghost silhouette trail visible ahead of cursor (matching video 00:06) */}
+                {isHovering && hoverData && (
+                  <path
+                    d={pathD}
+                    fill="none"
+                    stroke={s.color}
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={0.16}
+                  />
+                )}
+
+                {/* 2. Vibrant solid line tracking cursor position left and right in real time */}
                 <path
                   d={pathD}
                   fill="none"
                   stroke={s.color}
-                  strokeWidth={sIdx === 0 ? '2.4' : '1.8'}
+                  strokeWidth={sIdx === 0 ? '2.5' : '1.9'}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  opacity={isHovering ? 0.45 : 0.95}
-                  className="transition-opacity duration-150"
+                  clipPath="url(#poly-interactive-reveal-clip)"
+                  opacity={1}
                 />
               </g>
             );
@@ -738,77 +799,83 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
             strokeWidth="1"
           />
 
-          {/* Right-Edge Live Pulsating Blinking Dots (matching video exactly) */}
-          {endPoints.map((pt) => {
-            return (
-              <g key={`end-${pt.name}`} className="transition-all duration-300 pointer-events-none">
-                {/* 1. Primary expanding radar blink ripple */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r="4"
-                  fill={pt.color}
-                  opacity="0.6"
-                >
-                  <animate
-                    attributeName="r"
-                    values="4;15"
-                    dur="2.2s"
-                    repeatCount="indefinite"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0.65;0"
-                    dur="2.2s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
+          {/* Live Pulsating Blinking Dots:
+              - Only the top line has expanding radar rings (always tracks whichever line is highest at current X)
+              - Black circle outline removed completely, replaced with crisp white outline
+          */}
+          {(() => {
+            const rawPoints = (isHovering && hoverData)
+              ? hoverData.all.map((item) => ({
+                  name: item.name,
+                  color: item.color,
+                  val: item.value,
+                  x: hoverData.x,
+                  y: item.y,
+                }))
+              : endPoints;
 
-                {/* 2. Secondary staggered ripple for continuous pulse */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r="4"
-                  fill={pt.color}
-                  opacity="0.45"
-                >
-                  <animate
-                    attributeName="r"
-                    values="4;11"
-                    dur="2.2s"
-                    begin="0.8s"
-                    repeatCount="indefinite"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0.5;0"
-                    dur="2.2s"
-                    begin="0.8s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
+            // Find top line (highest probability / value = smallest Y in SVG coordinates)
+            let topName = rawPoints[0]?.name;
+            let minY = Infinity;
+            rawPoints.forEach((pt) => {
+              if (pt.y < minY) {
+                minY = pt.y;
+                topName = pt.name;
+              }
+            });
 
-                {/* 3. Soft translucent glow halo (radius ~6.5) */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r="6.5"
-                  fill={pt.color}
-                  opacity="0.28"
-                />
+            return rawPoints.map((pt) => {
+              const isTop = pt.name === topName;
 
-                {/* 4. Solid center point matching line color */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r="4"
-                  fill={pt.color}
-                  stroke="#090d14"
-                  strokeWidth="1.6"
-                />
-              </g>
-            );
-          })}
+              return (
+                <g key={`end-${pt.name}`} className="pointer-events-none">
+                  {/* Radar rings ONLY expand for the top line */}
+                  {isTop && (
+                    <>
+                      {/* 1. Primary expanding radar blink ripple */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r="4.5"
+                        fill={pt.color}
+                        opacity="0.6"
+                        style={{ animation: 'chartRadarPulse 2.2s ease-out infinite' }}
+                      />
+
+                      {/* 2. Secondary staggered ripple for continuous pulse */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r="4.5"
+                        fill={pt.color}
+                        opacity="0.45"
+                        style={{ animation: 'chartRadarPulse2 2.2s ease-out 0.8s infinite' }}
+                      />
+
+                      {/* 3. Soft translucent glow halo */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r="7"
+                        fill={pt.color}
+                        opacity="0.28"
+                      />
+                    </>
+                  )}
+
+                  {/* 4. Solid center point with crisp white outline (black circle removed) */}
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r="4.5"
+                    fill={pt.color}
+                    stroke="#ffffff"
+                    strokeWidth="1.8"
+                  />
+                </g>
+              );
+            });
+          })()}
 
           {/* ========================================================================= */}
           {/* HOVER CROSSHAIR AND INLINE FLOATING TAGS (EXACT BEHAVIOR FROM VIDEO)      */}
@@ -826,62 +893,42 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
                 strokeWidth="1.2"
               />
 
-              {/* 2. Top Centered / Hairline Timestamp Tag */}
-              <g transform={`translate(${Math.max(padLeft + 40, Math.min(svgWidth - padRight - 60, hoverData.x))}, ${padTop - 12})`}>
-                <rect
-                  x="-42"
-                  y="0"
-                  width="84"
-                  height="16"
-                  rx="4"
-                  fill="#0e1726"
-                  stroke="#223249"
-                  strokeWidth="0.8"
-                />
-                <text
-                  x="0"
-                  y="11.5"
-                  textAnchor="middle"
-                  fill="#cbd5e1"
-                  fontSize="8.5"
-                  fontFamily="monospace"
-                  fontWeight="600"
-                >
-                  {hoverData.date.split(',')[0]}
-                </text>
-              </g>
+              {/* 2. Circular Cursor Beacon Ring (Video 00:00, 00:04, 00:06, 00:10) */}
+              <circle
+                cx={hoverData.x}
+                cy={hoverData.all[0]?.y ?? padTop + chartHeight / 2}
+                r="11"
+                fill="none"
+                stroke="#38bdf8"
+                strokeWidth="2.5"
+                opacity="0.9"
+              />
+              <circle
+                cx={hoverData.x}
+                cy={hoverData.all[0]?.y ?? padTop + chartHeight / 2}
+                r="3.5"
+                fill="#38bdf8"
+                opacity="0.95"
+              />
 
-              {/* 3. Intersection Dots on Each Line */}
-              {hoverData.all.map((item) => (
-                <g key={`dot-${item.name}`}>
-                  <circle
-                    cx={hoverData.x}
-                    cy={item.y}
-                    r="4"
-                    fill="#090d14"
-                    stroke={item.color}
-                    strokeWidth="2.2"
-                  />
-                </g>
-              ))}
-
-              {/* 4. Attached Line Tags Aligned Vertically with Each Line (Video 00:01, 00:22, 00:33) */}
+              {/* 3. Attached Line Tags Aligned Vertically with Each Line (Video 00:01, 00:22, 00:33) */}
               {hoverData.tagItems.map((item) => {
-                const isNearRight = hoverData.x > svgWidth - 145;
-                const tagWidth = 118;
-                const tagHeight = 20;
-                const tagX = isNearRight ? hoverData.x - tagWidth - 8 : hoverData.x + 8;
+                const tagWidth = 150;
+                const tagHeight = 24;
+                // Flip to left side when near right boundary (account for tag width + padding)
+                const isNearRight = hoverData.x > svgWidth - tagWidth - 20;
+                const tagX = isNearRight ? hoverData.x - tagWidth - 10 : hoverData.x + 10;
                 const tagY = item.tagY - tagHeight / 2;
 
                 return (
                   <g key={`tag-${item.name}`} filter="url(#softGlow)">
-                    {/* Compact Card Container */}
+                    {/* Card Container */}
                     <rect
                       x={tagX}
                       y={tagY}
                       width={tagWidth}
                       height={tagHeight}
-                      rx="4.5"
+                      rx="5"
                       fill="#0e1726"
                       stroke="#223249"
                       strokeWidth="1"
@@ -890,19 +937,19 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
                     {/* Vertical Color Accent Bar */}
                     <rect
                       x={tagX + 5}
-                      y={tagY + 4}
+                      y={tagY + 5}
                       width="2.5"
-                      height="12"
+                      height={tagHeight - 10}
                       rx="1"
                       fill={item.color}
                     />
 
                     {/* Arrow Indicator (↑ or ↓) */}
                     <text
-                      x={tagX + 11}
-                      y={tagY + 14}
+                      x={tagX + 12}
+                      y={tagY + 16}
                       fill={item.color}
-                      fontSize="9"
+                      fontSize="10"
                       fontWeight="bold"
                     >
                       {item.isUp ? '↑' : '↓'}
@@ -910,23 +957,23 @@ export const PolymarketInteractiveChart: React.FC<PolymarketInteractiveChartProp
 
                     {/* Outcome Name */}
                     <text
-                      x={tagX + 22}
-                      y={tagY + 13.5}
+                      x={tagX + 23}
+                      y={tagY + 15.5}
                       fill="#e2e8f0"
-                      fontSize="9.5"
+                      fontSize="10"
                       fontWeight="600"
                       fontFamily="system-ui, sans-serif"
                     >
-                      {item.name.length > 8 ? `${item.name.slice(0, 7)}…` : item.name}
+                      {item.name.length > 12 ? `${item.name.slice(0, 11)}…` : item.name}
                     </text>
 
                     {/* Exact Percentage */}
                     <text
                       x={tagX + tagWidth - 6}
-                      y={tagY + 13.5}
+                      y={tagY + 16}
                       textAnchor="end"
                       fill="#ffffff"
-                      fontSize="10"
+                      fontSize="11"
                       fontWeight="800"
                       fontFamily="monospace"
                     >

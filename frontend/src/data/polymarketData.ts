@@ -799,26 +799,20 @@ export interface PolymarketCategoryItem {
 
 export const POLYMARKET_CATEGORIES: PolymarketCategoryItem[] = [
   { id: 'trending', name: 'Trending', type: 'icon', iconType: 'trending' },
-  { id: 'combos', name: 'Combos', type: 'icon', iconType: 'combos' },
   { id: 'perps', name: 'Perps', type: 'icon', iconType: 'perps' },
   { id: 'breaking', name: 'Breaking', type: 'text' },
   { id: 'new', name: 'New', type: 'text' },
   { id: 'divider-1', name: '|', type: 'divider' },
   { id: 'ethiopia', name: 'Ethiopia 🇪🇹', type: 'text' },
   { id: 'politics', name: 'Politics', type: 'text' },
-  { id: 'sports', name: 'Sports', type: 'text' },
   { id: 'crypto', name: 'Crypto', type: 'text' },
-  { id: 'esports', name: 'Esports', type: 'text' },
-  { id: 'iran', name: 'Iran', type: 'text' },
   { id: 'finance', name: 'Finance', type: 'text' },
   { id: 'geopolitics', name: 'Geopolitics', type: 'text' },
   { id: 'tech', name: 'Tech', type: 'text' },
   { id: 'culture', name: 'Culture', type: 'text' },
   { id: 'economy', name: 'Economy', type: 'text' },
   { id: 'weather', name: 'Weather', type: 'text' },
-  { id: 'mentions', name: 'Mentions', type: 'text' },
   { id: 'elections', name: 'Elections', type: 'text' },
-  { id: 'art', name: 'Art', type: 'text' },
 ];
 
 export const POLYMARKET_TAG_PILLS = [

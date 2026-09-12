@@ -35,7 +35,32 @@ export const Header: React.FC = () => {
 
   const [activeNavTab, setActiveNavTab] = useState<string>('live');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
+
+  const handleMenuEnter = (menuKey: string) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setOpenMenu(menuKey);
+  };
+
+  const handleMenuLeave = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = setTimeout(() => {
+      setOpenMenu(null);
+    }, 180);
+  };
+
+  const handlePopupEnter = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
 
   // Close any open category dropdown when clicking outside the nav
   useEffect(() => {
@@ -92,49 +117,133 @@ export const Header: React.FC = () => {
     setOpenMenu(null);
   };
 
-  // ---- Dropdown datasets ----
+  // ---- Dropdown datasets (Strictly NO EMOJIS - Clean & Professional Sportsbook UI) ----
   const quickViews = [
-    { emoji: '🔥', label: 'All Matches', sport: 'all', subTab: 'matches' },
-    { emoji: '🔴', label: 'Live Now', sport: 'all', subTab: 'live' },
-    { emoji: '📅', label: 'Today', sport: 'all', subTab: 'today' },
-    { emoji: '🗓️', label: 'Tomorrow', sport: 'all', subTab: 'tomorrow' },
-    { emoji: '⭐', label: 'My Favorites', sport: 'all', subTab: 'recommended' },
+    { label: 'Bets on UFC', sport: 'martial-arts', subTab: 'matches' },
+    { label: 'Bet on Your National Team', sport: 'football', subTab: 'matches' },
+    { label: 'Matches of the Day', sport: 'all', subTab: 'matches' },
+    { label: 'Live Events', sport: 'all', subTab: 'live' },
+    { label: 'Today', sport: 'all', subTab: 'today' },
+    { label: 'Tomorrow', sport: 'all', subTab: 'tomorrow' },
+    { label: 'Top European Leagues', sport: 'football', subTab: 'matches' },
+    { label: 'Premier League Specials', sport: 'football', subTab: 'matches' },
+    { label: 'My Favorites', sport: 'all', subTab: 'recommended' },
   ];
 
   const sportsMenu = [
-    { emoji: '⚽', label: 'Football', sport: 'football' },
-    { emoji: '🎾', label: 'Tennis', sport: 'tennis' },
-    { emoji: '🏀', label: 'Basketball', sport: 'basketball' },
-    { emoji: '🏒', label: 'Ice Hockey', sport: 'ice-hockey' },
-    { emoji: '🏐', label: 'Volleyball', sport: 'volleyball' },
-    { emoji: '🏓', label: 'Table Tennis', sport: 'table-tennis' },
-    { emoji: '🏏', label: 'Cricket', sport: 'cricket' },
-    { emoji: '🎮', label: 'Esports', sport: 'esports' },
-    { emoji: '🌐', label: 'All Sports', sport: 'all' },
+    { label: 'Bets on UFC', sport: 'martial-arts' },
+    { label: 'Bet on Your National Team', sport: 'football' },
+    { label: 'Football', sport: 'football' },
+    { label: 'Tennis', sport: 'tennis' },
+    { label: 'Basketball', sport: 'basketball' },
+    { label: 'Ice Hockey', sport: 'ice-hockey' },
+    { label: 'Volleyball', sport: 'volleyball' },
+    { label: 'Table Tennis', sport: 'table-tennis' },
+    { label: 'Cricket', sport: 'cricket' },
+    { label: 'American Football', sport: 'rugby' },
+    { label: 'All Sports', sport: 'all' },
   ];
 
-  const casinoMenu = [
-    { emoji: '🎰', label: 'Slots', category: 'slots' },
-    { emoji: '🚀', label: 'Crash Games', category: 'crash' },
-    { emoji: '🎡', label: 'Roulette', category: 'roulette' },
-    { emoji: '🃏', label: 'Blackjack', category: 'blackjack' },
-    { emoji: '💰', label: 'Jackpots', category: 'jackpots' },
-    { emoji: '🎮', label: 'All Games', category: 'all' },
+  const liveMenu = [
+    { label: 'Live Events (All Sports)', sport: 'all', subTab: 'live' },
+    { label: 'Live Football', sport: 'football', subTab: 'live' },
+    { label: 'Live Tennis', sport: 'tennis', subTab: 'live' },
+    { label: 'Live Basketball', sport: 'basketball', subTab: 'live' },
+    { label: 'Live Ice Hockey', sport: 'ice-hockey', subTab: 'live' },
+    { label: 'Live In-Play Tracker', sport: 'all', subTab: 'live' },
+    { label: 'Live Previews & Results', sport: 'all', subTab: 'live' },
   ];
 
-  const liveCasinoMenu = [
-    { emoji: '🎡', label: 'Live Roulette', category: 'roulette' },
-    { emoji: '🃏', label: 'Live Blackjack', category: 'blackjack' },
-    { emoji: '🎴', label: 'Baccarat', category: 'baccarat' },
-    { emoji: '📺', label: 'Game Shows', category: 'gameshows' },
-    { emoji: '🕹️', label: 'All Live Tables', category: 'all' },
+  const esportsMenu = [
+    { label: 'CS2 (Counter-Strike)', sport: 'esports' },
+    { label: 'Dota 2', sport: 'esports' },
+    { label: 'League of Legends', sport: 'esports' },
+    { label: 'Valorant', sport: 'esports' },
+    { label: 'eFootball / FIFA', sport: 'esports' },
+    { label: 'NBA 2K', sport: 'esports' },
+    { label: 'All Esports Tournaments', sport: 'esports' },
   ];
 
-  // Shared dropdown styling (matches the light second navbar)
-  const menuPanelClass =
-    'absolute left-0 top-full mt-1.5 z-40 min-w-[204px] bg-white rounded-lg border border-neutral-200 shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100';
-  const menuItemClass =
-    'w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-neutral-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer text-left';
+  // Multi-column Fast Games / Casino as shown in video frame 00:01
+  const casinoColumns = [
+    {
+      title: 'Popular Slots',
+      items: [
+        { label: 'Western slot', category: 'slots' },
+        { label: '21', category: 'blackjack' },
+        { label: 'Classic 777', category: 'slots' },
+        { label: 'Book of Gold', category: 'slots' },
+        { label: 'European Roulette', category: 'roulette' },
+      ],
+    },
+    {
+      title: 'Instant & Crash',
+      items: [
+        { label: 'Crystal', category: 'crash' },
+        { label: 'Burning Hot', category: 'slots' },
+        { label: 'Aviator', category: 'crash' },
+        { label: 'Mines', category: 'crash' },
+        { label: 'Plinko', category: 'crash' },
+      ],
+    },
+    {
+      title: 'Jackpots & Wins',
+      items: [
+        { label: 'Apple Of Fortune', category: 'jackpots' },
+        { label: 'Spin and Win', category: 'roulette' },
+        { label: 'Mega Wheel', category: 'gameshows' },
+        { label: 'Royal Jackpot', category: 'jackpots' },
+        { label: 'All Casino Games', category: 'all' },
+      ],
+    },
+  ];
+
+  // Live Casino Providers & Tables as shown in video frame 00:02
+  const liveCasinoProviders = [
+    'WINFINITY',
+    'Evolution',
+    'AMUSNET',
+    'PRAGMATIC PLAY',
+    '888 Live',
+    'Ezugi',
+  ];
+
+  const liveCasinoColumns = [
+    {
+      title: 'Live Roulette',
+      items: [
+        { label: 'European Live Roulette', category: 'roulette' },
+        { label: 'Auto Roulette', category: 'roulette' },
+        { label: 'Lightning Roulette', category: 'roulette' },
+      ],
+    },
+    {
+      title: 'Blackjack & Cards',
+      items: [
+        { label: 'Live Blackjack VIP', category: 'blackjack' },
+        { label: 'Infinite Blackjack', category: 'blackjack' },
+        { label: 'Speed Baccarat', category: 'baccarat' },
+      ],
+    },
+    {
+      title: 'Game Shows & Tables',
+      items: [
+        { label: 'Crazy Time', category: 'gameshows' },
+        { label: 'Monopoly Live', category: 'gameshows' },
+        { label: 'All Live Dealers', category: 'all' },
+      ],
+    },
+  ];
+
+  // Clean popup dropdown styling (No emojis, crisp white background, subtle border, shadow)
+  const popupMenuClass =
+    'absolute left-0 top-full mt-0.5 z-50 min-w-[210px] bg-white rounded-b-md border border-neutral-200/90 shadow-2xl py-1.5 animate-in fade-in-0 zoom-in-95 duration-75 text-neutral-800';
+
+  const popupMultiColClass =
+    'absolute left-0 top-full mt-0.5 z-50 bg-white rounded-b-md border border-neutral-200/90 shadow-2xl animate-in fade-in-0 zoom-in-95 duration-75 text-neutral-800 overflow-hidden';
+
+  const popupItemClass =
+    'w-full block px-4 py-2 text-[12.5px] font-semibold text-neutral-700 hover:bg-neutral-100/90 hover:text-black transition-colors cursor-pointer text-left whitespace-nowrap';
 
   const handleLogoClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -311,7 +420,11 @@ export const Header: React.FC = () => {
             className="flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap"
           >
             {/* TOP-EVENTS ▾ — quick match views */}
-            <div className="relative">
+            <div
+              className="relative"
+              onMouseEnter={() => handleMenuEnter('top-events')}
+              onMouseLeave={handleMenuLeave}
+            >
               <button
                 id="nav-top-events"
                 onClick={() => toggleMenu('top-events')}
@@ -326,15 +439,18 @@ export const Header: React.FC = () => {
                 />
               </button>
               {openMenu === 'top-events' && (
-                <div className={menuPanelClass}>
+                <div
+                  onMouseEnter={handlePopupEnter}
+                  onMouseLeave={handleMenuLeave}
+                  className={popupMenuClass}
+                >
                   {quickViews.map((it) => (
                     <button
                       key={it.label}
                       onClick={() => openMatches(it.sport, it.subTab, 'top-events')}
-                      className={menuItemClass}
+                      className={popupItemClass}
                     >
-                      <span className="text-sm w-5 text-center">{it.emoji}</span>
-                      <span>{it.label}</span>
+                      {it.label}
                     </button>
                   ))}
                 </div>
@@ -342,7 +458,11 @@ export const Header: React.FC = () => {
             </div>
 
             {/* SPORTS ▾ */}
-            <div className="relative">
+            <div
+              className="relative"
+              onMouseEnter={() => handleMenuEnter('sports')}
+              onMouseLeave={handleMenuLeave}
+            >
               <button
                 id="nav-sports"
                 onClick={() => toggleMenu('sports')}
@@ -357,48 +477,115 @@ export const Header: React.FC = () => {
                 />
               </button>
               {openMenu === 'sports' && (
-                <div className={menuPanelClass}>
+                <div
+                  onMouseEnter={handlePopupEnter}
+                  onMouseLeave={handleMenuLeave}
+                  className={popupMenuClass}
+                >
                   {sportsMenu.map((it) => (
                     <button
                       key={it.label}
                       onClick={() => openMatches(it.sport, 'matches', 'sports')}
-                      className={menuItemClass}
+                      className={popupItemClass}
                     >
-                      <span className="text-sm w-5 text-center">{it.emoji}</span>
-                      <span>{it.label}</span>
+                      {it.label}
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* LIVE → jumps straight to in-play matches */}
-            <button
-              id="nav-live"
-              onClick={() => openMatches('all', 'live', 'live')}
-              className={categoryLinkClass(isNavActive('live'))}
+            {/* LIVE ▾ — jumps straight to in-play matches & shows live menu */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMenuEnter('live')}
+              onMouseLeave={handleMenuLeave}
             >
-              <Radio
-                className={categoryIconClass(isNavActive('live'))}
-                style={{ color: '#ff0404' }}
-              />
-              <span style={{ color: '#000000' }}>LIVE</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+              <button
+                id="nav-live"
+                onClick={() => {
+                  toggleMenu('live');
+                  openMatches('all', 'live', 'live');
+                }}
+                className={categoryLinkClass(isNavActive('live'))}
+              >
+                <Radio
+                  className={categoryIconClass(isNavActive('live'))}
+                  style={{ color: '#ff0404' }}
+                />
+                <span style={{ color: '#000000' }}>LIVE</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    openMenu === 'live' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+              {openMenu === 'live' && (
+                <div
+                  onMouseEnter={handlePopupEnter}
+                  onMouseLeave={handleMenuLeave}
+                  className={popupMenuClass}
+                >
+                  {liveMenu.map((it) => (
+                    <button
+                      key={it.label}
+                      onClick={() => openMatches(it.sport, it.subTab, 'live')}
+                      className={popupItemClass}
+                    >
+                      {it.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* ESPORTS → filters matches to esports */}
-            <button
-              id="nav-esports"
-              onClick={() => openMatches('esports', 'matches', 'esports')}
-              className={categoryLinkClass(isNavActive('esports'))}
+            {/* ESPORTS ▾ — filters matches to esports & shows esports menu */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMenuEnter('esports')}
+              onMouseLeave={handleMenuLeave}
             >
-              <Gamepad2 className={categoryIconClass(isNavActive('esports'))} />
-              <span style={{ color: '#000000' }}>ESPORTS</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
+              <button
+                id="nav-esports"
+                onClick={() => {
+                  toggleMenu('esports');
+                  openMatches('esports', 'matches', 'esports');
+                }}
+                className={categoryLinkClass(isNavActive('esports'))}
+              >
+                <Gamepad2 className={categoryIconClass(isNavActive('esports'))} />
+                <span style={{ color: '#000000' }}>ESPORTS</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    openMenu === 'esports' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+              {openMenu === 'esports' && (
+                <div
+                  onMouseEnter={handlePopupEnter}
+                  onMouseLeave={handleMenuLeave}
+                  className={popupMenuClass}
+                >
+                  {esportsMenu.map((it) => (
+                    <button
+                      key={it.label}
+                      onClick={() => openMatches(it.sport, 'matches', 'esports')}
+                      className={popupItemClass}
+                    >
+                      {it.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* CASINO ▾ — opens the casino lobby */}
-            <div className="relative">
+            {/* CASINO ▾ — opens the casino lobby (3-column layout) */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMenuEnter('casino')}
+              onMouseLeave={handleMenuLeave}
+            >
               <button
                 id="nav-casino"
                 onClick={() => toggleMenu('casino')}
@@ -413,23 +600,39 @@ export const Header: React.FC = () => {
                 />
               </button>
               {openMenu === 'casino' && (
-                <div className={menuPanelClass}>
-                  {casinoMenu.map((it) => (
-                    <button
-                      key={it.label}
-                      onClick={() => openCasino('casino', it.category, 'casino')}
-                      className={menuItemClass}
-                    >
-                      <span className="text-sm w-5 text-center">{it.emoji}</span>
-                      <span>{it.label}</span>
-                    </button>
-                  ))}
+                <div
+                  onMouseEnter={handlePopupEnter}
+                  onMouseLeave={handleMenuLeave}
+                  className={popupMultiColClass}
+                >
+                  <div className="w-[490px] grid grid-cols-3 divide-x divide-neutral-100 p-1.5">
+                    {casinoColumns.map((col) => (
+                      <div key={col.title} className="flex flex-col">
+                        <div className="px-3 pt-1 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 select-none">
+                          {col.title}
+                        </div>
+                        {col.items.map((it) => (
+                          <button
+                            key={it.label}
+                            onClick={() => openCasino('casino', it.category, 'casino')}
+                            className={popupItemClass}
+                          >
+                            {it.label}
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* LIVE CASINO ▾ — opens the live-dealer lobby */}
-            <div className="relative">
+            {/* LIVE CASINO ▾ — opens the live-dealer lobby (providers row + 3 columns) */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMenuEnter('live-casino')}
+              onMouseLeave={handleMenuLeave}
+            >
               <button
                 id="nav-live-casino"
                 onClick={() => toggleMenu('live-casino')}
@@ -444,17 +647,44 @@ export const Header: React.FC = () => {
                 />
               </button>
               {openMenu === 'live-casino' && (
-                <div className={menuPanelClass}>
-                  {liveCasinoMenu.map((it) => (
-                    <button
-                      key={it.label}
-                      onClick={() => openCasino('live-casino', it.category, 'live-casino')}
-                      className={menuItemClass}
-                    >
-                      <span className="text-sm w-5 text-center">{it.emoji}</span>
-                      <span>{it.label}</span>
-                    </button>
-                  ))}
+                <div
+                  onMouseEnter={handlePopupEnter}
+                  onMouseLeave={handleMenuLeave}
+                  className={popupMultiColClass}
+                >
+                  <div className="w-[520px]">
+                    {/* Top Providers Row */}
+                    <div className="px-3 py-2 bg-neutral-50/90 border-b border-neutral-100 flex items-center gap-1.5 overflow-x-auto">
+                      {liveCasinoProviders.map((provider) => (
+                        <button
+                          key={provider}
+                          onClick={() => openCasino('live-casino', 'all', 'live-casino')}
+                          className="px-2.5 py-1 text-[10px] font-black tracking-wider uppercase bg-white border border-neutral-200 text-neutral-700 hover:border-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/40 rounded transition-all cursor-pointer select-none whitespace-nowrap"
+                        >
+                          {provider}
+                        </button>
+                      ))}
+                    </div>
+                    {/* 3 Columns */}
+                    <div className="grid grid-cols-3 divide-x divide-neutral-100 p-1.5">
+                      {liveCasinoColumns.map((col) => (
+                        <div key={col.title} className="flex flex-col">
+                          <div className="px-3 pt-1 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 select-none">
+                            {col.title}
+                          </div>
+                          {col.items.map((it) => (
+                            <button
+                              key={it.label}
+                              onClick={() => openCasino('live-casino', it.category, 'live-casino')}
+                              className={popupItemClass}
+                            >
+                              {it.label}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

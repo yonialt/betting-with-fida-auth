@@ -37,25 +37,55 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
 
   const politicsSubcategories = [
     { name: 'All', count: '3.5K' },
+    { name: 'Ethiopia 🇪🇹', count: '340' },
+    { name: 'Horn of Africa', count: '185' },
     { name: 'Trump', count: '306' },
     { name: 'Midterms', count: '1.2K' },
     { name: 'Global Elections', count: '661' },
     { name: 'Primaries', count: '28' },
     { name: 'Congress', count: '35' },
     { name: 'Courts', count: '23' },
-    { name: 'Trump Daily', count: '3' },
-    { name: 'Russia Election', count: '12' },
-    { name: 'UK Elections', count: '1' },
-    { name: 'Israel Election', count: '37' },
-    { name: 'Sweden Elections', count: '54' },
-    { name: 'German Elections', count: '88' },
-    { name: 'French Elections', count: '6' },
-    { name: 'US Election', count: '673' },
+    { name: 'Russia', count: '12' },
+    { name: 'Israel', count: '37' },
+    { name: 'UK', count: '1' },
+    { name: 'Germany', count: '88' },
+    { name: 'France', count: '6' },
+    { name: 'China', count: '45' },
+    { name: 'India', count: '22' },
   ];
 
   const politicsCards = [
     {
+      id: 'pol-eth-parliament',
+      region: 'Ethiopia 🇪🇹',
+      title: 'Ethiopian parliament passes new media law by end of 2026?',
+      volume: '1.2M ETB Vol.',
+      chance: '35%',
+    },
+    {
+      id: 'pol-eth-peace',
+      region: 'Ethiopia 🇪🇹',
+      title: 'Ethiopia nationwide peace agreement signed by December 2026?',
+      volume: '3.8M ETB Vol.',
+      chance: '22%',
+    },
+    {
+      id: 'pol-eth-election',
+      region: 'Ethiopia 🇪🇹',
+      title: 'Ethiopia holds national elections before end of 2027?',
+      volume: '2.5M ETB Vol.',
+      chance: '48%',
+    },
+    {
+      id: 'pol-horn-djibouti',
+      region: 'Horn of Africa',
+      title: 'Ethiopia-Djibouti corridor trade deal signed by end of 2026?',
+      volume: '1.1M ETB Vol.',
+      chance: '42%',
+    },
+    {
       id: 'pol-balance-power',
+      region: 'US Midterms',
       title: 'Balance of Power: 2026 Midterms',
       volume: '11M ETB Vol.',
       options: [
@@ -67,6 +97,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     },
     {
       id: 'pol-french-presidential',
+      region: 'France',
       title: 'Next French Presidential Election Winner',
       volume: '4M ETB Vol.',
       options: [
@@ -78,6 +109,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     },
     {
       id: 'pol-gop-2028',
+      region: 'US Election',
       title: 'Republican Presidential Nominee 2028',
       volume: '8.2M ETB Vol.',
       options: [
@@ -89,6 +121,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     },
     {
       id: 'pol-israel-pm',
+      region: 'Israel',
       title: 'Next Prime Minister of Israel',
       volume: '6.5M ETB Vol.',
       options: [
@@ -100,6 +133,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     },
     {
       id: 'pol-dem-2028',
+      region: 'US Election',
       title: 'Democratic Presidential Nominee 2028',
       volume: '7.4M ETB Vol.',
       options: [
@@ -111,6 +145,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     },
     {
       id: 'pol-brazil-election',
+      region: 'Latin America',
       title: 'Brazil Presidential Election 2026',
       volume: '1.8M ETB Vol.',
       options: [
@@ -121,27 +156,31 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
     },
     {
       id: 'pol-us-iran-blockade',
+      region: 'Middle East',
       title: 'US announces end of Iranian naval blockade by September 30?',
       volume: '3.2M ETB Vol.',
-      chance: '34% chance',
+      chance: '34%',
     },
     {
       id: 'pol-china-taiwan',
+      region: 'Asia Pacific',
       title: 'Will China invade Taiwan by end of 2026?',
       volume: '4.1M ETB Vol.',
-      chance: '4% chance',
+      chance: '4%',
     },
     {
       id: 'pol-putin-out',
+      region: 'Russia',
       title: 'Vladimir Putin out as President of Russia by December 31, 2026?',
       volume: '2.9M ETB Vol.',
-      chance: '14% chance',
+      chance: '14%',
     },
     {
       id: 'pol-afd-majority',
+      region: 'Germany',
       title: 'Will AfD win an absolute majority in any state election in 2026?',
       volume: '890K ETB Vol.',
-      chance: '19% chance',
+      chance: '19%',
     },
   ];
 
@@ -229,7 +268,12 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
                   className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between group"
                 >
                   <div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-3">
+                    {card.region && (
+                      <span className="text-[10px] font-mono text-blue-400 font-bold uppercase">
+                        {card.region}
+                      </span>
+                    )}
+                    <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mt-1.5 mb-3">
                       {card.title}
                     </h3>
 
@@ -292,7 +336,7 @@ export const PolymarketPoliticsView: React.FC<PolymarketPoliticsViewProps> = ({
                                 }
                                 className="px-2 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-[11px] cursor-pointer"
                               >
-                                {opt.yesPrice}¢
+                                {opt.yesPrice}%
                               </button>
                             </div>
                           </div>

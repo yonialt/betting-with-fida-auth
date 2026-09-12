@@ -36,10 +36,10 @@ export const PolymarketEsportsView: React.FC<{
   ];
 
   const liveTradesTicker = [
-    { user: 'KAPWV', action: 'bought', team: 'G2 Esports', price: '71.0¢', amount: '2,200 ETB', positive: true },
-    { user: '421-Uf1WNFNEW2...', action: 'bought', team: 'G2 Esports', price: '70.0¢', amount: '114 ETB', positive: true },
-    { user: 'Jesperrr', action: 'sold', team: 'G2 Esports', price: '69.0¢', amount: '454 ETB', positive: false },
-    { user: 'JFestivel', action: 'bought', team: 'Karmine Corp', price: '31.0¢', amount: '850 ETB', positive: true },
+    { user: 'KAPWV', action: 'bought', team: 'G2 Esports', price: '71.0%', amount: '2,200 ETB', positive: true },
+    { user: '421-Uf1WNFNEW2...', action: 'bought', team: 'G2 Esports', price: '70.0%', amount: '114 ETB', positive: true },
+    { user: 'Jesperrr', action: 'sold', team: 'G2 Esports', price: '69.0%', amount: '454 ETB', positive: false },
+    { user: 'JFestivel', action: 'bought', team: 'Karmine Corp', price: '31.0%', amount: '850 ETB', positive: true },
   ];
 
   const matchesList = [
@@ -48,32 +48,32 @@ export const PolymarketEsportsView: React.FC<{
       league: 'League of Legends · LEC Season Finals',
       status: 'Game 4 of 5 · LIVE',
       volume: '3.1M ETB Vol.',
-      team1: { name: 'G2 Esports', odds: '70¢', prob: 70 },
-      team2: { name: 'Karmine Corp', odds: '31¢', prob: 31 },
+      team1: { name: 'G2 Esports', odds: '70%', prob: 70 },
+      team2: { name: 'Karmine Corp', odds: '31%', prob: 31 },
     },
     {
       id: 'cs2-spirit-mouz',
       league: 'CS2 · BLAST Open Fall',
       status: 'Map 4 of 5 · LIVE',
       volume: '4.4M ETB Vol.',
-      team1: { name: 'Spirit', odds: '83¢', prob: 83 },
-      team2: { name: 'MOUZ', odds: '17¢', prob: 17 },
+      team1: { name: 'Spirit', odds: '83%', prob: 83 },
+      team2: { name: 'MOUZ', odds: '17%', prob: 17 },
     },
     {
       id: 'dota2-spirit-liquid',
       league: 'Dota 2 · The International',
       status: 'Game 2 · Upcoming',
       volume: '890K ETB Vol.',
-      team1: { name: 'Team Spirit', odds: '55¢', prob: 55 },
-      team2: { name: 'Team Liquid', odds: '45¢', prob: 45 },
+      team1: { name: 'Team Spirit', odds: '55%', prob: 55 },
+      team2: { name: 'Team Liquid', odds: '45%', prob: 45 },
     },
     {
       id: 'val-fnatic-sentinels',
       league: 'Valorant · Champions Tour',
       status: 'Map 3 Decider',
       volume: '1.2M ETB Vol.',
-      team1: { name: 'Fnatic', odds: '61¢', prob: 61 },
-      team2: { name: 'Sentinels', odds: '39¢', prob: 39 },
+      team1: { name: 'Fnatic', odds: '61%', prob: 61 },
+      team2: { name: 'Sentinels', odds: '39%', prob: 39 },
     },
   ];
 
@@ -127,7 +127,7 @@ export const PolymarketEsportsView: React.FC<{
                 className="py-3 px-4 rounded-2xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
               >
                 <span>G2 Esports</span>
-                <span className="font-mono text-base font-extrabold">70¢</span>
+                <span className="font-mono text-base font-extrabold">70%</span>
               </button>
 
               <button
@@ -142,7 +142,7 @@ export const PolymarketEsportsView: React.FC<{
                 className="py-3 px-4 rounded-2xl bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-300 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
               >
                 <span>Karmine Corp</span>
-                <span className="font-mono text-base font-extrabold">31¢</span>
+                <span className="font-mono text-base font-extrabold">31%</span>
               </button>
             </div>
           </div>

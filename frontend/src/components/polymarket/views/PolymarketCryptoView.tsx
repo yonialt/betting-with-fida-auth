@@ -46,6 +46,7 @@ export const PolymarketCryptoView: React.FC<{
 
   const intervals = [
     { name: 'All', count: 311 },
+    { name: 'Ethiopia 🇪🇹', count: 24 },
     { name: '5 Min', count: 8 },
     { name: '15 Min', count: 8 },
     { name: '1 Hour', count: 9 },

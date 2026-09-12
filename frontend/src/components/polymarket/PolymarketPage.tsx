@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
   MessageSquare,
   X,
-  Maximize2,
-  Minimize2,
 } from 'lucide-react';
 import { PolymarketHeader } from './PolymarketHeader';
 import { PolymarketCategories } from './PolymarketCategories';
@@ -29,6 +27,11 @@ import { PolymarketElectionsView } from './views/PolymarketElectionsView';
 import { PolymarketArtView } from './views/PolymarketArtView';
 import { PolymarketEsportsView } from './views/PolymarketEsportsView';
 import { PolymarketEthiopiaView } from './views/PolymarketEthiopiaView';
+import { PolymarketGeopoliticsView } from './views/PolymarketGeopoliticsView';
+import { PolymarketFinanceView } from './views/PolymarketFinanceView';
+import { PolymarketTechView } from './views/PolymarketTechView';
+import { PolymarketCultureView } from './views/PolymarketCultureView';
+import { PolymarketEconomyView } from './views/PolymarketEconomyView';
 import { HERO_CAROUSEL_SLIDES, HeroSlideItem } from '../../data/polymarketExtendedData';
 
 // Build a tradeable market object from the current hero carousel slide, so the
@@ -231,6 +234,46 @@ export const PolymarketPage: React.FC = () => {
       );
     }
 
+    if (activeCategory === 'geopolitics') {
+      return (
+        <PolymarketGeopoliticsView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'finance') {
+      return (
+        <PolymarketFinanceView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'tech') {
+      return (
+        <PolymarketTechView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'culture') {
+      return (
+        <PolymarketCultureView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
+    if (activeCategory === 'economy') {
+      return (
+        <PolymarketEconomyView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
+    }
+
     // Default Featured vs All Views
     if (activeViewTab === 'featured') {
       return (
@@ -243,7 +286,10 @@ export const PolymarketPage: React.FC = () => {
                 onSelectOutcome={handleSelectOutcome}
                 onOpenDetail={handleOpenDetail}
                 activeSlideIndex={heroSlideIndex}
-                onSlideChange={setHeroSlideIndex}
+                onSlideChange={(idx) => {
+                  setHeroSlideIndex(idx);
+                  setActiveTrade(null);
+                }}
                 isDarkMode={polymarketDarkMode}
               />
             </div>
@@ -254,7 +300,7 @@ export const PolymarketPage: React.FC = () => {
                 onOpenPerps={handleOpenPerps}
                 onOpenCombos={handleOpenCombos}
                 onSelectTopic={handleSelectTopic}
-                selectedMarket={activeHeroMarket}
+                selectedMarket={activeTrade?.market || activeHeroMarket}
                 onSelectOutcome={handleSelectOutcome}
               />
             </div>
