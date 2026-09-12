@@ -169,7 +169,7 @@ export const PolymarketArtView: React.FC<{
                                 }
                                 className="px-2 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-[11px] cursor-pointer"
                               >
-                                {opt.yesPrice}¢
+                                {opt.yesPrice}%
                               </button>
                             </div>
                           </div>

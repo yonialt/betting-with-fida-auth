@@ -31,10 +31,27 @@ export const PolymarketElectionsView: React.FC<{
   const [selectedPin, setSelectedPin] = useState<ElectionPin | null>(null);
 
   const months = [
-    'All', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+    'All', 'Ethiopia 🇪🇹', 'Africa', 'Americas', 'Europe', 'Asia', 'Middle East',
+  ];
+
+  const electionCategories = [
+    { name: 'All', count: '3.2K' },
+    { name: 'Ethiopia 🇪🇹', count: '280' },
+    { name: 'Africa', count: '420' },
+    { name: 'Americas', count: '510' },
+    { name: 'Europe', count: '380' },
+    { name: 'Asia', count: '290' },
+    { name: 'Middle East', count: '180' },
+    { name: 'Oceania', count: '120' },
   ];
 
   const electionPins: ElectionPin[] = [
+    { id: 'et', country: 'Ethiopia', flag: '🇪🇹', election: 'National Elections', date: '2027 (expected)', x: 545, y: 245, leadingParty: 'Prosperity Party', prob: '72%' },
+    { id: 'et-regional', country: 'Ethiopia', flag: '🇪🇹', election: 'Regional State Council Elections', date: '2026-2027', x: 535, y: 235, leadingParty: 'TBD', prob: '50%' },
+    { id: 'et-reform', country: 'Ethiopia', flag: '🇪🇹', election: 'Constitutional Reform Referendum', date: 'Before 2027', x: 555, y: 255, leadingParty: 'Reform Pass', prob: '38%' },
+    { id: 'so', country: 'Somalia', flag: '🇸🇴', election: 'Parliamentary Elections', date: '2026-2027', x: 580, y: 250, leadingParty: 'TBD', prob: '45%' },
+    { id: 'ke', country: 'Kenya', flag: '🇰🇪', election: 'General Elections', date: 'Aug 2027', x: 565, y: 260, leadingParty: 'UDA Coalition', prob: '48%' },
+    { id: 'ng', country: 'Nigeria', flag: '🇳🇬', election: 'Presidential Election', date: 'Feb 2027', x: 490, y: 230, leadingParty: 'APC', prob: '42%' },
     { id: 'us', country: 'United States', flag: '🇺🇸', election: '2026 Midterm Elections', date: 'Nov 3, 2026', x: 230, y: 150, leadingParty: 'Democrats Senate', prob: '52%' },
     { id: 'br', country: 'Brazil', flag: '🇧🇷', election: 'Presidential General Election', date: 'Oct 4, 2026', x: 330, y: 280, leadingParty: 'Lula da Silva', prob: '55%' },
     { id: 'fr', country: 'France', flag: '🇫🇷', election: 'Presidential Election', date: 'Apr 2027', x: 490, y: 135, leadingParty: 'Marine Le Pen', prob: '42%' },
@@ -67,19 +84,19 @@ export const PolymarketElectionsView: React.FC<{
         </button>
       </div>
 
-      {/* Month Filter Pills (Video 02:06) */}
+      {/* Region Filter Pills */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-        {months.map((m) => (
+        {electionCategories.map((m) => (
           <button
-            key={m}
-            onClick={() => setActiveMonth(m)}
+            key={m.name}
+            onClick={() => setActiveMonth(m.name)}
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-              activeMonth === m
+              activeMonth === m.name
                 ? 'bg-white text-neutral-950 font-bold'
                 : 'bg-[#121824] hover:bg-[#1a2333] text-neutral-400 hover:text-white border border-[#1d2738]'
             }`}
           >
-            {m}
+            {m.name} <span className="text-neutral-500 font-mono">({m.count})</span>
           </button>
         ))}
       </div>

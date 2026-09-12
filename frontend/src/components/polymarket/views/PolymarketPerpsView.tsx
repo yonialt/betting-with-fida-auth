@@ -10,17 +10,21 @@ import {
   HelpCircle,
   Shield,
   Zap,
+  BarChart3,
 } from 'lucide-react';
+import { PerpsChartPanel } from '../PerpsChartPanel';
 
 export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
   isDarkMode = true,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [selectedToken, setSelectedToken] = useState<PerpToken | null>(null);
+  const [chartToken, setChartToken] = useState<PerpToken | null>(null);
   const [tradeSide, setTradeSide] = useState<'Long' | 'Short'>('Long');
   const [leverage, setLeverage] = useState<number>(5);
   const [tradeAmount, setTradeAmount] = useState<string>('100');
   const [orderConfirmed, setOrderConfirmed] = useState<boolean>(false);
+  const [comingSoonDismissed, setComingSoonDismissed] = useState<boolean>(false);
 
   const categories = [
     { name: 'All', count: 47 },
@@ -43,8 +47,45 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
     setOrderConfirmed(false);
   };
 
+  const handleOpenChart = (token: PerpToken) => {
+    setChartToken(token);
+  };
+
+  if (chartToken) {
+    return (
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white">
+        <PerpsChartPanel token={chartToken} onBack={() => setChartToken(null)} />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white">
+    <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white relative">
+      {/* Coming Soon Blur Overlay */}
+      {!comingSoonDismissed && (
+        <div className="absolute inset-0 z-20 flex items-start justify-center pt-12 backdrop-blur-md bg-black/40 rounded-2xl">
+          <div className="bg-[#101622] border border-[#26364e] rounded-2xl px-8 py-6 text-center shadow-2xl max-w-sm mx-4">
+            <div className="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mx-auto mb-3">
+              <Zap className="w-6 h-6 text-amber-400" />
+            </div>
+            <h3 className="text-lg font-black text-white mb-1">Coming Soon</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">
+              Perpetuals trading is under construction. Stay tuned for up to 20x leverage on crypto, stocks, and commodities.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-1.5 text-[10px] font-mono text-amber-400 mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Under Development
+            </div>
+            <button
+              onClick={() => setComingSoonDismissed(true)}
+              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs transition-colors cursor-pointer"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Sidebar: Categories (from video 00:32) */}
         <aside className="w-full lg:w-52 shrink-0 space-y-1">
@@ -100,7 +141,8 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
             {filteredTokens.map((token) => (
               <div
                 key={token.symbol}
-                className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#26364e] transition-all group flex flex-col justify-between"
+                onClick={() => handleOpenChart(token)}
+                className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#26364e] transition-all group flex flex-col justify-between cursor-pointer"
               >
                 <div>
                   {/* Token Header */}
@@ -143,24 +185,31 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
                   </div>
                 </div>
 
-                {/* Bottom Actions: Long / Short & Volume */}
+                {/* Bottom Actions: Chart button, Long / Short & Volume */}
                 <div className="pt-3 border-t border-[#1a2435] mt-2">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <button
-                      onClick={() => handleOpenTrade(token, 'Long')}
-                      className="py-1.5 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 font-bold text-xs transition-colors cursor-pointer text-center"
+                      onClick={(e) => { e.stopPropagation(); handleOpenChart(token); }}
+                      className="flex-1 py-1.5 px-3 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-400 font-bold text-xs transition-colors cursor-pointer text-center flex items-center justify-center gap-1"
+                    >
+                      <BarChart3 className="w-3 h-3" />
+                      Charts
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleOpenTrade(token, 'Long'); }}
+                      className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 font-bold text-xs transition-colors cursor-pointer text-center"
                     >
                       Long
                     </button>
                     <button
-                      onClick={() => handleOpenTrade(token, 'Short')}
-                      className="py-1.5 px-3 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 font-bold text-xs transition-colors cursor-pointer text-center"
+                      onClick={(e) => { e.stopPropagation(); handleOpenTrade(token, 'Short'); }}
+                      className="flex-1 py-1.5 px-3 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 font-bold text-xs transition-colors cursor-pointer text-center"
                     >
                       Short
                     </button>
                   </div>
 
-                  <div className="mt-2 text-[11px] font-mono text-neutral-500 text-right">
+                  <div className="text-[11px] font-mono text-neutral-500 text-right">
                     {token.volume}
                   </div>
                 </div>
@@ -172,8 +221,8 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
 
       {/* Leverage Trading Modal */}
       {selectedToken && (
-        <div className={`fixed inset-0 ${isDarkMode ? 'bg-black/70 backdrop-blur-xs' : 'pm-light-backdrop'} flex items-center justify-center p-4 z-50`}>
-          <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? 'bg-[#101622] border-[#222f42]' : 'pm-body bg-white border-neutral-200'} border p-5 shadow-2xl relative`}>
+        <div className={`fixed inset-0 flex items-center justify-center p-4 z-50 backdrop-blur-sm ${isDarkMode ? 'bg-black/70' : 'bg-black/50'}`} onClick={() => setSelectedToken(null)}>
+          <div className={`w-full max-w-md rounded-2xl border p-5 shadow-2xl relative ${isDarkMode ? 'bg-[#101622] border-[#222f42]' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setSelectedToken(null)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-[#1a2538] transition-colors cursor-pointer"

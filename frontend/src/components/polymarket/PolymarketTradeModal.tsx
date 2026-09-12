@@ -51,7 +51,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-md text-neutral-900 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="p-4 border-b border-neutral-200 flex items-start justify-between gap-3">
@@ -111,7 +111,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
                 }`}
               >
                 <span>{language === 'am' ? 'ግዛ አዎ' : 'Buy YES'}</span>
-                <span className="text-[11px] font-mono opacity-90">{trade.outcome?.yesPrice || 50}¢</span>
+                <span className="text-[11px] font-mono opacity-90">{trade.outcome?.yesPrice || 50}%</span>
               </button>
 
               <button
@@ -123,7 +123,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
                 }`}
               >
                 <span>{language === 'am' ? 'ግዛ አይ' : 'Buy NO'}</span>
-                <span className="text-[11px] font-mono opacity-90">{trade.outcome?.noPrice || 50}¢</span>
+                <span className="text-[11px] font-mono opacity-90">{trade.outcome?.noPrice || 50}%</span>
               </button>
             </div>
 
@@ -173,7 +173,7 @@ export const PolymarketTradeModal: React.FC<PolymarketTradeModalProps> = ({
             <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-200 flex flex-col gap-1.5 text-xs text-neutral-600">
               <div className="flex items-center justify-between">
                 <span>{t('avg_price', language, 'Avg Price:')}</span>
-                <span className="font-mono text-neutral-900 font-bold">{currentPriceCents}¢</span>
+                <span className="font-mono text-neutral-900 font-bold">{currentPriceCents}%</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>{t('shares', language, 'Shares:')}</span>

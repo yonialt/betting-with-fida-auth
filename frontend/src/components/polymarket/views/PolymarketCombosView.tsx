@@ -41,13 +41,13 @@ export const PolymarketCombosView: React.FC<{ isDarkMode?: boolean }> = ({
     if (exists) {
       setSelectedPicks(selectedPicks.filter((p) => p.id !== pickId));
     } else {
-      // Parse multiplier or cents
+      // Parse multiplier or percentage
       let mult = 1.85;
       if (odds.includes('X')) {
         mult = parseFloat(odds.replace('X', '')) || 1.85;
-      } else if (odds.includes('¢')) {
-        const cents = parseFloat(odds.replace('¢', '')) || 50;
-        mult = 100 / Math.max(1, cents);
+      } else if (odds.includes('%')) {
+        const pct = parseFloat(odds.replace('%', '')) || 50;
+        mult = 100 / Math.max(1, pct);
       }
 
       setSelectedPicks([

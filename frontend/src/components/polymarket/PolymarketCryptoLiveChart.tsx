@@ -426,7 +426,7 @@ export const PolymarketCryptoLiveChart: React.FC<Props> = ({ crypto, onBack, isD
                     : 'bg-white border border-neutral-200 text-neutral-500 hover:text-neutral-900'
                 }`}
               >
-                Up {upCents}¢
+                Up {upCents}%
               </button>
               <button
                 onClick={() => setSide('down')}
@@ -438,7 +438,7 @@ export const PolymarketCryptoLiveChart: React.FC<Props> = ({ crypto, onBack, isD
                     : 'bg-white border border-neutral-200 text-neutral-500 hover:text-neutral-900'
                 }`}
               >
-                Down {downCents}¢
+                Down {downCents}%
               </button>
             </div>
 

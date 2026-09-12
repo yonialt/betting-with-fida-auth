@@ -84,7 +84,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
     badge: 'AI Oracle',
     badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-    text: '📊 Market Brief: Claude Mythos by Oct 31 is currently trading at 96¢ (96% probability) with over 971K ETB in 24h trading volume. Order book liquidity depth remains heavily bid.',
+    text: '📊 Market Brief: Claude Mythos by Oct 31 is currently trading at 96% (96% probability) with over 971K ETB in 24h trading volume. Order book liquidity depth remains heavily bid.',
     channel: '#general',
     timestamp: 'Just now',
     isAi: true,
@@ -504,7 +504,7 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
                   <div className="flex items-center gap-1.5 text-[11px] font-semibold mt-0.5">
                     <span className="text-emerald-600 font-extrabold">{msg.tradeDetails.side}</span>
                     <span className="text-neutral-400">·</span>
-                    <span className="text-neutral-700">{msg.tradeDetails.price}¢</span>
+                    <span className="text-neutral-700">{msg.tradeDetails.price}%</span>
                     <span className="text-neutral-400">·</span>
                     <span className="font-mono text-purple-700 font-bold">{msg.tradeDetails.amount}</span>
                   </div>

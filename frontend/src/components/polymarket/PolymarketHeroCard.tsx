@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Code2,
   Link2,
@@ -15,12 +15,13 @@ import {
 import { HERO_CAROUSEL_SLIDES, HeroSlideItem } from '../../data/polymarketExtendedData';
 import { PolymarketTradeState, PolymarketMarket } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
+import { getRealisticChartForMarket } from '../../services/polymarketChartProfiles';
 import {
   t,
   translateMarketTitle,
   translateOutcomeName,
   formatBirrVolume,
-  formatSantim,
+
 } from '../../data/polymarketTranslations';
 
 interface PolymarketHeroCardProps {
@@ -73,6 +74,38 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
   const [hoverVal, setHoverVal] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // Real-time live drift & trade pings ladder (matching Polymarket live behavior)
+  const [heroLiveDrift, setHeroLiveDrift] = useState<number>(0);
+  const [heroLiveTrades, setHeroLiveTrades] = useState<{ id: string; amount: number; yPercent: number; color: string }[]>([
+    { id: 'ht-1', amount: 17, yPercent: 38, color: '#10b981' },
+    { id: 'ht-2', amount: 9, yPercent: 48, color: '#94a3b8' },
+    { id: 'ht-3', amount: 1, yPercent: 56, color: '#f59e0b' },
+    { id: 'ht-4', amount: 5, yPercent: 64, color: '#38bdf8' },
+    { id: 'ht-5', amount: 50, yPercent: 72, color: '#10b981' },
+  ]);
+
+  useEffect(() => {
+    const tradeAmounts = [1, 2, 3, 5, 6, 9, 11, 17, 24, 40, 50, 75, 88];
+    const colors = ['#10b981', '#3b82f6', '#f59e0b', '#38bdf8', '#ef4444'];
+    const interval = setInterval(() => {
+      setHeroLiveDrift((prev) => {
+        const delta = (Math.random() - 0.5) * 0.35;
+        return +(Math.max(-1.4, Math.min(1.4, prev + delta))).toFixed(2);
+      });
+
+      if (Math.random() > 0.42) {
+        const amt = tradeAmounts[Math.floor(Math.random() * tradeAmounts.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const yPct = Math.floor(Math.random() * 45) + 28;
+        setHeroLiveTrades((prev) => [
+          { id: `ht-${Date.now()}`, amount: amt, yPercent: yPct, color },
+          ...prev.slice(0, 4),
+        ]);
+      }
+    }, 2100);
+    return () => clearInterval(interval);
+  }, [slide.id]);
+
   const handleCopyLink = () => {
     navigator.clipboard?.writeText?.(window.location.href);
     setCopiedLink(true);
@@ -96,96 +129,39 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
     return paddingTop + (1 - clamped / maxVal) * chartInnerHeight;
   };
 
-  // Simulated chart data generator based on slide
-  const getSlideChartData = (slideId: string) => {
-    switch (slideId) {
-      case 'clarity-act':
-        return {
-          labels: ['Aug 9', 'Aug 16', 'Aug 23', 'Aug 30', 'Sep 6'],
-          yTicks: ['38%', '34%', '30%', '26%', '22%', '18%', '14%'],
-          lines: [
-            {
-              name: 'Yes',
-              color: '#10b981',
-              points: [22, 26, 32, 25, 29, 21, 19, 16],
-            },
-          ],
-        };
-      case 'btc-up-down':
-        return {
-          labels: ['2:10 PM', '2:11 PM', '2:12 PM', '2:13 PM', '2:14 PM', '2:15 PM'],
-          yTicks: ['79,840 ETB', '79,835 ETB', '79,830 ETB', '79,825 ETB', '79,820 ETB'],
-          targetLine: 79829,
-          lines: [
-            {
-              name: 'BTC',
-              color: '#f59e0b',
-              points: [79820, 79825, 79832, 79828, 79831, 79829],
-            },
-          ],
-        };
-      case 'midterms-balance-power':
-        return {
-          labels: ['Nov 2024', 'May 2025', 'Nov 2025', 'May 2026', 'Nov 2026'],
-          yTicks: ['60%', '45%', '30%', '15%', '0%'],
-          lines: [
-            { name: 'Democrats Sweep', color: '#3b82f6', points: [35, 40, 42, 48, 51] },
-            { name: 'R Senate, D House', color: '#06b6d4', points: [25, 28, 30, 34, 36] },
-            { name: 'Republicans Sweep', color: '#ef4444', points: [35, 28, 25, 16, 12] },
-            { name: 'D Senate, R House', color: '#a855f7', points: [5, 4, 3, 2, 1] },
-          ],
-        };
-      case 'best-ai-september':
-        return {
-          labels: ['Aug 9', 'Aug 16', 'Aug 23', 'Aug 30', 'Sep 6'],
-          yTicks: ['80%', '60%', '40%', '20%', '0%'],
-          lines: [
-            { name: 'Anthropic', color: '#38bdf8', points: [45, 52, 60, 72, 84] },
-            { name: 'OpenAI', color: '#10b981', points: [42, 38, 30, 22, 14] },
-            { name: 'Google', color: '#f59e0b', points: [10, 8, 7, 4, 2] },
-          ],
-        };
-      case 'eth-addis-federal-city':
-        return {
-          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
-          yTicks: ['80%', '60%', '40%', '20%', '0%'],
-          lines: [{ name: 'Yes', color: '#10b981', points: [12, 15, 19, 22, 24, 26, 25, 26] }],
-        };
-      case 'eth-military-service':
-        return {
-          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
-          yTicks: ['80%', '60%', '40%', '20%', '0%'],
-          lines: [{ name: 'Yes', color: '#10b981', points: [18, 20, 24, 22, 26, 30, 28, 29] }],
-        };
-      case 'eth-red-sea-access':
-        return {
-          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
-          yTicks: ['90%', '75%', '60%', '45%', '30%'],
-          lines: [{ name: 'Yes', color: '#10b981', points: [58, 63, 61, 69, 72, 70, 73, 74] }],
-        };
-      default:
-        // Fed Decision step chart
-        return {
-          labels: ['Aug 9', 'Aug 23', 'Sep 6'],
-          yTicks: ['80%', '60%', '40%', '20%', '0%'],
-          lines: [
-            { name: 'No change', color: '#3b82f6', points: [20, 25, 35, 45, 51] },
-            { name: '25 bps increase', color: '#eab308', points: [65, 60, 55, 52, 50] },
-            { name: '50+ bps increase', color: '#ef4444', points: [12, 10, 5, 2, 1] },
-            { name: '25 bps decrease', color: '#38bdf8', points: [3, 5, 5, 1, 0.4] },
-          ],
-        };
-    }
-  };
+  // Realistic chart data generator for each statement, question, and match
+  const chartData = useMemo(() => {
+    return getRealisticChartForMarket(
+      slide.id,
+      slide.title,
+      slide.outcomes,
+      slide.category
+    );
+  }, [slide.id, slide.title, slide.outcomes, slide.category]);
 
-  const chartData = getSlideChartData(slide.id);
+  // Check if price chart based on raw points
+  const rawMaxCheck = Math.max(
+    ...chartData.lines.flatMap((l) => l.points as number[])
+  );
+  const isPriceChart = rawMaxCheck > 1000;
+
+  // Scaled lines incorporating hero live drift
+  const activeHeroLines = useMemo(() => {
+    return chartData.lines.map((l, lIdx) => {
+      const copy = [...l.points];
+      if (copy.length > 0 && !isPriceChart && lIdx === 0) {
+        const last = copy[copy.length - 1];
+        copy[copy.length - 1] = +(Math.max(1, Math.min(99, last + heroLiveDrift))).toFixed(1);
+      }
+      return { ...l, points: copy };
+    });
+  }, [chartData.lines, heroLiveDrift, isPriceChart]);
 
   // Auto-scale the chart to its own data range so the plotted line always lines
   // up with the axis labels (fixes the price chart and low-probability markets).
-  const allYValues = chartData.lines.flatMap((l) => l.points as number[]);
+  const allYValues = activeHeroLines.flatMap((l) => l.points as number[]);
   const rawMin = Math.min(...allYValues);
   const rawMax = Math.max(...allYValues);
-  const isPriceChart = rawMax > 1000;
   let scaleMin: number;
   let scaleMax: number;
   if (isPriceChart) {
@@ -305,7 +281,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   }
                   className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
                 >
-                  <span>{translateOutcomeName('Yes', language)} {formatSantim(16, language)}</span>
+                  <span>{translateOutcomeName('Yes', language)} 16%</span>
                   <span className="text-xs text-emerald-300 font-normal">
                     16% {language === 'am' ? 'ዕድል' : 'chance'}
                   </span>
@@ -321,7 +297,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   }
                   className="flex-1 py-2.5 px-4 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
                 >
-                  <span>{translateOutcomeName('No', language)} {formatSantim(84, language)}</span>
+                  <span>{translateOutcomeName('No', language)} 84%</span>
                   <span className="text-xs text-red-300 font-normal">
                     84% {language === 'am' ? 'ዕድል' : 'chance'}
                   </span>
@@ -471,6 +447,28 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
+                <defs>
+                  {/* Dynamic clipPath for scrubbing lines left and right with cursor */}
+                  <clipPath id={`hero-chart-clip-${slide.id}`}>
+                    <rect
+                      x="0"
+                      y="0"
+                      width={hoverX !== null ? hoverX : svgWidth}
+                      height={svgHeight}
+                    />
+                  </clipPath>
+                  <style>{`
+                    @keyframes heroRadarPulse {
+                      0% { r: 4.5; opacity: 0.65; }
+                      100% { r: 16; opacity: 0; }
+                    }
+                    @keyframes heroRadarPulse2 {
+                      0% { r: 4.5; opacity: 0.5; }
+                      100% { r: 11; opacity: 0; }
+                    }
+                  `}</style>
+                </defs>
+
                 {/* Brand watermark — faint mark in the top-right corner */}
                 <text
                   x={svgWidth - paddingRight - 4}
@@ -518,12 +516,35 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   );
                 })}
 
-                {/* Data Lines */}
-                {chartData.lines.map((line, lineIdx) => {
+                {/* Left-Side Live Trade/Bet Pings Ladder */}
+                <g className="pointer-events-none select-none">
+                  {heroLiveTrades.map((t, idx) => {
+                    const yPos = paddingTop + (t.yPercent / 100) * chartInnerHeight;
+                    return (
+                      <g key={t.id} opacity={1 - idx * 0.18}>
+                        <text
+                          x={paddingLeft + 4}
+                          y={yPos}
+                          textAnchor="start"
+                          fill={t.color}
+                          fontSize="9.5"
+                          fontFamily="monospace"
+                          fontWeight="700"
+                          className="transition-all duration-300"
+                        >
+                          + ${t.amount}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+
+                {/* Data Lines: Dynamically reveals/retracts left & right with cursor */}
+                {activeHeroLines.map((line, lineIdx) => {
                   const pts = line.points;
                   if (pts.length < 2) return null;
 
-                  // Build smooth or step path
+                  // Build smooth curve path
                   let d = '';
                   pts.forEach((val, idx) => {
                     const x = paddingLeft + (idx / (pts.length - 1)) * chartInnerWidth;
@@ -531,7 +552,6 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                     if (idx === 0) {
                       d += `M ${x} ${y}`;
                     } else {
-                      // Smooth curve to next point
                       const prevX =
                         paddingLeft + ((idx - 1) / (pts.length - 1)) * chartInnerWidth;
                       const prevY = plotY(pts[idx - 1]);
@@ -542,38 +562,222 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
 
                   return (
                     <g key={lineIdx}>
+                      {/* 1. Ghost background silhouette trail when hovering (matching video 00:06) */}
+                      {hoverX !== null && (
+                        <path
+                          d={d}
+                          fill="none"
+                          stroke={line.color}
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          opacity={0.16}
+                        />
+                      )}
+                      {/* 2. Solid vibrant line dynamically extending / retracting with cursor */}
                       <path
                         d={d}
                         fill="none"
                         stroke={line.color}
-                        strokeWidth="2.5"
+                        strokeWidth="2.6"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        clipPath={`url(#hero-chart-clip-${slide.id})`}
+                        opacity={1}
                       />
                     </g>
                   );
                 })}
 
-                {/* Hover Cursor Line */}
+                {/* Pulsating End/Scrub Points:
+                    - Radar rings ONLY expand for the top line (lowest Y / highest probability)
+                    - Black circle outline removed completely, replaced with crisp white outline
+                */}
+                {(() => {
+                  // Pre-calculate positions for each line
+                  const calculatedPoints = activeHeroLines.map((line, lineIdx) => {
+                    const pts = line.points;
+                    if (pts.length < 2) return null;
+
+                    let ptX = paddingLeft + chartInnerWidth;
+                    let ptY = plotY(pts[pts.length - 1]);
+
+                    if (hoverX !== null) {
+                      ptX = hoverX;
+                      const ratio = Math.max(0, Math.min(1, (hoverX - paddingLeft) / chartInnerWidth));
+                      const floatIdx = ratio * (pts.length - 1);
+                      const i0 = Math.floor(floatIdx);
+                      const i1 = Math.min(pts.length - 1, i0 + 1);
+                      const frac = floatIdx - i0;
+                      const v = pts[i0] + (pts[i1] - pts[i0]) * frac;
+                      ptY = plotY(v);
+                    }
+
+                    return {
+                      line,
+                      lineIdx,
+                      ptX,
+                      ptY,
+                    };
+                  }).filter(Boolean);
+
+                  // Find top line (smallest ptY)
+                  let topIdx = 0;
+                  let minY = Infinity;
+                  calculatedPoints.forEach((p) => {
+                    if (p && p.ptY < minY) {
+                      minY = p.ptY;
+                      topIdx = p.lineIdx;
+                    }
+                  });
+
+                  return calculatedPoints.map((item) => {
+                    if (!item) return null;
+                    const { line, lineIdx, ptX, ptY } = item;
+                    const isTop = lineIdx === topIdx;
+
+                    return (
+                      <g key={`hero-end-${lineIdx}`} className="transition-all duration-75 pointer-events-none">
+                        {/* Radar rings ONLY expand for the top line */}
+                        {isTop && (
+                          <>
+                            {/* 1. Primary expanding radar blink ripple */}
+                            <circle cx={ptX} cy={ptY} r="4.5" fill={line.color} opacity="0.6"
+                              style={{ animation: 'heroRadarPulse 2.2s ease-out infinite' }}
+                            />
+
+                            {/* 2. Secondary staggered ripple for continuous pulse */}
+                            <circle cx={ptX} cy={ptY} r="4.5" fill={line.color} opacity="0.45"
+                              style={{ animation: 'heroRadarPulse2 2.2s ease-out 0.8s infinite' }}
+                            />
+
+                            {/* 3. Soft translucent glow halo */}
+                            <circle cx={ptX} cy={ptY} r="7" fill={line.color} opacity="0.28" />
+                          </>
+                        )}
+
+                        {/* 4. Solid center point with crisp white outline (black circle removed) */}
+                        <circle cx={ptX} cy={ptY} r="4.5" fill={line.color} stroke="#ffffff" strokeWidth="1.8" />
+                      </g>
+                    );
+                  });
+                })()}
+
+                {/* Hover Cursor Hairline & Circular Beacon Ring (Video 00:00, 00:04, 00:06, 00:10) */}
                 {hoverX !== null && (
-                  <g>
+                  <g className="pointer-events-none">
                     <line
                       x1={hoverX}
-                      y1={paddingTop}
+                      y1={paddingTop - 4}
                       x2={hoverX}
                       y2={svgHeight - paddingBottom}
-                      stroke="#94a3b8"
-                      strokeWidth="1.5"
+                      stroke="rgba(255, 255, 255, 0.35)"
+                      strokeWidth="1.2"
                       strokeDasharray="3 3"
+                    />
+                    {/* Blue target cursor ring matching video */}
+                    <circle
+                      cx={hoverX}
+                      cy={plotY(hoverVal ?? scaleMin)}
+                      r="11"
+                      fill="none"
+                      stroke="#38bdf8"
+                      strokeWidth="2.5"
+                      opacity="0.9"
                     />
                     <circle
                       cx={hoverX}
                       cy={plotY(hoverVal ?? scaleMin)}
-                      r="4.5"
+                      r="3.5"
                       fill="#38bdf8"
-                      stroke="#ffffff"
-                      strokeWidth="2"
+                      opacity="0.95"
                     />
+
+                    {/* Floating inline tags attached to each line at hoverX (matching video 00:01 - 00:15) */}
+                    {(() => {
+                      // Collect tag positions for collision avoidance
+                      const tagData = activeHeroLines.map((line, lineIdx) => {
+                        const pts = line.points;
+                        if (pts.length < 2) return null;
+                        const ratio = Math.max(0, Math.min(1, (hoverX - paddingLeft) / chartInnerWidth));
+                        const floatIdx = ratio * (pts.length - 1);
+                        const i0 = Math.floor(floatIdx);
+                        const i1 = Math.min(pts.length - 1, i0 + 1);
+                        const frac = floatIdx - i0;
+                        const v = pts[i0] + (pts[i1] - pts[i0]) * frac;
+                        return { line, lineIdx, rawY: plotY(v), value: v };
+                      }).filter(Boolean) as { line: typeof activeHeroLines[0]; lineIdx: number; rawY: number; value: number }[];
+
+                      // Sort by Y and apply collision avoidance
+                      const sorted = [...tagData].sort((a, b) => a.rawY - b.rawY);
+                      const minGap = 28;
+                      const tagH = 24;
+                      const adjustedY = sorted.map((d) => d.rawY);
+                      for (let pass = 0; pass < 6; pass++) {
+                        for (let i = 1; i < adjustedY.length; i++) {
+                          if (adjustedY[i] - adjustedY[i - 1] < minGap) {
+                            const overlap = minGap - (adjustedY[i] - adjustedY[i - 1]);
+                            adjustedY[i - 1] = Math.max(paddingTop + tagH / 2, adjustedY[i - 1] - overlap / 2);
+                            adjustedY[i] = Math.min(svgHeight - paddingBottom - tagH / 2, adjustedY[i] + overlap / 2);
+                          }
+                        }
+                      }
+                      for (let i = 0; i < adjustedY.length; i++) {
+                        adjustedY[i] = Math.max(paddingTop + tagH / 2, Math.min(svgHeight - paddingBottom - tagH / 2, adjustedY[i]));
+                      }
+
+                      const tagWidth = 140;
+                      const tagHeight = 24;
+
+                      return sorted.map((d, idx) => {
+                        const isNearRight = hoverX > svgWidth - tagWidth - 20;
+                        const tagX = isNearRight ? hoverX - tagWidth - 10 : hoverX + 10;
+                        const tagY = adjustedY[idx] - tagHeight / 2;
+
+                        return (
+                          <g key={`hero-tag-${d.lineIdx}`}>
+                            <rect
+                              x={tagX}
+                              y={tagY}
+                              width={tagWidth}
+                              height={tagHeight}
+                              rx="5"
+                              fill="#0e1726"
+                              stroke="#223249"
+                              strokeWidth="1"
+                            />
+                            <rect
+                              x={tagX + 5}
+                              y={tagY + 5}
+                              width="2.5"
+                              height={tagHeight - 10}
+                              rx="1"
+                              fill={d.line.color}
+                            />
+                            <text
+                              x={tagX + 12}
+                              y={tagY + 16}
+                              fill="#e2e8f0"
+                              fontSize="10"
+                              fontWeight="600"
+                            >
+                              {d.line.name.length > 12 ? `${d.line.name.slice(0, 11)}…` : d.line.name}
+                            </text>
+                            <text
+                              x={tagX + tagWidth - 6}
+                              y={tagY + 16}
+                              textAnchor="end"
+                              fill="#ffffff"
+                              fontSize="11"
+                              fontWeight="700"
+                              fontFamily="monospace"
+                            >
+                              {fmtHover(Math.round(d.value))}
+                            </text>
+                          </g>
+                        );
+                      });
+                    })()}
                   </g>
                 )}
 
@@ -595,18 +799,6 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                   );
                 })}
               </svg>
-
-              {/* Dynamic Hover Tooltip */}
-              {hoverX !== null && hoverVal !== null && (
-                <div
-                  className="absolute top-2 pointer-events-none bg-[#0a0f18] text-white text-xs px-2 py-1 rounded-md border border-[#2a374c] shadow-lg font-mono z-10"
-                  style={{
-                    left: Math.min(chartInnerWidth - 40, Math.max(10, hoverX)),
-                  }}
-                >
-                  Value: {fmtHover(hoverVal)}
-                </div>
-              )}
             </div>
 
             {/* Resolution date caption (kept after removing the Live Comments panel) */}

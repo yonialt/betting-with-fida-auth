@@ -23,6 +23,7 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
   const { language, setAppMode, polymarketDarkMode, togglePolymarketDarkMode } = useBetting();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
 
   const getCategoryLabel = (id: string, name: string) => {
     if (language === 'en') return name;
@@ -57,6 +58,13 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
   const handleScrollLeft = () => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: -240, behavior: 'smooth' });
+    }
+  };
+
+  const checkScroll = () => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      setCanScrollLeft(el.scrollLeft > 5);
     }
   };
 
@@ -112,9 +120,22 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
         className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold"
         style={{ backgroundColor: '#ffffff' }}
       >
+        {/* Left Chevron (visible when scrolled right) */}
+        {canScrollLeft && (
+          <button
+            onClick={handleScrollLeft}
+            className="w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer text-neutral-500 hover:text-neutral-950 hover:bg-neutral-100 shrink-0"
+            title="Scroll categories left"
+            aria-label="Scroll categories left"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Scrollable category links */}
         <div
           ref={scrollContainerRef}
+          onScroll={checkScroll}
           className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5"
           style={{
             backgroundColor: '#ffffff',

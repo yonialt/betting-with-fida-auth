@@ -59,6 +59,8 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
 
   const categories = [
     { name: 'All', count: WEATHER_CITY_MARKETS.length + WEATHER_EVENT_MARKETS.length, icon: Globe2 },
+    { name: 'Ethiopia 🇪🇹', count: 28, icon: Thermometer },
+    { name: 'Horn of Africa', count: 15, icon: CloudRain },
     { name: 'Temperature', count: WEATHER_CITY_MARKETS.length, icon: Thermometer },
     {
       name: 'Precipitation',
@@ -411,7 +413,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
                                     {opt.probability}%
                                   </span>
                                   <span className="px-2 py-0.5 rounded-lg bg-blue-600/30 text-blue-300 font-mono font-bold text-[11px]">
-                                    {opt.yesPrice}¢
+                                    {opt.yesPrice}%
                                   </span>
                                 </div>
                               </div>
@@ -491,7 +493,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
                           >
                             <span className="text-[10px] font-bold uppercase">YES</span>
                             <span className="text-base font-extrabold font-mono">{eventMkt.chance}%</span>
-                            <span className="text-[10px] text-neutral-400 font-mono">Buy {eventMkt.yesPrice}¢</span>
+                            <span className="text-[10px] text-neutral-400 font-mono">Buy {eventMkt.yesPrice}%</span>
                           </button>
 
                           <button
@@ -504,7 +506,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
                           >
                             <span className="text-[10px] font-bold uppercase">NO</span>
                             <span className="text-base font-extrabold font-mono">{100 - eventMkt.chance}%</span>
-                            <span className="text-[10px] text-neutral-400 font-mono">Buy {eventMkt.noPrice}¢</span>
+                            <span className="text-[10px] text-neutral-400 font-mono">Buy {eventMkt.noPrice}%</span>
                           </button>
                         </div>
                       </div>
@@ -564,7 +566,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                Yes {activeYesPrice}¢
+                Yes {activeYesPrice}%
               </button>
               <button
                 onClick={() => setOrderSide('No')}
@@ -574,7 +576,7 @@ export const PolymarketWeatherView: React.FC<PolymarketWeatherViewProps> = ({
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                No {activeNoPrice}¢
+                No {activeNoPrice}%
               </button>
             </div>
 

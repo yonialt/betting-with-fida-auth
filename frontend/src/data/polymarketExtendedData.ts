@@ -324,8 +324,8 @@ export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
     team1: { name: 'Spirit', score: 5, badge: 'TS' },
     team2: { name: 'MOUZ', score: 1, badge: 'MOUZ' },
     moneyline: { team1Odds: '1.15X', team2Odds: '7.14X' },
-    spread: { label1: 'TS7 -1.5', odds1: '78¢', label2: 'MOUZ +1.5', odds2: '16¢' },
-    total: { label1: 'O 4.5', odds1: '0.84', label2: 'U 4.5', odds2: '72¢' },
+    spread: { label1: 'TS7 -1.5', odds1: '78%', label2: 'MOUZ +1.5', odds2: '16%' },
+    total: { label1: 'O 4.5', odds1: '0.84', label2: 'U 4.5', odds2: '72%' },
   },
   {
     id: 'cs2-bounty-imperial',
@@ -336,7 +336,7 @@ export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
     team1: { name: 'Bounty Hunte...', score: 5, badge: 'BHE' },
     team2: { name: 'Imperial', score: 4, badge: 'IMP' },
     moneyline: { team1Odds: '2.27X', team2Odds: '1000.00X' },
-    spread: { label1: 'BHE +1.5', odds1: '99.9¢', label2: 'IMP11 -1.5', odds2: '0.1¢' },
+    spread: { label1: 'BHE +1.5', odds1: '99.9%', label2: 'IMP11 -1.5', odds2: '0.1%' },
     total: { label1: 'O 2.5', odds1: '0.84', label2: 'U 2.5', odds2: '0.16' },
   },
   {
@@ -348,8 +348,8 @@ export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
     team1: { name: 'Karmin Corp', score: 4, badge: 'KC' },
     team2: { name: 'FURIA', score: 1, badge: 'FUR' },
     moneyline: { team1Odds: '3.13X', team2Odds: '29.41X' },
-    spread: { label1: 'KC', odds1: '32¢', label2: 'FUR -1.5', odds2: '1.25', },
-    total: { label1: 'KC', odds1: '+2.5', label2: 'RED +1.5', odds2: '49¢' },
+    spread: { label1: 'KC', odds1: '32%', label2: 'FUR -1.5', odds2: '1.25', },
+    total: { label1: 'KC', odds1: '+2.5', label2: 'RED +1.5', odds2: '49%' },
   },
   {
     id: 'mlb-brewers-reds',
@@ -359,9 +359,9 @@ export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
     status: 'Bot 4th',
     team1: { name: 'Brewers (88-55)', score: 'MIL' },
     team2: { name: 'Reds (68-74)', score: 'CIN' },
-    moneyline: { team1Odds: 'MIL 15¢', team2Odds: 'CIN 86¢' },
-    spread: { label1: 'MIL +3.5', odds1: '66¢', label2: 'CIN -3.5', odds2: '36¢' },
-    total: { label1: 'O 11.5', odds1: '52¢', label2: 'U 11.5', odds2: '48¢' },
+    moneyline: { team1Odds: 'MIL 15%', team2Odds: 'CIN 86%' },
+    spread: { label1: 'MIL +3.5', odds1: '66%', label2: 'CIN -3.5', odds2: '36%' },
+    total: { label1: 'O 11.5', odds1: '52%', label2: 'U 11.5', odds2: '48%' },
   },
   {
     id: 'mlb-braves-phillies',
@@ -371,9 +371,9 @@ export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
     status: 'Mid 2nd',
     team1: { name: 'Braves (84-58)', score: 'ATL' },
     team2: { name: 'Phillies (80-62)', score: 'PHI' },
-    moneyline: { team1Odds: 'ATL 30¢', team2Odds: 'PHI 80¢' },
-    spread: { label1: 'ATL +1.5', odds1: '77¢', label2: 'PHI -1.5', odds2: '65¢' },
-    total: { label1: 'O 8.5', odds1: '35¢', label2: 'U 8.5', odds2: '71¢' },
+    moneyline: { team1Odds: 'ATL 30%', team2Odds: 'PHI 80%' },
+    spread: { label1: 'ATL +1.5', odds1: '77%', label2: 'PHI -1.5', odds2: '65%' },
+    total: { label1: 'O 8.5', odds1: '35%', label2: 'U 8.5', odds2: '71%' },
   },
   {
     id: 'mlb-redsox-orioles',
@@ -383,9 +383,9 @@ export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
     status: 'Bot 2nd',
     team1: { name: 'Red Sox (70-65)', score: 'BOS' },
     team2: { name: 'Orioles (69-74)', score: 'BAL' },
-    moneyline: { team1Odds: 'BOS 74¢', team2Odds: 'BAL 25¢' },
-    spread: { label1: 'BOS -2.5', odds1: '47¢', label2: 'BAL +2.5', odds2: '54¢' },
-    total: { label1: 'O 9.5', odds1: '55¢', label2: 'U 9.5', odds2: '46¢' },
+    moneyline: { team1Odds: 'BOS 74%', team2Odds: 'BAL 25%' },
+    spread: { label1: 'BOS -2.5', odds1: '47%', label2: 'BAL +2.5', odds2: '54%' },
+    total: { label1: 'O 9.5', odds1: '55%', label2: 'U 9.5', odds2: '46%' },
   },
 ];
 
@@ -1003,7 +1003,7 @@ export const ART_FAQS = [
   },
   {
     q: 'How do Pop Culture odds on Polymarket work?',
-    a: 'Each share pays out 1.00 ETB if the event occurs, or 0.00 ETB if it does not. The price in cents directly reflects the collective probability (e.g. 54¢ = 54% chance).',
+    a: 'Each share pays out 1.00 ETB if the event occurs, or 0.00 ETB if it does not. The price directly reflects the collective probability (e.g. 54% chance).',
   },
   {
     q: 'Which Art markets are most active right now?',

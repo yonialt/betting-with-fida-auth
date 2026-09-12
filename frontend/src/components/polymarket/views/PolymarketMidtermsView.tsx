@@ -316,7 +316,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              Democrat 52¢
+              Democrat 52%
             </button>
             <button
               onClick={() => setSelectedSide('Republican')}
@@ -326,7 +326,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              Republican 48¢
+              Republican 48%
             </button>
           </div>
 
@@ -364,7 +364,7 @@ export const PolymarketMidtermsView: React.FC<PolymarketMidtermsViewProps> = ({
             <div className="flex justify-between">
               <span>Avg Price</span>
               <span className="font-mono text-white">
-                {selectedSide === 'Democrat' ? '51.5¢' : '48.5¢'}
+                {selectedSide === 'Democrat' ? '51.5%' : '48.5%'}
               </span>
             </div>
             <div className="flex justify-between">
