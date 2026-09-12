@@ -98,6 +98,7 @@ export interface PolymarketHotTopic {
   name: string;
   volume: string;
   isHot?: boolean;
+  icon?: string;
 }
 
 export interface PolymarketTradeState {

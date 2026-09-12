@@ -59,7 +59,7 @@ const heroSlideToMarket = (slide: HeroSlideItem): PolymarketMarket => ({
 });
 
 export const PolymarketPage: React.FC = () => {
-  const { language, polymarketDarkMode } = useBetting();
+  const { language, polymarketDarkMode, setAppMode, setBonusesModalOpen } = useBetting();
   const [activeCategory, setActiveCategory] = useState<string>('trending');
   const [activeViewTab, setActiveViewTab] = useState<'featured' | 'all'>('featured');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -156,7 +156,11 @@ export const PolymarketPage: React.FC = () => {
     }
 
     if (activeCategory === 'breaking') {
-      return <PolymarketBreakingView />;
+      return (
+        <PolymarketBreakingView
+          onSelectOutcome={handleSelectOutcome}
+        />
+      );
     }
 
     if (activeCategory === 'new') {
@@ -307,15 +311,7 @@ export const PolymarketPage: React.FC = () => {
           </div>
 
           {/* Bottom: All Markets Grid Section */}
-          <div className="mt-4 pt-8 border-t border-[#1e293b]">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white tracking-tight">
-                All Prediction Markets
-              </h3>
-              <span className="text-xs text-neutral-400 font-mono">
-                Real-time Settlement
-              </span>
-            </div>
+          <div className="mt-4">
             <PolymarketAllMarketsGrid
               onSelectOutcome={handleSelectOutcome}
               searchFilter={searchQuery}
@@ -365,6 +361,28 @@ export const PolymarketPage: React.FC = () => {
         onToggleChat={() => setFloatingChatOpen(!floatingChatOpen)}
         chatOpen={floatingChatOpen}
         onOpenMarketDetail={handleOpenDetail}
+        onSelectMoreOption={(option) => {
+          if (option === 'Dashboards') {
+            // Navigate to profile page
+            window.history.pushState({}, '', '/profile');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else if (option === 'Rewards') {
+            setBonusesModalOpen(true);
+          } else if (option === 'Documentation') {
+            setBonusesModalOpen(true);
+          } else if (option === 'Help Center') {
+            setBonusesModalOpen(true);
+          } else if (option === 'Terms of Use') {
+            setBonusesModalOpen(true);
+          } else if (option === 'Activity') {
+            setBonusesModalOpen(true);
+          } else if (option === 'Leaderboard') {
+            setBonusesModalOpen(true);
+          } else if (option === 'APIs') {
+            // Coming soon - do nothing
+          }
+        }}
       >
         {/* 2. Category Carousel Filter Bar (Navbar 2) */}
         <PolymarketCategories

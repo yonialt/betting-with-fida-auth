@@ -153,7 +153,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <span className="font-black text-lg tracking-tight text-white group-hover:text-[#8DC63F] transition-colors">
-                  ሃገራዊ <span className="text-[#8DC63F]">SPORT BETTING</span> <span className="text-[#ffc600]">& MARKET</span>
+                  ሃገራዊ <span className="text-white">PREDICTION MARKET</span>
                 </span>
                 <p className="text-[10px] text-neutral-400 font-medium">
                   Ethiopia's Premier Sportsbook & Prediction Market
@@ -333,7 +333,7 @@ export const Footer: React.FC = () => {
 
           {/* Legal / Company Notice */}
           <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-normal">
-            <span className="font-semibold text-neutral-300">ሃገራዊ SPORT BETTING & MARKET & Polymarket © 2026</span>
+            <span className="font-semibold text-neutral-300">ሃገራዊ PREDICTION MARKET & Polymarket © 2026</span>
             <span>·</span>
             <button type="button" onClick={() => handleLegalClick('Privacy')} className="hover:text-neutral-200 transition-colors cursor-pointer">Privacy</button>
             <span>·</span>
@@ -387,7 +387,7 @@ export const Footer: React.FC = () => {
         {/* Regulatory Disclaimer Text */}
         <div className="pt-4 border-t border-[#1c202c] text-[11px] text-neutral-500 leading-relaxed space-y-1.5">
           <p>
-            ሃገራዊ SPORT BETTING & MARKET is licensed and regulated under Ethiopian national gaming regulations and lottery administration frameworks. Access is strictly restricted to verified persons aged 21 and older with valid Fayda identification. Please gamble responsibly.
+            ሃገራዊ PREDICTION MARKET is licensed and regulated under Ethiopian national gaming regulations and lottery administration frameworks. Access is strictly restricted to verified persons aged 21 and older with valid Fayda identification. Please gamble responsibly.
           </p>
           <p>
             Polymarket prediction markets operate globally via decentralized contract mechanisms. Prediction markets involve risk of loss and are not available to prohibited jurisdictions.

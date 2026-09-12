@@ -585,33 +585,7 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
           <div className="w-1.5 h-1.5 bg-neutral-700 rounded-full" />
         </div>
 
-        {/* Right: < Sports, Clarity Act >, Explore all */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTag('CFB')}
-            className="px-3.5 py-1.5 rounded-full bg-[#141a26] hover:bg-[#1d2636] border border-[#222b3b] text-neutral-300 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 text-neutral-400" />
-            <span>{language === 'am' ? 'ስፖርት' : 'Sports'}</span>
-          </button>
-          <button
-            onClick={() => setActiveTag('Trump')}
-            className="px-3.5 py-1.5 rounded-full bg-[#141a26] hover:bg-[#1d2636] border border-[#222b3b] text-neutral-300 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <span>Clarity Act</span>
-            <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
-          </button>
-          <button
-            onClick={() => {
-              setActiveTag('All');
-              setShowBookmarkedOnly(false);
-              setInternalSearch('');
-            }}
-            className="px-5 py-1.5 rounded-full bg-[#151a24] hover:bg-[#1e2533] border border-[#263143] text-white text-xs font-bold cursor-pointer transition-colors shadow-xs"
-          >
-            {language === 'am' ? 'ሁሉንም አስስ' : 'Explore all'}
-          </button>
-        </div>
+
       </div>
 
       {/* 2. All markets Header Row (From Photo) */}

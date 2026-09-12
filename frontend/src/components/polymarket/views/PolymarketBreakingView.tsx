@@ -13,7 +13,13 @@ import {
   Share2,
 } from 'lucide-react';
 
-export const PolymarketBreakingView: React.FC<{ isDarkMode?: boolean }> = ({
+interface PolymarketBreakingViewProps {
+  onSelectOutcome?: (trade: { marketId: string; outcomeName: string; price: number; side: 'yes' | 'no' }) => void;
+  isDarkMode?: boolean;
+}
+
+export const PolymarketBreakingView: React.FC<PolymarketBreakingViewProps> = ({
+  onSelectOutcome,
   isDarkMode = true,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -119,7 +125,17 @@ export const PolymarketBreakingView: React.FC<{ isDarkMode?: boolean }> = ({
             {filteredItems.map((item) => (
               <div
                 key={item.rank}
-                className="p-3.5 sm:p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex items-center justify-between gap-4 group cursor-pointer"
+                onClick={() => {
+                  if (onSelectOutcome) {
+                    onSelectOutcome({
+                      marketId: `breaking-${item.rank}`,
+                      outcomeName: item.title,
+                      price: item.probability,
+                      side: item.isUp ? 'yes' : 'no',
+                    });
+                  }
+                }}
+                className="p-3.5 sm:p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] hover:bg-[#141d2d] transition-all flex items-center justify-between gap-4 group cursor-pointer"
               >
                 {/* Rank number & Title */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">

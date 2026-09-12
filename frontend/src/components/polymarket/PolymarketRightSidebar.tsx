@@ -115,6 +115,9 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
                   <span className="text-xs font-mono font-bold text-neutral-500 w-3">
                     {topic.rank}
                   </span>
+                  {topic.icon && (
+                    <span className="text-base leading-none">{topic.icon}</span>
+                  )}
                   <span className="text-sm font-semibold text-neutral-200 group-hover:text-white transition-colors">
                     {topic.name}
                   </span>

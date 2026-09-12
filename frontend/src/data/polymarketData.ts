@@ -402,11 +402,20 @@ export const BTC_5M_MARKET: PolymarketMarket = {
 };
 
 export const POLYMARKET_HOT_TOPICS: PolymarketHotTopic[] = [
-  { rank: 1, name: 'AfD', volume: '425K ETB today', isHot: true },
-  { rank: 2, name: 'UFC', volume: '2M ETB today', isHot: true },
-  { rank: 3, name: 'Sachsen', volume: '914K ETB today', isHot: true },
-  { rank: 4, name: 'Arsenal', volume: '1M ETB today', isHot: true },
-  { rank: 5, name: 'Roma', volume: '1M ETB today', isHot: true },
+  { rank: 1, name: 'AfD', volume: '425K ETB today', isHot: true, icon: '🇩🇪' },
+  { rank: 2, name: 'Fed Decision', volume: '2M ETB today', isHot: true, icon: '🏦' },
+  { rank: 3, name: 'Sachsen', volume: '914K ETB today', isHot: true, icon: '🏛️' },
+  { rank: 4, name: 'Bitcoin', volume: '1M ETB today', isHot: true, icon: '₿' },
+  { rank: 5, name: 'Ethiopia 🇪🇹', volume: '1M ETB today', isHot: true, icon: '🇪🇹' },
+  { rank: 6, name: 'GERD', volume: '680K ETB today', isHot: true, icon: '⚡' },
+  { rank: 7, name: 'OpenAI', volume: '520K ETB today', isHot: true, icon: '🤖' },
+  { rank: 8, name: 'Red Sea', volume: '410K ETB today', isHot: true, icon: '🌊' },
+  { rank: 9, name: 'Midterms', volume: '780K ETB today', isHot: true, icon: '🗳️' },
+  { rank: 10, name: 'Coffee', volume: '350K ETB today', isHot: true, icon: '☕' },
+  { rank: 11, name: 'Addis Ababa', volume: '890K ETB today', isHot: true, icon: '🏙️' },
+  { rank: 12, name: 'Fuel', volume: '620K ETB today', isHot: true, icon: '⛽' },
+  { rank: 13, name: 'Birr FX', volume: '540K ETB today', isHot: true, icon: '💱' },
+  { rank: 14, name: 'Elections', volume: '480K ETB today', isHot: true, icon: '🗳️' },
 ];
 
 export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
@@ -441,122 +450,17 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     ],
   },
 
-  // 3. 2026 Men's US Open Winner (Tennis) (Card 3 in photo)
-  {
-    id: 'pm-us-open',
-    title: "2026 Men's US Open Winner (Tennis)",
-    category: 'Sports',
-    volume: '21M ETB Vol.',
-    displayType: 'multi_outcome',
-    logoType: 'us_open',
-    outcomes: [
-      { name: 'Carlos Alcaraz', probability: 47, yesPrice: 47, noPrice: 53 },
-      { name: 'Alexander Zverev', probability: 25, yesPrice: 25, noPrice: 75 },
-    ],
-  },
-
-  // 4. Spirit vs MOUZ (Card 4 in photo)
-  {
-    id: 'pm-spirit-mouz',
-    title: 'Spirit vs MOUZ',
-    category: 'Esports',
-    subcategory: 'CS2',
-    volume: '8M ETB Vol. · CS2',
-    matchStatus: 'GAME 4',
-    displayType: 'match_versus',
-    outcomes: [
-      { name: 'Spirit', probability: 83, badge: '2', logoType: 'spirit', buttonTheme: 'slate', yesPrice: 83, noPrice: 17 },
-      { name: 'MOUZ', probability: 18, badge: '1', logoType: 'mouz', buttonTheme: 'red', yesPrice: 18, noPrice: 82 },
-    ],
-  },
-
-  // 5. G2 Esports vs Karmine Corp (Card 5 in photo)
-  {
-    id: 'pm-g2-karmine',
-    title: 'G2 Esports vs Karmine Corp',
-    category: 'Esports',
-    subcategory: 'LoL',
-    volume: '2M ETB Vol. · LoL',
-    matchStatus: 'GAME 4',
-    displayType: 'match_versus',
-    outcomes: [
-      { name: 'G2 Esports', probability: 73, badge: '2', logoType: 'g2', buttonTheme: 'red', yesPrice: 73, noPrice: 27 },
-      { name: 'Karmine Corp', probability: 28, badge: '1', logoType: 'karmine', shortName: 'Karmine', buttonTheme: 'slate', yesPrice: 28, noPrice: 72 },
-    ],
-  },
-
-  // 6. Brewers vs Reds (Card 6 in photo)
-  {
-    id: 'pm-brewers-reds',
-    title: 'Brewers vs Reds',
-    category: 'Sports',
-    subcategory: 'MLB',
-    volume: '919K ETB Vol. · MLB',
-    matchStatus: 'BOT 5TH',
-    displayType: 'match_versus',
-    outcomes: [
-      { name: 'Brewers', probability: 30, badge: '6', logoType: 'brewers', buttonTheme: 'blue', yesPrice: 30, noPrice: 70 },
-      { name: 'Reds', probability: 71, badge: '6', logoType: 'reds', buttonTheme: 'red', yesPrice: 71, noPrice: 29 },
-    ],
-  },
-
-  // 7. Tigers vs Guardians (Card 7 in photo)
-  {
-    id: 'pm-tigers-guardians',
-    title: 'Tigers vs Guardians',
-    category: 'Sports',
-    subcategory: 'MLB',
-    volume: '890K ETB Vol. · MLB',
-    matchStatus: 'BOT 1ST',
-    displayType: 'match_versus',
-    outcomes: [
-      { name: 'Tigers', probability: 59, badge: '2', logoType: 'tigers', buttonTheme: 'blue', yesPrice: 59, noPrice: 41 },
-      { name: 'Guardians', probability: 42, badge: '0', logoType: 'guardians', buttonTheme: 'red', yesPrice: 42, noPrice: 58 },
-    ],
-  },
-
-  // 8. M. Kostyuk vs L. Noskova (Card 8 in photo)
-  {
-    id: 'pm-kostyuk-noskova',
-    title: 'M. Kostyuk vs L. Noskova',
-    category: 'Sports',
-    subcategory: 'WTA Tour',
-    volume: '534K ETB Vol. · WTA Tour',
-    matchStatus: 'S2',
-    displayType: 'match_versus',
-    outcomes: [
-      { name: 'M. Kostyuk', probability: 40, badge: '5 1', countryFlag: '🇺🇦', buttonTheme: 'olive', yesPrice: 40, noPrice: 60 },
-      { name: 'L. Noskova', probability: 61, badge: '7 1', countryFlag: '🇨🇿', buttonTheme: 'red', yesPrice: 61, noPrice: 39 },
-    ],
-  },
-
-  // 9. Next Prime Minister of Ethiopia?
+  // 3. Next Prime Minister of Ethiopia?
   ETHIOPIA_PM_MARKET,
 
-  // 10. Ethiopian Premier League Champion (Sports)
-  {
-    id: 'pm-eth-premier-league',
-    title: 'Ethiopian Premier League Champion 2025/2026?',
-    category: 'Sports',
-    subcategory: 'Ethiopia',
-    countryFlag: '🇪🇹',
-    volume: '12.5M ETB Vol.',
-    displayType: 'multi_outcome',
-    outcomes: [
-      { name: 'CBE SA (ኢትዮጵያ ንግድ ባንክ)', probability: 46, yesPrice: 46, noPrice: 54 },
-      { name: 'Saint George SC (ቅዱስ ጊዮርጊስ)', probability: 32, yesPrice: 32, noPrice: 68 },
-      { name: 'Fasil Kenema (ፋሲል ከነማ)', probability: 14, yesPrice: 14, noPrice: 86 },
-      { name: 'Defense Force SC (መከላከያ)', probability: 8, yesPrice: 8, noPrice: 92 },
-    ],
-  },
-
-  // 11. GERD Full Capacity 100% (Tech & Energy)
+  // 4. GERD Full Capacity 100% (Tech & Energy)
   {
     id: 'pm-eth-gerd-capacity',
     title: 'Grand Ethiopian Renaissance Dam (GERD) generation hits 100% capacity in 2026?',
     category: 'Tech',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=128&h=128&fit=crop',
     volume: '67.3M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -572,6 +476,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Economy',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=128&h=128&fit=crop',
     volume: '24.6M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -587,6 +492,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Geopolitics',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=128&h=128&fit=crop',
     volume: '42.1M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -602,6 +508,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Crypto',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=128&h=128&fit=crop',
     volume: '19.8M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -610,28 +517,14 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     ],
   },
 
-  // 15. World Athletics Marathon Gold (Sports)
-  {
-    id: 'pm-eth-marathon-gold',
-    title: 'Ethiopian athlete wins Gold in 2026 World Athletics Championships Marathon?',
-    category: 'Sports',
-    subcategory: 'Ethiopia',
-    countryFlag: '🇪🇹',
-    volume: '8.9M ETB Vol.',
-    displayType: 'binary_buttons',
-    outcomes: [
-      { name: 'Yes', probability: 88, yesPrice: 88, noPrice: 12 },
-      { name: 'No', probability: 12, yesPrice: 12, noPrice: 88 },
-    ],
-  },
-
-  // 16. Coffee Export Revenue 1.8B ETB (Culture & Agriculture)
+  // 15. Coffee Export Revenue 1.8B ETB (Culture & Agriculture)
   {
     id: 'pm-eth-coffee-export',
     title: 'Ethiopian coffee export revenue exceeds 1.8 ETB Billion in fiscal year 2025/26?',
     category: 'Culture',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=128&h=128&fit=crop',
     volume: '14.1M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -647,6 +540,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=128&h=128&fit=crop',
     volume: '6.2M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -662,6 +556,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=128&h=128&fit=crop',
     volume: '3.4M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -677,6 +572,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Weather',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=128&h=128&fit=crop',
     volume: '4.8M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -692,6 +588,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Politics',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=128&h=128&fit=crop',
     volume: '21.5M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -707,6 +604,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     category: 'Economy',
     subcategory: 'Ethiopia',
     countryFlag: '🇪🇹',
+    imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=128&h=128&fit=crop',
     volume: '16.8M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -721,6 +619,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: '2026 ranks among the top 3 warmest years in recorded history (NOAA/Copernicus)?',
     category: 'Weather',
     subcategory: 'Global',
+    imageUrl: 'https://images.unsplash.com/photo-1611273426858-450d9e0e6510?w=128&h=128&fit=crop',
     volume: '31.4M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -735,6 +634,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     title: 'Atlantic Hurricane Season produces 18 or more named tropical storms in 2026?',
     category: 'Weather',
     subcategory: 'Hurricanes',
+    imageUrl: 'https://images.unsplash.com/photo-1527482937786-6c94007b1c4c?w=128&h=128&fit=crop',
     volume: '19.2M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -743,44 +643,12 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     ],
   },
 
-  // 17. Everton vs Man Utd
-  {
-    id: 'pm-everton-manu',
-    title: 'Everton vs Man Utd',
-    category: 'Sports',
-    subcategory: 'Premier League',
-    volume: '9M ETB Vol.',
-    timeInfo: 'Premier League · 91-45',
-    displayType: 'multi_outcome',
-    outcomes: [
-      { name: 'Everton', probability: 21, yesPrice: 21, noPrice: 79 },
-      { name: 'Draw', probability: 46, yesPrice: 46, noPrice: 54 },
-      { name: 'Man Utd', probability: 46, yesPrice: 46, noPrice: 54 },
-    ],
-  },
-
-  // 18. Clemson vs. LSU
-  {
-    id: 'pm-clemson-lsu',
-    title: 'Clemson vs. LSU',
-    category: 'CFB',
-    subcategory: 'Football • College Football',
-    volume: '524K ETB Vol.',
-    scoreHome: 10,
-    scoreAway: 51,
-    matchStatus: 'FINAL',
-    displayType: 'football_match',
-    outcomes: [
-      { name: 'Clemson +9.5', probability: 0.1, yesPrice: 0.1, noPrice: 99.9 },
-      { name: 'LSU -9.5', probability: 100, yesPrice: 100, noPrice: 0 },
-    ],
-  },
-
-  // 19. OpenAI announces it has achieved AGI before 2027?
+  // 17. OpenAI announces it has achieved AGI before 2027?
   {
     id: 'pm-openai-agi-2027',
     title: 'OpenAI announces it has achieved AGI before 2027?',
     category: 'Tech',
+    imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=128&h=128&fit=crop',
     volume: '5M ETB Vol.',
     displayType: 'binary_buttons',
     outcomes: [
@@ -818,16 +686,19 @@ export const POLYMARKET_CATEGORIES: PolymarketCategoryItem[] = [
 export const POLYMARKET_TAG_PILLS = [
   'All',
   'Ethiopia 🇪🇹',
-  'Trump',
-  'CFB',
-  'F1: Italian GP',
-  'Saxony-Anhalt',
-  'Astra',
-  'UFC: Paris Fight Night',
-  'GTA VI',
-  'Fed',
-  'Iran',
-  'Lacy & Marlon',
-  'Apple Event',
-  'September 8 and 9 Primaries',
+  'Fed Decision',
+  'Bitcoin',
+  'GERD',
+  'OpenAI',
+  'Red Sea',
+  'Coffee',
+  'Addis Ababa',
+  'Birr',
+  'Elections',
+  'Weather',
+  'Politics',
+  'Economy',
+  'Tech',
+  'Geopolitics',
+  'Culture',
 ];
