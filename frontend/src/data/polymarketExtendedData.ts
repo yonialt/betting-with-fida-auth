@@ -1,5 +1,21 @@
 import { PolymarketMarket, PolymarketComment } from '../types/polymarket';
 
+// Centralized official logo catalog for Hero carousel slides.
+// Fill this with one official logo URL per slide id (heroSlideLogoUrl[slide.id]).
+export const heroSlideLogoUrl: Record<string, string> = {
+  // Hero carousel slides
+  'eth-addis-federal-city': '/eth-addis-federal-city.jpg',
+  'eth-military-service': '/ethiopianmilitary.png',
+  'eth-red-sea-access': '/readseaport.jpg',
+  'btc-up-down': '/btcupdown.jpg',
+  'best-ai-september': '/best-ai-september .jpg',
+  'china-taiwan-2026': '/china-taiwan-2026.jpg',
+  'russia-ukraine-ceasefire': '/russiaxukranie.jpg',
+  'pm-eth-coffee-export': '/pm-eth-coffee-export .jpg',
+  'pm-eth-q-constitution-2029': '/pm-eth-q-constitution-2029.png',
+  'pm-eth-national-dialogue-report': '/pm-eth-national-dialogue-report.png',
+};
+
 // 1. Eight Hero Carousel Slides (as viewed from 00:00 to 00:20 in the video)
 export interface HeroSlideItem {
   id: string;
@@ -34,51 +50,29 @@ export interface HeroSlideItem {
 }
 
 export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
-  // Slide 0: Fed Decision in September?
-  {
-    id: 'fed-decision',
-    category: 'Politics',
-    subcategory: 'Fomc',
-    title: 'Fed Decision in September?',
-    volume: '100M ETB Vol',
-    chartType: 'step',
-    prevSlideLabel: 'Sports',
-    nextSlideLabel: 'Clarity Act',
-    outcomes: [
-      { name: '25 bps decrease', probability: 0.4, color: '#38bdf8' },
-      { name: 'No change', probability: 51, color: '#3b82f6' },
-      { name: '25 bps increase', probability: 50, color: '#eab308' },
-      { name: '50+ bps increase', probability: 1, color: '#ef4444' },
-    ],
-    commentsTicker: [
-      { user: 'JohnA', text: 'No matter the result, its an honor to gamble with you fellow degens', amount: '+5 ETB', positive: true },
-      { user: 'TheAllKnowingSeer', text: 'We shall win.', amount: '+1 ETB', positive: true },
-      { user: 'JeanneDelETH', text: 'Foolproof across the casino, thats the intended way, amex', amount: '+133 ETB', positive: true },
-      { user: 'MarketMaker99', text: 'Rate cuts locked in for late September cycle', amount: '+112 ETB', positive: true },
-    ],
-  },
-  // Slide: Addis Ababa federally administered city (Ethiopia)
+  // Slide: Addis Ababa legal administrative status change before 2029
   {
     id: 'eth-addis-federal-city',
     category: 'Politics',
     subcategory: 'Ethiopia',
-    title: 'Addis Ababa becomes a federally administered city before 2029?',
-    chanceBadge: '26% chance',
-    volume: '18M ETB Vol',
+    title: 'Will Addis Ababa’s legal administrative status officially change before 2029?',
+    chanceBadge: '38% chance',
+    volume: '14.7M ETB Vol',
     chartType: 'line',
     resolutionDate: 'Ends Jan 1, 2029',
-    prevSlideLabel: 'Fed Decision',
+    prevSlideLabel: 'Ethiopian Coffee Export',
     nextSlideLabel: 'National Service',
     outcomes: [
-      { name: 'Yes', probability: 26, color: '#10b981', yesPrice: 26, noPrice: 74, side: 'yes' },
-      { name: 'No', probability: 74, color: '#ef4444', yesPrice: 74, noPrice: 26, side: 'no' },
+      { name: 'Yes', probability: 38, color: '#10b981', yesPrice: 38, noPrice: 62, side: 'yes' },
+      { name: 'No', probability: 62, color: '#ef4444', yesPrice: 62, noPrice: 38, side: 'no' },
     ],
     commentsTicker: [
       { user: 'AddisWatch', text: 'City charter reform is back on the parliamentary agenda', amount: '+40 ETB', positive: true },
       { user: 'HornAnalyst', text: 'Federal-city status would reshape Addis boundary politics', amount: '+22 ETB', positive: true },
-      { user: 'PolisETH', text: 'Unlikely before the 2026 election dust settles', amount: '+9 ETB', positive: true },
+      { user: 'PolisETH', text: 'Legal status change more likely than full federalization', amount: '+9 ETB', positive: true },
     ],
   },
+  
   // Slide: Ethiopia mandatory national military service
   {
     id: 'eth-military-service',
@@ -101,49 +95,26 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
       { user: 'MekelleMind', text: 'Watching the next defense proclamation closely', amount: '+7 ETB', positive: true },
     ],
   },
-  // Slide: Ethiopia Red Sea port access accord
+  // Slide: Ethiopia secures official Red Sea port access before 2027
   {
     id: 'eth-red-sea-access',
-    category: 'Politics',
-    subcategory: 'Ethiopia · Maritime',
+    category: 'Geopolitics',
+    subcategory: 'Ethiopia · Red Sea',
     title: 'Ethiopia secures official Red Sea port access accord before 2027?',
     chanceBadge: '74% chance',
-    volume: '42M ETB Vol',
+    volume: '22.1M ETB Vol',
     chartType: 'line',
-    resolutionDate: 'Ends Dec 31, 2026',
+    resolutionDate: 'Ends Dec 31, 2027',
     prevSlideLabel: 'National Service',
-    nextSlideLabel: 'Clarity Act',
+    nextSlideLabel: 'Bitcoin Up or Down',
     outcomes: [
       { name: 'Yes', probability: 74, color: '#10b981', yesPrice: 74, noPrice: 26, side: 'yes' },
       { name: 'No', probability: 26, color: '#ef4444', yesPrice: 26, noPrice: 74, side: 'no' },
     ],
     commentsTicker: [
-      { user: 'RedSeaWatch', text: 'Memoranda signed but ratified sovereign access still pending', amount: '+88 ETB', positive: true },
-      { user: 'GulfDesk', text: 'Naval leasing framework rumored for Q4', amount: '+40 ETB', positive: true },
-      { user: 'PortsAnalyst', text: 'Regional pushback remains the key risk', amount: '+15 ETB', positive: true },
-    ],
-  },
-  // Slide 1: Clarity Act (H.R.3633) signed into law in 2026?
-  {
-    id: 'clarity-act',
-    category: 'Crypto',
-    subcategory: 'Regulation',
-    title: 'Clarity Act (H.R.3633) signed into law in 2026?',
-    chanceBadge: '16% chance',
-    volume: '14M ETB Vol',
-    chartType: 'line',
-    resolutionDate: 'Ends Jan 1, 2027',
-    prevSlideLabel: 'Fed Decision',
-    nextSlideLabel: 'BTC 5min Up or Down',
-    outcomes: [
-      { name: 'Yes', probability: 16, color: '#10b981', yesPrice: 16, noPrice: 84, side: 'yes' },
-      { name: 'No', probability: 84, color: '#ef4444', yesPrice: 84, noPrice: 16, side: 'no' },
-    ],
-    commentsTicker: [
-      { user: 'returnMySollo', text: 'Clarity Act signed July', amount: '+112 ETB', positive: true },
-      { user: 'State-Asphalt', text: 'Nope. Will never get enough Democrat votes now that they started slush fund for Jan 6 rioters and...', amount: '+100 ETB', positive: true },
-      { user: 'SenatorPalpatine', text: 'Then why did you buy 10 shares?', amount: '+250 ETB', positive: true },
-      { user: 'Nigel364', text: 'crypto bill has strong bipartisan momentum in committee', amount: '+90 ETB', positive: true },
+      { user: 'PortWatch', text: 'Commercial route access talks are accelerating across the Horn', amount: '+42 ETB', positive: true },
+      { user: 'HornDesk', text: 'Regional shipping and logistics incentives are driving the move', amount: '+19 ETB', positive: true },
+      { user: 'RedSeaMap', text: 'Access agreement would materially change Ethiopia’s trade outlook', amount: '+11 ETB', positive: true },
     ],
   },
   // Slide 2: Bitcoin Up or Down
@@ -159,8 +130,8 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
     endsIn: '3:53',
     upMultiplier: 'UP 2.74X',
     downMultiplier: 'DOWN 1.57X',
-    prevSlideLabel: 'Clarity Act',
-    nextSlideLabel: 'Midterms',
+    prevSlideLabel: 'Red Sea Access',
+    nextSlideLabel: 'Ethiopia Constitution',
     outcomes: [
       { name: 'Up', probability: 51, color: '#f59e0b', yesPrice: 51, noPrice: 49 },
       { name: 'Down', probability: 49, color: '#ef4444', yesPrice: 49, noPrice: 51 },
@@ -172,38 +143,59 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
       { user: 'ghochu', text: 'you can like only one comment a time', amount: '+7 ETB', positive: true },
     ],
   },
-  // Slide 3: Balance of Power: 2026 Midterms
+  // Slide 3: Ethiopia Constitution Amendment 2029
   {
-    id: 'midterms-balance-power',
+    id: 'pm-eth-q-constitution-2029',
     category: 'Politics',
-    subcategory: 'US Election',
-    title: 'Balance of Power: 2026 Midterms',
-    volume: '11M ETB Vol',
-    chartType: 'multi_line',
-    resolutionDate: 'Ends Nov 3, 2026',
+    subcategory: 'Ethiopia',
+    title: 'Will Ethiopia officially amend or replace its constitution before 2029?',
+    chanceBadge: '41% chance',
+    volume: '21.9M ETB Vol',
+    chartType: 'line',
+    resolutionDate: 'Ends Jan 1, 2029',
     prevSlideLabel: 'BTC 5min Up or Down',
-    nextSlideLabel: 'Best AI',
+    nextSlideLabel: 'National Dialogue',
     outcomes: [
-      { name: 'Democrats Sweep', probability: 51, color: '#3b82f6' },
-      { name: 'D Senate, R House', probability: 1, color: '#a855f7' },
-      { name: 'R Senate, D House', probability: 36, color: '#06b6d4' },
-      { name: 'Republicans Sweep', probability: 12, color: '#ef4444' },
+      { name: 'Yes', probability: 41, color: '#f59e0b', yesPrice: 41, noPrice: 59, side: 'yes' },
+      { name: 'No', probability: 59, color: '#ef4444', yesPrice: 59, noPrice: 41, side: 'no' },
     ],
     commentsTicker: [
-      { user: 'AP News', text: 'Midterm mail ballots start to go to voters as litigation over Trump order creates uncertainty', amount: '+14 ETB', positive: true },
-      { user: 'Bloomberg', text: 'Trump Seeks to Move Case to Conviction for Midterms', amount: '+8 ETB', positive: true },
-      { user: 'Constitutionalist', text: 'Senate map is razor thin across 4 key swing states', amount: '+3 ETB', positive: true },
+      { user: 'HornInsights', text: 'Draft amendment commissions have been quietly meeting', amount: '+15 ETB', positive: true },
+      { user: 'AddisConstitution', text: 'Parliament signaled willingness to revisit the charter', amount: '+8 ETB', positive: true },
+      { user: 'EthioRef', text: 'Federal-regional power balance is the sensitive core', amount: '+4 ETB', positive: true },
     ],
   },
-  // Slide 4: Which company has the best AI model end of September?
+  // Slide: Ethiopia National Dialogue Commission Final Report 2026
+  {
+    id: 'pm-eth-national-dialogue-report',
+    category: 'Politics',
+    subcategory: 'Ethiopia · Dialogue',
+    title: "Ethiopia's National Dialogue Commission delivers its final report in 2026?",
+    chanceBadge: '60% chance',
+    volume: '11.6M ETB Vol',
+    chartType: 'line',
+    resolutionDate: 'Ends Dec 31, 2026',
+    prevSlideLabel: 'Ethiopia Constitution',
+    nextSlideLabel: 'Best AI',
+    outcomes: [
+      { name: 'Yes', probability: 60, color: '#10b981', yesPrice: 60, noPrice: 40, side: 'yes' },
+      { name: 'No', probability: 40, color: '#ef4444', yesPrice: 40, noPrice: 60, side: 'no' },
+    ],
+    commentsTicker: [
+      { user: 'DialogueEth', text: 'Commission hearings wrapping up across regional states', amount: '+25 ETB', positive: true },
+      { user: 'HornInsight', text: 'Final report could address federal-state power sharing', amount: '+18 ETB', positive: true },
+      { user: 'AddisMonitor', text: 'Implementation remains the real challenge after publication', amount: '+12 ETB', positive: true },
+    ],
+  },
+  // Slide 4: Which company has the best AI model end of the year?
   {
     id: 'best-ai-september',
     category: 'Tech',
     subcategory: 'AI',
-    title: 'Which company has the best AI model end of September?',
+    title: 'Which company has the best AI model end of the year?',
     volume: '2M ETB Vol',
     chartType: 'step',
-    prevSlideLabel: 'Midterms',
+    prevSlideLabel: 'National Dialogue',
     nextSlideLabel: 'Iron Blockade',
     outcomes: [
       { name: 'Anthropic', probability: 84, color: '#38bdf8' },
@@ -229,7 +221,7 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
     chartType: 'line',
     resolutionDate: 'Ends Dec 31, 2026',
     prevSlideLabel: 'Best AI',
-    nextSlideLabel: 'Fed Decision',
+    nextSlideLabel: 'Russia-Ukraine Ceasefire',
     outcomes: [
       { name: 'Yes', probability: 4, color: '#10b981', yesPrice: 4, noPrice: 96, side: 'yes' },
       { name: 'No', probability: 96, color: '#ef4444', yesPrice: 96, noPrice: 4, side: 'no' },
@@ -239,29 +231,53 @@ export const HERO_CAROUSEL_SLIDES: HeroSlideItem[] = [
       { user: 'GeopoliticsDaily', text: 'Naval exercises in strait recorded routine volume', amount: '+25 ETB', positive: true },
     ],
   },
+  // Slide 6: Russia-Ukraine ceasefire agreement
+  {
+    id: 'russia-ukraine-ceasefire',
+    category: 'Geopolitics',
+    subcategory: 'Eastern Europe',
+    title: 'Russia-Ukraine ceasefire agreement by December 31, 2027?',
+    chanceBadge: '35% chance',
+    volume: '52M ETB Vol',
+    chartType: 'line',
+    resolutionDate: 'Ends Dec 31, 2027',
+    prevSlideLabel: 'China-Taiwan',
+    nextSlideLabel: 'Ethiopian Coffee Export',
+    outcomes: [
+      { name: 'Yes', probability: 35, color: '#10b981', yesPrice: 35, noPrice: 65, side: 'yes' },
+      { name: 'No', probability: 65, color: '#ef4444', yesPrice: 65, noPrice: 35, side: 'no' },
+    ],
+    commentsTicker: [
+      { user: 'KievWatch', text: 'Diplomatic signals from both sides suggest negotiations heating up', amount: '+120 ETB', positive: true },
+      { user: 'MoscowDesk', text: 'Winter offensive makes ceasefire unlikely before 2027', amount: '+34 ETB', positive: true },
+      { user: 'PeaceObserver', text: 'Trump envoy talks scheduled for October could change odds', amount: '+210 ETB', positive: true },
+    ],
+  },
+  // Slide 7: Ethiopian Coffee Export Revenue
+  {
+    id: 'pm-eth-coffee-export',
+    category: 'Agriculture',
+    subcategory: 'Ethiopia · Coffee',
+    title: 'Ethiopian coffee export revenue exceeds 1.8 ETB Billion in fiscal year 2025/26?',
+    chanceBadge: '72% chance',
+    volume: '14.1M ETB Vol',
+    chartType: 'line',
+    resolutionDate: 'Ends Jun 30, 2026',
+    prevSlideLabel: 'Russia-Ukraine',
+    nextSlideLabel: 'Addis Ababa',
+    outcomes: [
+      { name: 'Yes', probability: 72, color: '#10b981', yesPrice: 72, noPrice: 28, side: 'yes' },
+      { name: 'No', probability: 28, color: '#ef4444', yesPrice: 28, noPrice: 72, side: 'no' },
+    ],
+    commentsTicker: [
+      { user: 'CoffeeWatch', text: 'Record harvest season pushing exports above target', amount: '+85 ETB', positive: true },
+      { user: 'AddisTrader', text: 'Global coffee prices remain strong supporting revenue', amount: '+42 ETB', positive: true },
+      { user: 'BeanCounter', text: 'Shipping delays could impact final tally', amount: '+12 ETB', positive: true },
+    ],
+  },
 ];
 
-// 2. Combos Live Matches & Sports (From 00:20 - 00:30 in the video)
-export interface CombosSportCategory {
-  id: string;
-  name: string;
-  count: number;
-  icon?: string;
-}
-
-export const COMBOS_SPORTS_CATEGORIES: CombosSportCategory[] = [
-  { id: 'all', name: 'All', count: 409 },
-  { id: 'nfl', name: 'NFL', count: 4 },
-  { id: 'mlb', name: 'MLB', count: 6 },
-  { id: 'college_football', name: 'College Football', count: 4 },
-  { id: 'ufc', name: 'UFC', count: 4 },
-  { id: 'soccer', name: 'Soccer', count: 312 },
-  { id: 'tennis', name: 'Tennis', count: 27 },
-  { id: 'cricket', name: 'Cricket', count: 25 },
-  { id: 'basketball', name: 'Basketball', count: 4 },
-  { id: 'pickleball', name: 'Pickleball', count: 2 },
-  { id: 'esports', name: 'Esports', count: 27 },
-];
+// 2. Combos Live Matches & Sports (From 00:20 - 00:30 in the video) -- all sport/esport matches removed
 
 export interface CombosLiveMatch {
   id: string;
@@ -276,80 +292,7 @@ export interface CombosLiveMatch {
   total: { label1: string; odds1: string; label2: string; odds2: string };
 }
 
-export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [
-  {
-    id: 'cs2-spirit-mouz',
-    sport: 'Esports',
-    league: 'CS2 · BLAST Open',
-    volume: '4.4M ETB Vol',
-    status: '4/5 Esports',
-    team1: { name: 'Spirit', score: 5, badge: 'TS' },
-    team2: { name: 'MOUZ', score: 1, badge: 'MOUZ' },
-    moneyline: { team1Odds: '1.15X', team2Odds: '7.14X' },
-    spread: { label1: 'TS7 -1.5', odds1: '78%', label2: 'MOUZ +1.5', odds2: '16%' },
-    total: { label1: 'O 4.5', odds1: '0.84', label2: 'U 4.5', odds2: '72%' },
-  },
-  {
-    id: 'cs2-bounty-imperial',
-    sport: 'Esports',
-    league: 'CS2 · CCT South America',
-    volume: '12.9K ETB Vol',
-    status: '3/3 Esports',
-    team1: { name: 'Bounty Hunte...', score: 5, badge: 'BHE' },
-    team2: { name: 'Imperial', score: 4, badge: 'IMP' },
-    moneyline: { team1Odds: '2.27X', team2Odds: '1000.00X' },
-    spread: { label1: 'BHE +1.5', odds1: '99.9%', label2: 'IMP11 -1.5', odds2: '0.1%' },
-    total: { label1: 'O 2.5', odds1: '0.84', label2: 'U 2.5', odds2: '0.16' },
-  },
-  {
-    id: 'lol-karmin-furia',
-    sport: 'Esports',
-    league: 'LoL · CBLOL',
-    volume: '24.9K ETB Vol',
-    status: 'Game 2 of 5 Esports',
-    team1: { name: 'Karmin Corp', score: 4, badge: 'KC' },
-    team2: { name: 'FURIA', score: 1, badge: 'FUR' },
-    moneyline: { team1Odds: '3.13X', team2Odds: '29.41X' },
-    spread: { label1: 'KC', odds1: '32%', label2: 'FUR -1.5', odds2: '1.25', },
-    total: { label1: 'KC', odds1: '+2.5', label2: 'RED +1.5', odds2: '49%' },
-  },
-  {
-    id: 'mlb-brewers-reds',
-    sport: 'MLB',
-    league: 'MLB',
-    volume: '938.1K ETB Vol',
-    status: 'Bot 4th',
-    team1: { name: 'Brewers (88-55)', score: 'MIL' },
-    team2: { name: 'Reds (68-74)', score: 'CIN' },
-    moneyline: { team1Odds: 'MIL 15%', team2Odds: 'CIN 86%' },
-    spread: { label1: 'MIL +3.5', odds1: '66%', label2: 'CIN -3.5', odds2: '36%' },
-    total: { label1: 'O 11.5', odds1: '52%', label2: 'U 11.5', odds2: '48%' },
-  },
-  {
-    id: 'mlb-braves-phillies',
-    sport: 'MLB',
-    league: 'MLB',
-    volume: '97.34K ETB Vol',
-    status: 'Mid 2nd',
-    team1: { name: 'Braves (84-58)', score: 'ATL' },
-    team2: { name: 'Phillies (80-62)', score: 'PHI' },
-    moneyline: { team1Odds: 'ATL 30%', team2Odds: 'PHI 80%' },
-    spread: { label1: 'ATL +1.5', odds1: '77%', label2: 'PHI -1.5', odds2: '65%' },
-    total: { label1: 'O 8.5', odds1: '35%', label2: 'U 8.5', odds2: '71%' },
-  },
-  {
-    id: 'mlb-redsox-orioles',
-    sport: 'MLB',
-    league: 'MLB',
-    volume: '608.6K ETB Vol',
-    status: 'Bot 2nd',
-    team1: { name: 'Red Sox (70-65)', score: 'BOS' },
-    team2: { name: 'Orioles (69-74)', score: 'BAL' },
-    moneyline: { team1Odds: 'BOS 74%', team2Odds: 'BAL 25%' },
-    spread: { label1: 'BOS -2.5', odds1: '47%', label2: 'BAL +2.5', odds2: '54%' },
-    total: { label1: 'O 9.5', odds1: '55%', label2: 'U 9.5', odds2: '46%' },
-  },
-];
+export const COMBOS_LIVE_MATCHES: CombosLiveMatch[] = [];
 
 // 3. Perps Tokens List (From 00:31 - 00:35 in the video)
 export interface PerpToken {
@@ -362,24 +305,25 @@ export interface PerpToken {
   isLive: boolean;
   category: 'Crypto' | 'Stocks' | 'Commodities' | 'Indices';
   logoBg: string;
+  logoUrl?: string;
 }
 
 export const PERP_TOKENS: PerpToken[] = [
   { symbol: 'PUMP', price: '0.003852 ETB', change: '-0.000180 ETB (4.46%)', positive: false, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#10b981' },
-  { symbol: 'ZEC', price: '1,213.3 ETB', change: '+170.19 ETB (17.39%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#f59e0b' },
+  { symbol: 'ZEC', price: '1,213.3 ETB', change: '+170.19 ETB (17.39%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#f59e0b', logoUrl: '/zcacrypot.jpg' },
   { symbol: 'FARTCOIN', price: '0.18298 ETB', change: '-0.015213 ETB (7.10%)', positive: false, volume: '2M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#8b5cf6' },
   { symbol: 'KSHIB', price: '0.005433 ETB', change: '-0.000109 ETB (1.71%)', positive: false, volume: '2M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#ef4444' },
-  { symbol: 'BTC', price: '79,785 ETB', change: '+174.00 ETB (0.21%)', positive: true, volume: '2M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#f59e0b' },
+  { symbol: 'BTC', price: '79,785 ETB', change: '+174.00 ETB (0.21%)', positive: true, volume: '2M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#f59e0b', logoUrl: '/bitcoincrypot.jpg' },
   { symbol: 'ZRO', price: '1.0956 ETB', change: '+0.0303 ETB (2.84%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#3b82f6' },
-  { symbol: 'SOL', price: '106.41 ETB', change: '+2.52 ETB (2.43%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#14b8a6' },
+  { symbol: 'SOL', price: '106.41 ETB', change: '+2.52 ETB (2.43%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#14b8a6', logoUrl: '/solcrypot.jpg' },
   { symbol: 'LIT', price: '4.6786 ETB', change: '-0.0919 ETB (1.96%)', positive: false, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#6366f1' },
   { symbol: 'NEAR', price: '2.3776 ETB', change: '+0.1400 ETB (6.26%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#06b6d4' },
-  { symbol: 'ETH', price: '2,492.5 ETB', change: '+14.50 ETB (0.58%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#627eea' },
-  { symbol: 'HYPE', price: '87.89 ETB', change: '+2.374 ETB (2.78%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#ec4899' },
+  { symbol: 'ETH', price: '2,492.5 ETB', change: '+14.50 ETB (0.58%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#627eea', logoUrl: '/ETHcoincrypot.jpg' },
+  { symbol: 'HYPE', price: '87.89 ETB', change: '+2.374 ETB (2.78%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#ec4899', logoUrl: '/hypecrypot.jpg' },
   { symbol: 'CRCL', price: '104.04 ETB', change: '+2.29 ETB (2.25%)', positive: true, volume: '1M ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#38bdf8' },
   { symbol: 'MSTR', price: '143.81 ETB', change: '+0.12 ETB (0.08%)', positive: true, volume: '961K ETB Vol.', isLive: true, category: 'Stocks', logoBg: '#dc2626' },
   { symbol: 'COIN', price: '185.74 ETB', change: '-0.16 ETB (0.08%)', positive: false, volume: '888K ETB Vol.', isLive: true, category: 'Stocks', logoBg: '#0284c7' },
-  { symbol: 'DOGE', price: '0.089112 ETB', change: '-0.000349 ETB (0.39%)', positive: false, volume: '800K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#eab308' },
+  { symbol: 'DOGE', price: '0.089112 ETB', change: '-0.000349 ETB (0.39%)', positive: false, volume: '800K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#eab308', logoUrl: '/dogecrypot.jpg' },
   { symbol: 'TAO', price: '259.21 ETB', change: '+24.72 ETB (10.54%)', positive: true, volume: '771K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#10b981' },
   { symbol: 'SUI', price: '0.79772 ETB', change: '+0.06126 ETB (7.68%)', positive: true, volume: '768K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#0ea5e9' },
   { symbol: 'ADA', price: '0.21886 ETB', change: '-0.00248 ETB (1.12%)', positive: false, volume: '677K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#2563eb' },
@@ -387,7 +331,7 @@ export const PERP_TOKENS: PerpToken[] = [
   { symbol: 'GOLD', price: '4,430.8 ETB', change: '-7.10 ETB (0.16%)', positive: false, volume: '651K ETB Vol.', isLive: true, category: 'Commodities', logoBg: '#fbbf24' },
   { symbol: 'ONDO', price: '0.37825 ETB', change: '-0.00980 ETB (2.66%)', positive: false, volume: '604K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#475569' },
   { symbol: 'SKHY', price: '176.35 ETB', change: '-0.45 ETB (0.26%)', positive: false, volume: '601K ETB Vol.', isLive: true, category: 'Stocks', logoBg: '#059669' },
-  { symbol: 'BNB', price: '747.98 ETB', change: '+29.80 ETB (4.04%)', positive: true, volume: '587K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#f59e0b' },
+  { symbol: 'BNB', price: '747.98 ETB', change: '+29.80 ETB (4.04%)', positive: true, volume: '587K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#f59e0b', logoUrl: '/bnbcrypot.jpg' },
   { symbol: 'UNI', price: '7.1896 ETB', change: '+0.2665 ETB (3.71%)', positive: true, volume: '565K ETB Vol.', isLive: true, category: 'Crypto', logoBg: '#ff007a' },
 ];
 
@@ -410,14 +354,13 @@ export const BREAKING_NEWS_ITEMS: BreakingNewsItem[] = [
   { rank: 4, title: 'OpenAI announces AGI achievement before 2027?', probability: 15, change: '+3%', isUp: true, category: 'Tech', badge: 'AI' },
   { rank: 5, title: 'Ethiopia Birr (USD/ETB) exceeds 150 before end of 2026?', probability: 64, change: '+7%', isUp: true, category: 'Economy', badge: 'Forex' },
   { rank: 6, title: 'Sudan civil war ceasefire agreed before end of 2026?', probability: 28, change: '-4%', isUp: false, category: 'World', badge: 'Sudan' },
-  { rank: 7, title: 'Clarity Act (H.R.3633) crypto bill signed into law in 2026?', probability: 16, change: '+2%', isUp: true, category: 'Crypto', badge: 'Regulation' },
+
   { rank: 8, title: 'Ethiopia becomes top 3 Bitcoin mining hub in Africa by Q4 2026?', probability: 78, change: '+6%', isUp: true, category: 'Crypto', badge: 'Mining' },
-  { rank: 9, title: 'Ethiopian coffee export revenue exceeds 1.8 ETB Billion in FY 2025/26?', probability: 72, change: '+4%', isUp: true, category: 'Economy', badge: 'Coffee' },
+  { rank: 9, title: 'Ethiopian coffee export revenue exceeds 1.8 ETB Billion in FY 2025/26?', probability: 72, change: '+3.8%', isUp: true, category: 'Economy', badge: 'Coffee' },
   { rank: 10, title: '2026 Ethiopian General Election voter turnout exceeds 40 Million?', probability: 68, change: '+9%', isUp: true, category: 'Politics', badge: 'Election' },
-  { rank: 11, title: 'Russia-Ukraine ceasefire by end of 2026?', probability: 22, change: '-3%', isUp: false, category: 'World', badge: 'Conflict' },
-  { rank: 12, title: 'Ethiopia-Eritrea border normalization before 2027?', probability: 18, change: '+1%', isUp: true, category: 'Geopolitics', badge: 'Horn' },
-  { rank: 13, title: 'Ethiopian Securities Exchange lists 5+ IPOs in 2026?', probability: 79, change: '+5%', isUp: true, category: 'Economy', badge: 'ESX' },
-  { rank: 14, title: 'Addis Ababa becomes federally administered city before 2029?', probability: 26, change: '+2%', isUp: true, category: 'Politics', badge: 'Charter' },
+  { rank: 11, title: 'Ethiopia-Eritrea border normalization before 2027?', probability: 18, change: '+1%', isUp: true, category: 'Geopolitics', badge: 'Horn' },
+  { rank: 12, title: 'Ethiopian Securities Exchange lists 5+ IPOs in 2026?', probability: 79, change: '+5%', isUp: true, category: 'Economy', badge: 'ESX' },
+  { rank: 13, title: 'Addis Ababa becomes federally administered city before 2029?', probability: 26, change: '+2%', isUp: true, category: 'Politics', badge: 'Charter' },
 ];
 
 // 5. Mention Polymarkets (From 01:57 - 02:04 in the video)
@@ -433,30 +376,8 @@ export interface MentionEvent {
 }
 
 export const MENTION_EVENTS: MentionEvent[] = [
-  {
-    id: 'mention-allin-sep4',
-    day: '4',
-    month: 'Sep',
-    timeInfo: 'Fri, 11:00 PM · LIVE 4,244 ETB Vol.',
-    title: 'What will be said on the next All-In Podcast? [September 4]',
-    options: [
-      { label: 'AI 50+ times' },
-      { label: 'Hundred / Thousand / Million 10+ times' },
-    ],
-    moreCount: 9,
-  },
-  {
-    id: 'mention-trump-sep6',
-    day: '6',
-    month: 'Sep',
-    timeInfo: 'Sun, 11:00 PM · 12,343 ETB Vol.',
-    title: 'What will Trump say this week? (August 31 - September 6)',
-    options: [
-      { label: '11,888' },
-      { label: 'Droneport' },
-    ],
-    moreCount: 21,
-  },
+ 
+  
   {
     id: 'mention-elon-sep6',
     day: '6',
@@ -481,30 +402,8 @@ export const MENTION_EVENTS: MentionEvent[] = [
     ],
     moreCount: 8,
   },
-  {
-    id: 'mention-bigbrother-sep7',
-    day: '7',
-    month: 'Sep',
-    timeInfo: 'Mon, 1:00 AM · + NEW',
-    title: 'What will be said during Episode 30 of Big Brother?',
-    options: [
-      { label: 'Veto 5+ times' },
-      { label: 'Surprise' },
-    ],
-    moreCount: 12,
-  },
-  {
-    id: 'mention-curtis-sep7',
-    day: '7',
-    month: 'Sep',
-    timeInfo: 'Mon, 1:00 AM · + NEW',
-    title: 'What will be said during the seventh episode of President Curtis: Season 1?',
-    options: [
-      { label: 'President 10+ times' },
-      { label: 'Agent 5+ times' },
-    ],
-    moreCount: 12,
-  },
+
+  
   {
     id: 'mention-steel-sep8',
     day: '8',
@@ -517,18 +416,7 @@ export const MENTION_EVENTS: MentionEvent[] = [
     ],
     moreCount: 18,
   },
-  {
-    id: 'mention-rogan-sep8',
-    day: '8',
-    month: 'Sep',
-    timeInfo: 'Tue, 5:00 PM · + NEW',
-    title: 'What will be said on the first Joe Rogan Experience episode of the week? [September 7]',
-    options: [
-      { label: 'People 200+ times' },
-      { label: 'People 100+ times' },
-    ],
-    moreCount: 15,
-  },
+
 ];
 
 // 6. Weather Forecast Markets (From 01:49 - 01:56 in the video)
@@ -781,18 +669,7 @@ export const WEATHER_EVENT_MARKETS: WeatherEventMarket[] = [
     endsDate: 'Jan 15, 2027',
     description: 'Resolves according to the NOAA National Centers for Environmental Information and Copernicus Climate Change Service annual consensus report.',
   },
-  {
-    id: 'weath-lanina-q4',
-    category: 'Global',
-    title: 'NOAA officially confirms La Niña conditions through December 2026?',
-    region: 'Pacific / Horn of Africa',
-    volume: '14.9M ETB Vol.',
-    chance: 72,
-    yesPrice: 72,
-    noPrice: 28,
-    endsDate: 'Dec 31, 2026',
-    description: 'Based on the Climate Prediction Center Oceanic Niño Index (ONI) running 3-month average of Sea Surface Temperatures.',
-  },
+ 
   {
     id: 'weath-atlantic-named-hurricanes',
     category: 'Hurricanes',
@@ -880,21 +757,12 @@ export interface ArtMarketCard {
 export const ART_MARKETS: ArtMarketCard[] = [
   {
     id: 'art-banksy-ig',
-    title: 'Will Banksy post to Instagram by September 30?',
+    title: 'Will Adonai Berhane post to Instagram by September 30?',
     chance: '20% chance',
     volume: '13K ETB Vol.',
     partnerBadge: 'Asked by Masterworks',
   },
-  {
-    id: 'art-turner-prize-2026',
-    title: 'Turner Prize 2026 Winner',
-    volume: '13K ETB Vol.',
-    partnerBadge: 'Asked by Masterworks',
-    options: [
-      { name: 'Tanoa Sasraku', probability: 31, yesPrice: 31, noPrice: 69 },
-      { name: 'Kira Freije', probability: 27, yesPrice: 27, noPrice: 73 },
-    ],
-  },
+
   {
     id: 'art-market-65b',
     title: 'Will global art market sales hit 65 ETB billion for 2026?',

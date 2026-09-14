@@ -12,7 +12,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react';
-import { HERO_CAROUSEL_SLIDES, HeroSlideItem } from '../../data/polymarketExtendedData';
+import { HERO_CAROUSEL_SLIDES, HeroSlideItem, heroSlideLogoUrl } from '../../data/polymarketExtendedData';
 import { PolymarketTradeState, PolymarketMarket } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
 import { getRealisticChartForMarket } from '../../services/polymarketChartProfiles';
@@ -240,9 +240,22 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
                 )}
               </div>
 
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-                <span>{translateMarketTitle(slide.title, language)}</span>
-              </h1>
+              <div className="flex items-center gap-3">
+                {heroSlideLogoUrl[slide.id] ? (
+                  <img
+                    src={heroSlideLogoUrl[slide.id]}
+                    alt={slide.title}
+                    className="w-10 h-10 rounded-xl object-contain bg-[#0b111c] border border-[#222c3e] shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-lg shrink-0">
+                    {slide.category[0]}
+                  </div>
+                )}
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                  {translateMarketTitle(slide.title, language)}
+                </h1>
+              </div>
             </div>
 
             {/* Right: Actions (Embed, Link, Bookmark) */}
@@ -268,42 +281,7 @@ export const PolymarketHeroCard: React.FC<PolymarketHeroCardProps> = ({
 
           {/* Outcome Bars / Buttons Row */}
           <div className="mt-4">
-            {slide.id === 'clarity-act' ? (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() =>
-                    onSelectOutcome({
-                      marketId: slide.id,
-                      outcomeName: 'Yes',
-                      price: 16,
-                      side: 'yes',
-                    })
-                  }
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
-                >
-                  <span>{translateOutcomeName('Yes', language)} 16%</span>
-                  <span className="text-xs text-emerald-300 font-normal">
-                    16% {language === 'am' ? 'ዕድል' : 'chance'}
-                  </span>
-                </button>
-                <button
-                  onClick={() =>
-                    onSelectOutcome({
-                      marketId: slide.id,
-                      outcomeName: 'No',
-                      price: 84,
-                      side: 'no',
-                    })
-                  }
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 font-bold text-sm flex items-center justify-between transition-colors cursor-pointer"
-                >
-                  <span>{translateOutcomeName('No', language)} 84%</span>
-                  <span className="text-xs text-red-300 font-normal">
-                    84% {language === 'am' ? 'ዕድል' : 'chance'}
-                  </span>
-                </button>
-              </div>
-            ) : slide.id === 'btc-up-down' ? (
+            {slide.id === 'btc-up-down' ? (
               <div className="flex items-center gap-3">
                 <div className="flex-1 p-3 rounded-xl bg-[#141b27] border border-[#222d3d] flex items-center justify-between">
                   <div>

@@ -47,7 +47,11 @@ export interface PolymarketMarket {
   iconType?: string;
   iconBg?: string;
   imageUrl?: string;
+  logoUrl?: string;
   avatarUrl?: string;
+  logoFallbackType?: string;
+  /** Derived official logo catalog mapping (marketId -> logoUrl). */
+  logoCatalog?: Record<string, string>;
   countryFlag?: string;
   volume: string;
   displayType:

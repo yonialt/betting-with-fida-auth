@@ -21,8 +21,7 @@ interface PolymarketEthiopiaViewProps {
 
 export interface EthiopianMarketItem {
   id: string;
-  title: string;
-  category: 'Politics' | 'Sports' | 'Economy' | 'Tech' | 'Culture' | 'Weather' | 'Crypto' | 'Education';
+  title: string;    category: 'Politics' | 'Economy' | 'Tech' | 'Culture' | 'Weather' | 'Crypto' | 'Education';
   categoryLabel: string;
   volume: string;
   chance: number;
@@ -75,6 +74,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     endsDate: 'Dec 31, 2026',
     isHot: true,
     featured: true,
+    imageUrl: '/pm-eth-gerd-capacity.jpg',
     description: 'Resolves to Yes if Ethiopian Electric Power certifies all 13 turbines are operational and reaching full 5,150 MW capacity.',
     outcomes: [
       { name: 'Yes', probability: 89, yesPrice: 89, noPrice: 11 },
@@ -91,30 +91,14 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     chance: 74,
     endsDate: 'Dec 31, 2026',
     isHot: true,
+    imageUrl: '/pm-eth-redsea .jpg',
     description: 'Resolves to Yes if a ratified sovereign port access or naval leasing treaty is executed by the Ethiopian federal government.',
     outcomes: [
       { name: 'Yes', probability: 74, yesPrice: 74, noPrice: 26 },
       { name: 'No', probability: 26, yesPrice: 26, noPrice: 74 },
     ],
   },
-  // 4. Sports: Ethiopian Premier League Champion
-  {
-    id: 'pm-eth-premier-league',
-    title: 'Ethiopian Premier League Champion 2025/2026?',
-    category: 'Sports',
-    categoryLabel: 'Football / Soccer',
-    volume: '12.5M ETB Vol.',
-    chance: 46,
-    endsDate: 'Jun 20, 2026',
-    isHot: true,
-    description: 'Resolves to the official champion of the Ethiopian Premier League (BetKing EPL) crowned by the Ethiopian Football Federation.',
-    outcomes: [
-      { name: 'CBE SA (ኢትዮጵያ ንግድ ባንክ)', probability: 46, yesPrice: 46, noPrice: 54 },
-      { name: 'Saint George SC (ቅዱስ ጊዮርጊስ)', probability: 32, yesPrice: 32, noPrice: 68 },
-      { name: 'Fasil Kenema (ፋሲል ከነማ)', probability: 14, yesPrice: 14, noPrice: 86 },
-      { name: 'Defense Force SC (መከላከያ)', probability: 8, yesPrice: 8, noPrice: 92 },
-    ],
-  },
+
   // 5. Economy: NBE Official Birr Rate
   {
     id: 'pm-eth-birr-fx',
@@ -125,6 +109,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     chance: 64,
     endsDate: 'Dec 31, 2026',
     isHot: true,
+    imageUrl: '/pm-eth-birr-fx .jpg',
     description: 'Resolves to Yes if the official indicative selling rate published by the National Bank of Ethiopia reaches 150.00 ETB/USD.',
     outcomes: [
       { name: 'Yes', probability: 64, yesPrice: 64, noPrice: 36 },
@@ -141,6 +126,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     chance: 78,
     endsDate: 'Nov 30, 2026',
     isHot: true,
+    imageUrl: '/pm-eth-bitcoin-minings.png',
     description: 'Based on Cambridge Centre for Alternative Finance and Hashrate Index reports verifying contracted mining capacity with Ethiopian Electric Power.',
     outcomes: [
       { name: 'Yes', probability: 78, yesPrice: 78, noPrice: 22 },
@@ -162,21 +148,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
       { name: 'No', probability: 18, yesPrice: 18, noPrice: 82 },
     ],
   },
-  // 8. Sports: World Athletics Marathon Gold
-  {
-    id: 'pm-eth-marathon-gold',
-    title: 'Ethiopian athlete wins Gold in 2026 World Athletics Championships Marathon?',
-    category: 'Sports',
-    categoryLabel: 'Athletics & Track',
-    volume: '8.9M ETB Vol.',
-    chance: 88,
-    endsDate: 'Sep 21, 2026',
-    description: 'Resolves to Yes if any athlete competing under the Ethiopian flag wins either Men or Women Marathon gold medal.',
-    outcomes: [
-      { name: 'Yes', probability: 88, yesPrice: 88, noPrice: 12 },
-      { name: 'No', probability: 12, yesPrice: 12, noPrice: 88 },
-    ],
-  },
+
   // 9. Tech: Fayda Digital ID 50M
   {
     id: 'pm-eth-fayda-50m',
@@ -201,6 +173,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     volume: '14.1M ETB Vol.',
     chance: 72,
     endsDate: 'Jul 30, 2026',
+    imageUrl: '/pm-eth-coffee-export .jpg',
     description: 'Resolves to Yes if the Ethiopian Coffee and Tea Authority reports total export receipts above USD 1.80 Billion.',
     outcomes: [
       { name: 'Yes', probability: 72, yesPrice: 72, noPrice: 28 },
@@ -247,6 +220,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     volume: '3.4M ETB Vol.',
     chance: 48,
     endsDate: 'Feb 28, 2027',
+    imageUrl: '/pm-eth-weather-addis-temp.jpg',
     description: 'Resolves to Yes if Bole International Airport METAR meteorological station logs an official peak temperature equal to or exceeding 28.5°C.',
     outcomes: [
       { name: 'Yes', probability: 48, yesPrice: 48, noPrice: 52 },
@@ -355,6 +329,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     chance: 79,
     endsDate: 'Dec 31, 2026',
     isHot: true,
+    imageUrl: '/pm-eth-esx-ipos .png',
     description: 'Resolves to Yes if ESX officially commences secondary trading for at least 5 distinct equity issues before end of 2026.',
     outcomes: [
       { name: 'Yes', probability: 79, yesPrice: 79, noPrice: 21 },
@@ -391,37 +366,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
       { name: 'No', probability: 48, yesPrice: 48, noPrice: 52 },
     ],
   },
-  // 23. Sports: World Athletics Medal Table Top 5
-  {
-    id: 'pm-eth-world-athletics-top5',
-    title: 'Ethiopia finishes in Top 5 of overall medal table at 2026 World Athletics Championships?',
-    category: 'Sports',
-    categoryLabel: 'World Athletics & Medals',
-    volume: '14.6M ETB Vol.',
-    chance: 82,
-    endsDate: 'Sep 21, 2026',
-    isHot: true,
-    description: 'Resolves based on official World Athletics final medal standings (ranked by Gold medals won).',
-    outcomes: [
-      { name: 'Yes', probability: 82, yesPrice: 82, noPrice: 18 },
-      { name: 'No', probability: 18, yesPrice: 18, noPrice: 82 },
-    ],
-  },
-  // 24. Sports: World Half Marathon Record
-  {
-    id: 'pm-eth-half-marathon-wr',
-    title: 'Ethiopian runner breaks Men or Women World Half Marathon record in 2026?',
-    category: 'Sports',
-    categoryLabel: 'World Records & Distance Running',
-    volume: '6.7M ETB Vol.',
-    chance: 64,
-    endsDate: 'Dec 31, 2026',
-    description: 'Resolves to Yes if World Athletics ratifies any new half marathon world record set by a runner competing for Ethiopia.',
-    outcomes: [
-      { name: 'Yes', probability: 64, yesPrice: 64, noPrice: 36 },
-      { name: 'No', probability: 36, yesPrice: 36, noPrice: 64 },
-    ],
-  },
+
   // 25. Culture: Ethiopian Airlines 16M Passengers
   {
     id: 'pm-eth-ethiopian-airlines-passengers',
@@ -692,36 +637,19 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
   // ===================== Requested markets · 2029 horizon =====================
   {
     id: 'pm-eth-q-addis-legal-status',
-    title: 'Will Addis Ababa’s legal administrative status officially change before January 1, 2029?',
+    title: "Will Addis Ababa's legal administrative status officially change before January 1, 2029?",
+    imageUrl: '/pm-eth-q-addis-legal-status .jpg',
     category: 'Politics',
     categoryLabel: 'Addis Ababa · Legal Status',
     volume: '14.7M ETB Vol.',
     chance: 38,
     endsDate: 'Jan 1, 2029',
-    isHot: true,
     icon: '🏙️',
     accent: '#4f46e5',
     description: 'Resolves to Yes if a federal proclamation, constitutional amendment, or court ruling officially alters the legal administrative status of Addis Ababa before January 1, 2029.',
     outcomes: [
       { name: 'Yes', probability: 38, yesPrice: 38, noPrice: 62 },
       { name: 'No', probability: 62, yesPrice: 62, noPrice: 38 },
-    ],
-  },
-  {
-    id: 'pm-eth-q-addis-federal-city',
-    title: 'Will Addis Ababa officially become a federally administered city before January 1, 2029?',
-    category: 'Politics',
-    categoryLabel: 'Addis Ababa · Federal Status',
-    volume: '18.2M ETB Vol.',
-    chance: 26,
-    endsDate: 'Jan 1, 2029',
-    isHot: true,
-    icon: '🏛️',
-    accent: '#4f46e5',
-    description: 'Resolves to Yes if federal legislation formally designates Addis Ababa as a federally administered city (chartered directly under the federal government) before January 1, 2029.',
-    outcomes: [
-      { name: 'Yes', probability: 26, yesPrice: 26, noPrice: 74 },
-      { name: 'No', probability: 74, yesPrice: 74, noPrice: 26 },
     ],
   },
   {
@@ -765,6 +693,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     chance: 41,
     endsDate: 'Jan 1, 2029',
     isHot: true,
+    imageUrl: '/offical logos/id  pm-eth-q-constitution-2029 .png',
     icon: '📜',
     accent: '#f59e0b',
     description: 'Resolves to Yes if a constitutional amendment is ratified, or a new constitution is adopted, through the official process before January 1, 2029.',
@@ -845,7 +774,6 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
 const CATEGORY_EMBLEM: Record<string, { icon: string; accent: string }> = {
   Politics: { icon: '🏛️', accent: '#4f46e5' },
   Weather: { icon: '☁️', accent: '#0ea5e9' },
-  Sports: { icon: '🏅', accent: '#f59e0b' },
   Economy: { icon: '💹', accent: '#10b981' },
   Tech: { icon: '⚡', accent: '#8b5cf6' },
   Culture: { icon: '🌿', accent: '#14b8a6' },
@@ -926,8 +854,6 @@ export const PolymarketEthiopiaView: React.FC<PolymarketEthiopiaViewProps> = ({
   const [selectedSubcat, setSelectedSubcat] = useState<string>('All');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
-  const [sortBy, setSortBy] = useState<'volume' | 'chance' | 'hot'>('hot');
-
   const toggleBookmark = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const next = new Set(bookmarkedIds);
@@ -939,7 +865,6 @@ export const PolymarketEthiopiaView: React.FC<PolymarketEthiopiaViewProps> = ({
   const subcategories = [
     { id: 'All', label: 'All 🇪🇹', count: ETHIOPIAN_MARKETS_DATA.length },
     { id: 'Politics', label: 'Politics & Diplomacy', count: ETHIOPIAN_MARKETS_DATA.filter((m) => m.category === 'Politics').length },
-    { id: 'Sports', label: 'Sports & Athletics', count: ETHIOPIAN_MARKETS_DATA.filter((m) => m.category === 'Sports').length },
     { id: 'Economy', label: 'Economy & Finance', count: ETHIOPIAN_MARKETS_DATA.filter((m) => m.category === 'Economy').length },
     { id: 'Crypto', label: 'Crypto & Mining', count: ETHIOPIAN_MARKETS_DATA.filter((m) => m.category === 'Crypto').length },
     { id: 'Tech', label: 'Energy & Infrastructure', count: ETHIOPIAN_MARKETS_DATA.filter((m) => m.category === 'Tech').length },
@@ -961,17 +886,6 @@ export const PolymarketEthiopiaView: React.FC<PolymarketEthiopiaViewProps> = ({
       if (!match) return false;
     }
     return true;
-  }).sort((a, b) => {
-    if (sortBy === 'volume') {
-      const vA = parseFloat(a.volume.replace(/[^0-9.]/g, '')) || 0;
-      const vB = parseFloat(b.volume.replace(/[^0-9.]/g, '')) || 0;
-      return vB - vA;
-    }
-    if (sortBy === 'chance') {
-      return b.chance - a.chance;
-    }
-    // 'hot'
-    return (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0);
   });
 
   const handleCardClick = (market: EthiopianMarketItem) => {
@@ -998,58 +912,6 @@ export const PolymarketEthiopiaView: React.FC<PolymarketEthiopiaViewProps> = ({
 
   return (
     <div className="w-full space-y-6">
-      {/* 1. Hero Spotlight: Ethiopia Prediction Markets Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-[#0d1726] via-[#101b2b] to-[#0a121e] border border-[#1d2b3f] p-6 sm:p-8 relative overflow-hidden shadow-xl">
-        {/* Decorative Flag Accents in Background */}
-        <div className="absolute top-0 right-0 w-96 h-full opacity-10 pointer-events-none flex">
-          <div className="w-1/3 bg-emerald-500 h-full blur-2xl" />
-          <div className="w-1/3 bg-yellow-400 h-full blur-2xl" />
-          <div className="w-1/3 bg-red-500 h-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 max-w-3xl">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl">🇪🇹</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 text-xs font-bold font-mono tracking-wide">
-              ETHIOPIA PREDICTION MARKETS
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-mono">
-              ● REAL-TIME ODDS
-            </span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-            Trade on Ethiopia's Defining Moments
-          </h1>
-          <p className="mt-2 text-sm text-neutral-300 leading-relaxed">
-            Live oracle prediction markets spanning Ethiopian politics, the national elections, Premier League football, GERD megaproject milestones, Birr foreign exchange, and green Bitcoin energy.
-          </p>
-
-          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5 text-neutral-300">
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-              <span>
-                Total Volume:{' '}
-                <strong className="text-white font-mono">480M ETB+</strong>
-              </span>
-            </div>
-            <div className="h-3.5 w-px bg-neutral-700" />
-            <div className="flex items-center gap-1.5 text-neutral-300">
-              <Zap className="w-4 h-4 text-emerald-400" />
-              <span>
-                Active Markets:{' '}
-                <strong className="text-white font-mono">{ETHIOPIAN_MARKETS_DATA.length} Events</strong>
-              </span>
-            </div>
-            <div className="h-3.5 w-px bg-neutral-700" />
-            <div className="flex items-center gap-1.5 text-neutral-300">
-              <Globe2 className="w-4 h-4 text-blue-400" />
-              <span>Settlement: Smart Contract & UMA Oracle</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 2. Subcategory Filter Chips Bar */}
       <div className="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar py-1">
         <div className="flex items-center gap-2 shrink-0">
@@ -1078,19 +940,6 @@ export const PolymarketEthiopiaView: React.FC<PolymarketEthiopiaViewProps> = ({
           })}
         </div>
 
-        {/* Sort selector */}
-        <div className="flex items-center gap-1.5 shrink-0 pl-2">
-          <span className="text-xs text-neutral-400">Sort:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-[#121722] border border-[#20293a] text-xs text-neutral-200 rounded-lg px-2.5 py-1.5 outline-hidden cursor-pointer"
-          >
-            <option value="hot">🔥 Trending & Hot</option>
-            <option value="volume">💰 Volume (High to Low)</option>
-            <option value="chance">🎯 Highest Probability</option>
-          </select>
-        </div>
       </div>
 
       {/* 3. Search Bar within Ethiopia Category */}
@@ -1100,7 +949,7 @@ export const PolymarketEthiopiaView: React.FC<PolymarketEthiopiaViewProps> = ({
           type="text"
           value={searchFilter}
           onChange={(e) => setSearchFilter(e.target.value)}
-          placeholder="Search Ethiopian elections, Premier League clubs, GERD, Birr exchange, marathon..."
+          placeholder="Search Ethiopian elections, GERD, Birr exchange..."
           className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#101520] border border-[#1d2738] text-white placeholder:text-neutral-500 text-sm focus:border-blue-500 outline-hidden transition-colors"
         />
         {searchFilter && (

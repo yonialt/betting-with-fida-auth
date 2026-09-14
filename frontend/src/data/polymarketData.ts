@@ -1,5 +1,40 @@
 import { PolymarketMarket, PolymarketHotTopic, PolymarketComment } from '../types/polymarket';
 
+// Centralized official logo catalog for Polymarket cards.
+// Fill this with one official logo URL per market id. logoUrl wins over imageUrl
+// in card headers, detail page, and trade widget.
+export const marketLogoUrl: Record<string, string> = {
+  // Ethiopia view markets
+  'pm-eth-coffee-export': '/pm-eth-coffee-export .jpg',
+  'pm-eth-birr-fx': '/pm-eth-birr-fx .jpg',
+  'pm-eth-bitcoin-mining': '/pm-eth-bitcoin-minings.png',
+  'pm-eth-esx-ipos': '/pm-eth-esx-ipos .png',
+  'pm-eth-gerd-capacity': '/pm-eth-gerd-capacity.jpg',
+  'pm-eth-redsea': '/pm-eth-redsea .jpg',
+  'pm-eth-weather-addis-temp': '/pm-eth-weather-addis-temp.jpg',
+  'pm-openai-agi-2027': '/pm-openai-agi-2027.jpg',
+  'weath-atlantic-named-hurricanes': '/weath-atlantic-named-hurricanes .jpg',
+  'weath-global-2026-warmest': '/weath-global-2026-warmest .png',
+  'weather-addis-ababa': '/weather-addis-ababa .jpg',
+  'russia-ukraine-ceasefire': '/russiaxukranie.jpg',
+  'pm-eth-q-addis-legal-status': '/pm-eth-q-addis-legal-status .jpg',
+  'pm-eth-q-constitution-2029': '/offical logos/id  pm-eth-q-constitution-2029 .png',
+  'pm-eth-addis-mayor-vote': '/addis ababa city.jpg',
+  'pm-eth-au-summit-2026': '/addis ababa city.jpg',
+  'pm-eth-ruling-majority-2026': '/addis ababa city.jpg',
+  'pm-eth-lalibela-unesco': '/addis ababa city.jpg',
+  'eth-addis-federal-city': '/eth-addis-federal-city.jpg',
+  // Crypto markets
+  'pm-btc-5m': '/bitcoincrypot.jpg',
+  // Hero carousel slide logos
+  'eth-military-service': '/ethiopianmilitary.jpg',
+  'eth-red-sea-access': '/readseaport.jpg',
+  'btc-up-down': '/btcupdown.jpg',
+  'midterms-balance-power': '/weath-global-2026-warmest .png',
+  'best-ai-september': '/best-ai-september .jpg',
+  'china-taiwan-2026': '/china-taiwan-2026.jpg',
+};
+
 export interface PolymarketSearchItem {
   id: string;
   title: string;
@@ -20,16 +55,7 @@ export const POLYMARKET_SEARCH_AUTOCOMPLETE: PolymarketSearchItem[] = [
     type: 'market',
     sparkline: [45, 48, 52, 50, 48],
   },
-  {
-    id: 'pm-ethiopia-pm',
-    title: 'Next Prime Minister of Ethiopia?',
-    subtitle: 'Abiy Ahmed',
-    prob: 97,
-    date: 'December 31, 2026',
-    flag: '🇪🇹',
-    type: 'market',
-    sparkline: [95, 96, 96.5, 97, 97],
-  },
+
   {
     id: 'pm-ebola-2026',
     title: 'Which countries will have Ebola case in 2026?',
@@ -71,264 +97,31 @@ export const POLYMARKET_SEARCH_AUTOCOMPLETE: PolymarketSearchItem[] = [
   },
 ];
 
+
+
+
+  
 export const POLYMARKET_HERO: PolymarketMarket = {
-  id: 'pm-hero-fed-decision',
-  title: 'Fed Decision in September?',
-  category: 'Politics',
-  subcategory: 'Fomc',
-  iconType: 'person',
+  id: 'pm-eth-redsea',
+  title: 'Ethiopia secures official Red Sea port access accord before 2027?',
+  category: 'Crypto',
+  subcategory: '5 Min',
+  iconType: 'bitcoin',
   iconBg: '#1e293b',
-  imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=128&h=128&fit=crop',
-  volume: '99,274,089 ETB Vol. • Sep 15, 2026',
+  volume: '736 ETB Vol.',
   displayType: 'chart_hero',
   outcomes: [
-    { name: '50+ bps decrease', probability: 0.4, change: '-38%', yesPrice: 0.4, noPrice: 99.7, volume: '13,163,792 ETB Vol.' },
-    { name: '25 bps decrease', probability: 0.4, change: '-38%', yesPrice: 0.4, noPrice: 99.7, volume: '30,746,572 ETB Vol.' },
-    { name: 'No change', probability: 50, change: '-1%', yesPrice: 50, noPrice: 51, volume: '3,246,154 ETB Vol.' },
-    { name: '25 bps increase', probability: 51, change: '+23%', yesPrice: 51, noPrice: 50, volume: '18,611,811 ETB Vol.' },
-  ],
-  rulesText: "The FED interest rates are defined in this market by the upper bound of the target federal funds range. The decisions on the target federal funds range are made by the Federal Open Market Committee (FOMC) meetings. This market will resolve to the amount of basis points the upper bound of the target federal funds rate is changed by versus the level it was prior to the Federal Reserve's September 2026 meeting. If the target federal funds rate is changed to a level not expressed in the displayed options, the change will be rounded up to the nearest option.",
-  resolutionSource: 'Federal Open Market Committee (FOMC)',
-  resolverAddress: 'UMA 0x9fc47De9D...',
-  marketOpened: 'May 13, 2016, 5:10 PM ET',
-  commentsCount: 8976,
-  commentsList: [
-    {
-      id: 'c-fed-1',
-      author: 'WhaleWatch-48493',
-      timeAgo: '29m ago',
-      text: 'TheReturnOfDarthMouth holds 3,078,057.91 ETB on 25 bps decrease outcome No. Unrealized profit: 42,067.31 ETB. They turned 3,035,990.61 ETB into over 3,078,057.91 ETB.',
-      likes: 0,
-      sharesOutcome: '25 bps decrease No',
-    },
-    {
-      id: 'c-fed-2',
-      author: 'betjunkie',
-      timeAgo: '1d ago',
-      text: 'No Change is a buy below 55c',
-      likes: 0,
-    },
-    {
-      id: 'c-fed-3',
-      author: 'Hughms2000',
-      timeAgo: '2d ago',
-      text: 'Coin flip...',
-      likes: 1,
-    },
+    { name: 'Up', probability: 51, yesPrice: 51, noPrice: 49 },
+    { name: 'Down', probability: 49, yesPrice: 49, noPrice: 51 },
   ],
   chartData: {
-    labels: [
-      'Jul 1', 'Jul 8', 'Jul 15', 'Jul 22', 'Jul 29',
-      'Aug 5', 'Aug 12', 'Aug 19', 'Aug 26',
-      'Sep 2', 'Sep 9', 'Sep 15, 2026'
-    ],
+    labels: ['Jan', 'Mar', 'May', 'Jul', 'Aug', 'Sep'],
     series: [
       {
-        name: '25 bps increase',
-        color: '#38bdf8', // blue
-        currentVal: 51.0,
-        data: [30, 48, 62, 58, 65, 45, 42, 56, 49, 61, 48, 51],
-      },
-      {
-        name: 'No change',
-        color: '#f97316', // orange
-        currentVal: 50.0,
-        data: [70, 52, 38, 42, 35, 55, 58, 44, 51, 39, 52, 50],
-      },
-      {
-        name: '50+ bps increase',
-        color: '#eab308',
-        currentVal: 0.4,
-        data: [0.5, 0.4, 0.4, 0.5, 0.6, 0.4, 0.5, 0.4, 0.5, 0.4, 0.4, 0.4],
-      },
-      {
-        name: '25 bps decrease',
-        color: '#a855f7',
-        currentVal: 0.4,
-        data: [25, 4, 2, 1.5, 1.2, 0.8, 0.6, 0.5, 0.5, 0.4, 0.4, 0.4],
-      },
-    ],
-  },
-};
-
-export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
-  id: 'pm-ethiopia-pm',
-  title: 'Next Prime Minister of Ethiopia?',
-  category: 'Elections',
-  subcategory: 'Ethiopia',
-  countryFlag: '🇪🇹',
-  volume: '285,817,256 ETB Vol. • May 31, 2026',
-  displayType: 'multi_outcome',
-  commentsCount: 43,
-  outcomes: [
-    {
-      name: 'Abiy Ahmed',
-      probability: 97,
-      change: '+11%',
-      yesPrice: 97.1,
-      noPrice: 4.1,
-      volume: '142,743 ETB Vol.',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
-    },
-    {
-      name: 'Belete Molla',
-      probability: 1,
-      change: '-42%',
-      yesPrice: 0.8,
-      noPrice: 99.8,
-      volume: '32,288,756 ETB Vol.',
-    },
-    {
-      name: 'Gedion Timothewos',
-      probability: 1,
-      change: '-62%',
-      yesPrice: 1.3,
-      noPrice: 99.8,
-      volume: '15,933,718 ETB Vol.',
-    },
-    {
-      name: 'Berhanu Nega',
-      probability: 1,
-      change: '-1%',
-      yesPrice: 0.4,
-      noPrice: 99.8,
-      volume: '14,896,151 ETB Vol.',
-    },
-    {
-      name: 'Aleso Mengesho',
-      probability: 1,
-      yesPrice: 0.6,
-      noPrice: 99.6,
-      volume: '13,577,152 ETB Vol.',
-    },
-    {
-      name: 'Shimelis Abdisa',
-      probability: 1,
-      yesPrice: 0.5,
-      noPrice: 99.5,
-      volume: '41,422,322 ETB Vol.',
-    },
-    {
-      name: 'Adanech Abiebie',
-      probability: 0.4,
-      yesPrice: 0.5,
-      noPrice: 99.8,
-      volume: '89,454,616 ETB Vol.',
-    },
-    {
-      name: 'Demeke Mekonnen',
-      probability: 0.4,
-      yesPrice: 0.4,
-      noPrice: 99.9,
-      volume: '29,298,548 ETB Vol.',
-    },
-  ],
-  rulesText: 'General elections are scheduled to be held in Ethiopia on June 1, 2026. This market will resolve to the next individual who officially assumes the office of Prime Minister of Ethiopia following the 2026 General elections.',
-  resolutionSource: 'National Election Board of Ethiopia / Federal Parliamentary Assembly',
-  resolverAddress: 'UMA 0x9fc47De9D...',
-  marketOpened: 'Apr 27, 2024, 5:49 PM ET',
-  commentsList: [
-    {
-      id: 'c-eth-1',
-      author: 'riverroosery733',
-      timeAgo: '22d ago',
-      text: 'so many volume, why ?',
-      likes: 0,
-    },
-    {
-      id: 'c-eth-2',
-      author: 'mrodw1',
-      timeAgo: '1mo ago',
-      text: 'When does it resolve?',
-      likes: 2,
-    },
-    {
-      id: 'c-eth-3',
-      author: 'cryptopoking',
-      timeAgo: '2mo ago',
-      text: 'what is ethiopia',
-      likes: 0,
-    },
-    {
-      id: 'c-eth-4',
-      author: 'Tomgaine',
-      timeAgo: '2mo ago',
-      text: 'kk',
-      likes: 0,
-    },
-    {
-      id: 'c-eth-5',
-      author: 'ElonFork',
-      timeAgo: '2mo ago',
-      text: 'WOW! Ethiopia is nice! Nice and beautifull',
-      likes: 1,
-      replies: [
-        {
-          id: 'c-eth-5-1',
-          author: 'billsmurlfks',
-          timeAgo: '1mo ago',
-          text: '@ElonFork not and beautifull',
-          likes: 0,
-        },
-      ],
-    },
-  ],
-  chartData: {
-    labels: [
-      'May 1', 'May 8', 'May 15', 'May 22', 'May 29',
-      'Jun 5', 'Jun 12', 'Jun 19', 'Jun 26',
-      'Jul 1', 'Jul 5', 'Jul 8', 'Jul 12', 'Jul 16', 'Jul 20', 'Jul 24', 'Jul 28', 'Jul 31',
-      'Aug 4', 'Aug 8', 'Aug 12', 'Aug 16', 'Aug 20', 'Aug 24', 'Aug 28',
-      'Sep 1', 'Sep 3', 'Sep 5', 'Sep 6',
-    ],
-    series: [
-      {
-        name: 'Abiy Ahmed',
-        color: '#38bdf8',
-        currentVal: 97.0,
-        data: [
-          96.2, 95.8, 96.5, 96.0, 95.7,
-          96.4, 95.9, 94.8, 93.5,
-          88.0, 81.2, 76.5, 78.4, 84.0, 88.5, 91.2, 93.0, 94.5,
-          94.8, 95.0, 95.3, 95.1, 95.6, 95.9, 96.2,
-          96.5, 96.8, 97.0, 97.0,
-        ],
-      },
-      {
-        name: 'Gedion Timothewos',
-        color: '#f59e0b',
-        currentVal: 1.3,
-        data: [
-          0.3, 0.3, 0.3, 0.3, 0.3,
-          0.3, 0.3, 0.3, 0.3,
-          0.3, 0.3, 0.3, 0.4, 0.6, 0.8, 1.2, 1.5, 1.8,
-          1.8, 1.8, 1.7, 1.6, 1.5, 1.4, 1.3,
-          1.3, 1.3, 1.3, 1.3,
-        ],
-      },
-      {
-        name: 'Belete Molla',
-        color: '#fb923c',
-        currentVal: 0.8,
-        data: [
-          0.3, 0.3, 0.3, 0.3, 0.3,
-          0.3, 0.3, 0.3, 0.3,
-          0.3, 0.3, 0.3, 0.4, 0.5, 0.5, 0.6, 0.7, 0.7,
-          0.7, 0.7, 0.6, 0.6, 0.7, 0.7, 0.8,
-          0.8, 0.8, 0.8, 0.8,
-        ],
-      },
-      {
-        name: 'Berhanu Nega',
-        color: '#ea580c',
-        currentVal: 0.4,
-        data: [
-          0.5, 0.5, 0.5, 0.5, 0.5,
-          0.5, 0.5, 0.5, 0.5,
-          0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
-          0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
-          0.4, 0.4, 0.4, 0.4,
-        ],
+        name: 'Yes',
+        color: '#10b981',
+        currentVal: 74.0,
+        data: [44.0, 52.5, 59.0, 64.2, 70.8, 74.0],
       },
     ],
   },
@@ -341,6 +134,7 @@ export const BTC_5M_MARKET: PolymarketMarket = {
   subcategory: '5 Min',
   timeRange: 'September 6, 9:55-10AM ET',
   iconType: 'bitcoin',
+  iconBg: '#1e293b',
   volume: '736 ETB Vol.',
   displayType: 'up_down_btc',
   isLive: true,
@@ -401,10 +195,27 @@ export const BTC_5M_MARKET: PolymarketMarket = {
   ],
 };
 
+export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
+  id: 'pm-ethiopia-pm',
+  title: 'Next Prime Minister of Ethiopia?',
+  category: 'Politics',
+  subcategory: 'Ethiopia',
+  countryFlag: '🇪🇹',
+  imageUrl: '/ethiopianmilitary.jpg',
+  volume: '285.8M ETB Vol.',
+  displayType: 'binary_buttons',
+  isLive: true,
+  outcomes: [
+    { name: 'Abiy Ahmed', probability: 97, yesPrice: 97.1, noPrice: 4.1 },
+    { name: 'Gedion Timothewos', probability: 1.3, yesPrice: 1.3, noPrice: 98.7 },
+    { name: 'Belete Molla', probability: 0.8, yesPrice: 0.8, noPrice: 99.2 },
+    { name: 'Berhanu Nega', probability: 0.4, yesPrice: 0.4, noPrice: 99.6 },
+  ],
+};
+
 export const POLYMARKET_HOT_TOPICS: PolymarketHotTopic[] = [
   { rank: 1, name: 'AfD', volume: '425K ETB today', isHot: true, icon: '🇩🇪' },
-  { rank: 2, name: 'Fed Decision', volume: '2M ETB today', isHot: true, icon: '🏦' },
-  { rank: 3, name: 'Sachsen', volume: '914K ETB today', isHot: true, icon: '🏛️' },
+  { rank: 2, name: 'Sachsen', volume: '914K ETB today', isHot: true, icon: '🏛️' },
   { rank: 4, name: 'Bitcoin', volume: '1M ETB today', isHot: true, icon: '₿' },
   { rank: 5, name: 'Ethiopia 🇪🇹', volume: '1M ETB today', isHot: true, icon: '🇪🇹' },
   { rank: 6, name: 'GERD', volume: '680K ETB today', isHot: true, icon: '⚡' },
@@ -412,29 +223,15 @@ export const POLYMARKET_HOT_TOPICS: PolymarketHotTopic[] = [
   { rank: 8, name: 'Red Sea', volume: '410K ETB today', isHot: true, icon: '🌊' },
   { rank: 9, name: 'Midterms', volume: '780K ETB today', isHot: true, icon: '🗳️' },
   { rank: 10, name: 'Coffee', volume: '350K ETB today', isHot: true, icon: '☕' },
-  { rank: 11, name: 'Addis Ababa', volume: '890K ETB today', isHot: true, icon: '🏙️' },
+  { rank: 11, name: 'Russia-Ukraine', volume: '52M ETB today', isHot: true, icon: '🇺🇦' },
+  { rank: 12, name: 'Addis Ababa', volume: '890K ETB today', isHot: true, icon: '🏙️' },
   { rank: 12, name: 'Fuel', volume: '620K ETB today', isHot: true, icon: '⛽' },
   { rank: 13, name: 'Birr FX', volume: '540K ETB today', isHot: true, icon: '💱' },
   { rank: 14, name: 'Elections', volume: '480K ETB today', isHot: true, icon: '🗳️' },
 ];
 
 export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
-  // 1. Fed Decision in September? (Card 1 in photo)
-  {
-    ...POLYMARKET_HERO,
-    id: 'pm-hero-fed-decision',
-    title: 'Fed Decision in September?',
-    volume: '100M ETB Vol.',
-    hasRepeat: true,
-    hasGift: true,
-    displayType: 'multi_outcome',
-    outcomes: [
-      { name: 'No change', probability: 51, yesPrice: 51, noPrice: 49 },
-      { name: '25 bps increase', probability: 50, yesPrice: 50, noPrice: 50 },
-    ],
-  },
-
-  // 2. BTC Up or Down 5m (Card 2 in photo)
+  // 1. BTC Up or Down 5m (Card 1 in photo)
   {
     ...BTC_5M_MARKET,
     id: 'pm-btc-5m',
@@ -450,8 +247,7 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
     ],
   },
 
-  // 3. Next Prime Minister of Ethiopia?
-  ETHIOPIA_PM_MARKET,
+
 
   // 4. GERD Full Capacity 100% (Tech & Energy)
   {
@@ -656,6 +452,22 @@ export const POLYMARKET_ALL_MARKETS: PolymarketMarket[] = [
       { name: 'No', probability: 85, yesPrice: 85, noPrice: 15 },
     ],
   },
+
+  // 18. Russia-Ukraine ceasefire agreement by Dec 31, 2027
+  {
+    id: 'pm-russia-ukraine-ceasefire',
+    title: 'Russia-Ukraine ceasefire agreement by December 31, 2027?',
+    category: 'Geopolitics',
+    subcategory: 'Eastern Europe',
+    countryFlag: '🇺🇦',
+    imageUrl: 'https://images.unsplash.com/photo-1547581199-10b6ad1a906b?w=128&h=128&fit=crop',
+    volume: '52M ETB Vol.',
+    displayType: 'binary_buttons',
+    outcomes: [
+      { name: 'Yes', probability: 35, yesPrice: 35, noPrice: 65 },
+      { name: 'No', probability: 65, yesPrice: 65, noPrice: 35 },
+    ],
+  },
 ];
 
 export interface PolymarketCategoryItem {
@@ -674,10 +486,9 @@ export const POLYMARKET_CATEGORIES: PolymarketCategoryItem[] = [
   { id: 'ethiopia', name: 'Ethiopia 🇪🇹', type: 'text' },
   { id: 'politics', name: 'Politics', type: 'text' },
   { id: 'crypto', name: 'Crypto', type: 'text' },
-  { id: 'finance', name: 'Finance', type: 'text' },
   { id: 'geopolitics', name: 'Geopolitics', type: 'text' },
   { id: 'tech', name: 'Tech', type: 'text' },
-  { id: 'culture', name: 'Culture', type: 'text' },
+  { id: 'culture', name: 'Entertainment', type: 'text' },
   { id: 'economy', name: 'Economy', type: 'text' },
   { id: 'weather', name: 'Weather', type: 'text' },
   { id: 'elections', name: 'Elections', type: 'text' },
@@ -686,13 +497,12 @@ export const POLYMARKET_CATEGORIES: PolymarketCategoryItem[] = [
 export const POLYMARKET_TAG_PILLS = [
   'All',
   'Ethiopia 🇪🇹',
-  'Fed Decision',
-  'Bitcoin',
   'GERD',
   'OpenAI',
   'Red Sea',
   'Coffee',
   'Addis Ababa',
+  'Russia-Ukraine',
   'Birr',
   'Elections',
   'Weather',
@@ -700,5 +510,5 @@ export const POLYMARKET_TAG_PILLS = [
   'Economy',
   'Tech',
   'Geopolitics',
-  'Culture',
+  'Entertainment',
 ];

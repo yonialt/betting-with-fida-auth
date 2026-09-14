@@ -3,6 +3,8 @@ import { ChevronDown, Check } from 'lucide-react';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
 import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
+import { heroSlideLogoUrl } from '../../data/polymarketExtendedData';
+import { marketLogoUrl } from '../../data/polymarketData';
 
 interface PolymarketTradeWidgetProps {
   market: PolymarketMarket;
@@ -134,13 +136,37 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
       {/* 1. Market Header Item */}
       <div>
         <div className="flex items-center gap-3 pb-3 border-b border-[#1e293b]">
-          {/* Avatar Thumbnail — real market image, else a category-matched emblem */}
+          {/* Avatar Thumbnail — hero-slide logo, market image, else a category-matched emblem */}
           <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-[#2e3b52] bg-[#1a2232] flex items-center justify-center">
-            {market.imageUrl ? (
+            {market.logoUrl ? (
+              <img
+                src={market.logoUrl}
+                alt={market.title}
+                className="w-full h-full object-contain"
+              />
+            ) : marketLogoUrl[market.id] ? (
+              <img
+                src={marketLogoUrl[market.id]}
+                alt={market.title}
+                className="w-full h-full object-contain"
+              />
+            ) : market.imageUrl ? (
               <img
                 src={market.imageUrl}
                 alt={market.title}
                 className="w-full h-full object-cover"
+              />
+            ) : market.avatarUrl ? (
+              <img
+                src={market.avatarUrl}
+                alt={market.title}
+                className="w-full h-full object-cover"
+              />
+            ) : heroSlideLogoUrl[market.id] ? (
+              <img
+                src={heroSlideLogoUrl[market.id]}
+                alt={market.title}
+                className="w-full h-full object-contain"
               />
             ) : (
               <span
@@ -155,6 +181,11 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
 
           {/* Titles */}
           <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-neutral-400 mb-1">
+              <span>{market.category}</span>
+              <span>·</span>
+              <span className="text-neutral-300">{market.subcategory || ''}</span>
+            </div>
             <h4 className="text-xs text-neutral-300 font-medium truncate">
               {translateMarketTitle(market.title, language)}
             </h4>

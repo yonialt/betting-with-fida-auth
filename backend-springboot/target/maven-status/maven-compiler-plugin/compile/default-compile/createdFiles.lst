@@ -1,4 +1,5 @@
 com\fidabet\backend\model\UserProfile.class
+com\fidabet\backend\controller\PolymarketAdminController.class
 com\fidabet\backend\service\OddsEngineService.class
 com\fidabet\backend\service\ApiFootballService$2.class
 com\fidabet\backend\dto\ApiFootballResponseDto$Parameters.class
@@ -26,6 +27,8 @@ com\fidabet\backend\controller\WalletController.class
 com\fidabet\backend\controller\RedisManagementController.class
 com\fidabet\backend\dto\ApiFootballResponseDto$Bet.class
 com\fidabet\backend\dto\ApiFootballResponseDto$Periods.class
+com\fidabet\backend\dto\PolymarketAdminDataDto$AdminMarketRecordDto.class
+com\fidabet\backend\dto\PolymarketAdminDataDto.class
 com\fidabet\backend\dto\ApiFootballResponseDto$BetValue.class
 com\fidabet\backend\controller\AgeVerificationController.class
 com\fidabet\backend\controller\ApiFootballController.class
@@ -37,6 +40,7 @@ com\fidabet\backend\dto\ApiFootballResponseDto$Fixture.class
 com\fidabet\backend\dto\OddsItemDto.class
 com\fidabet\backend\dto\ApiFootballResponseDto$Team.class
 com\fidabet\backend\dto\ApiFootballResponseDto$Goals.class
+com\fidabet\backend\dto\PolymarketAdminDataDto$AdminOutcomeRowDto.class
 com\fidabet\backend\model\BetSlipItem$BetSlipItemBuilder.class
 com\fidabet\backend\dto\CacheStatsDto$CacheStatsDtoBuilder.class
 com\fidabet\backend\service\SettingsService.class
@@ -67,6 +71,7 @@ com\fidabet\backend\dto\OddsItemDto$OddsItemDtoBuilder.class
 com\fidabet\backend\support\Bodies.class
 com\fidabet\backend\dto\ApiFootballResponseDto.class
 com\fidabet\backend\dto\MarketGroupDto$MarketGroupDtoBuilder.class
+com\fidabet\backend\service\PolymarketAdminService.class
 com\fidabet\backend\model\PlacedBet.class
 com\fidabet\backend\controller\BetController.class
 com\fidabet\backend\config\RedisConfig.class

@@ -39,43 +39,17 @@ function createSeededRng(seed: string) {
  * Pre-calibrated authentic profiles for featured markets and carousel slides
  */
 const MARKET_PROFILES: Record<string, RealisticChartData> = {
-  // 1. Fed Decision in September?
-  'fed-decision': {
-    labels: ['Aug 9', 'Aug 16', 'Aug 23', 'Aug 30', 'Sep 6', 'Sep 15'],
-    yTicks: ['80%', '60%', '40%', '20%', '0%'],
-    change24h: '+23%',
-    isPositive: true,
-    lines: [
-      { name: '25 bps increase', color: '#eab308', points: [28, 35, 42, 48, 50, 51] },
-      { name: 'No change', color: '#3b82f6', points: [55, 53, 49, 46, 48, 50] },
-      { name: '50+ bps increase', color: '#ef4444', points: [12, 8, 6, 3, 2, 1] },
-      { name: '25 bps decrease', color: '#38bdf8', points: [5, 4, 3, 3, 1, 0.4] },
-    ],
-  },
-  'pm-hero-fed-decision': {
-    labels: ['Aug 9', 'Aug 16', 'Aug 23', 'Aug 30', 'Sep 6', 'Sep 15'],
-    yTicks: ['80%', '60%', '40%', '20%', '0%'],
-    change24h: '+23%',
-    isPositive: true,
-    lines: [
-      { name: '25 bps increase', color: '#eab308', points: [28, 35, 42, 48, 50, 51] },
-      { name: 'No change', color: '#3b82f6', points: [55, 53, 49, 46, 48, 50] },
-      { name: '50+ bps increase', color: '#ef4444', points: [12, 8, 6, 3, 2, 1] },
-      { name: '25 bps decrease', color: '#38bdf8', points: [5, 4, 3, 3, 1, 0.4] },
-    ],
-  },
-
-  // 2. Addis Ababa becomes a federally administered city before 2029?
+  // 1. Addis Ababa becomes a federally administered city before 2029?
   'eth-addis-federal-city': {
     labels: ['Feb', 'Apr', 'Jun', 'Jul', 'Aug', 'Sep'],
-    yTicks: ['35%', '28%', '21%', '14%', '7%'],
-    change24h: '+4.5%',
+    yTicks: ['45%', '40%', '35%', '30%', '25%'],
+    change24h: '+2.1%',
     isPositive: true,
     lines: [
       {
         name: 'Yes',
         color: '#10b981',
-        points: [11.5, 14.2, 17.8, 19.4, 23.6, 26.0],
+        points: [28.0, 30.5, 32.0, 34.0, 36.5, 38.0],
       },
     ],
   },
@@ -123,20 +97,6 @@ const MARKET_PROFILES: Record<string, RealisticChartData> = {
     ],
   },
 
-  // 5. Clarity Act (H.R.3633) signed into law in 2026?
-  'clarity-act': {
-    labels: ['Jul 1', 'Jul 15', 'Aug 1', 'Aug 15', 'Sep 1', 'Sep 11'],
-    yTicks: ['40%', '30%', '20%', '10%', '0%'],
-    change24h: '-3.2%',
-    isPositive: false,
-    lines: [
-      {
-        name: 'Yes',
-        color: '#10b981',
-        points: [22.0, 29.5, 34.2, 28.6, 21.0, 16.0],
-      },
-    ],
-  },
 
   // 6. Bitcoin Up or Down 5m
   'btc-up-down': {
@@ -182,9 +142,9 @@ const MARKET_PROFILES: Record<string, RealisticChartData> = {
     ],
   },
 
-  // 8. Which company has the best AI model end of September?
+  // 8. Which company has the best AI model end of the year?
   'best-ai-september': {
-    labels: ['Aug 9', 'Aug 16', 'Aug 23', 'Aug 30', 'Sep 6', 'Sep 15'],
+    labels: ['Jul 1', 'Aug 1', 'Sep 1', 'Oct 1', 'Nov 1', 'Dec 1'],
     yTicks: ['90%', '70%', '50%', '30%', '10%'],
     change24h: '+16.5%',
     isPositive: true,
@@ -192,50 +152,6 @@ const MARKET_PROFILES: Record<string, RealisticChartData> = {
       { name: 'Anthropic', color: '#38bdf8', points: [38, 49, 62, 73, 81, 84] },
       { name: 'OpenAI', color: '#10b981', points: [48, 41, 30, 21, 16, 14] },
       { name: 'Google', color: '#f59e0b', points: [11, 8, 6, 5, 2.5, 2] },
-    ],
-  },
-
-  // 9. Spirit vs MOUZ · Game 4 of 5 (Esports CS2 Live Match)
-  'cs2-spirit-mouz': {
-    labels: ['Map Start', 'Pistol Rnd', 'Rnd 6', 'Half-Time', 'Rnd 18', 'Map Point'],
-    yTicks: ['90%', '70%', '50%', '30%', '10%'],
-    change24h: '+31.0%',
-    isPositive: true,
-    lines: [
-      { name: 'Spirit', color: '#38bdf8', points: [52, 59, 66, 61, 74, 83] },
-      { name: 'MOUZ', color: '#ef4444', points: [48, 41, 34, 39, 26, 17] },
-    ],
-  },
-  'pm-spirit-mouz': {
-    labels: ['Map Start', 'Pistol Rnd', 'Rnd 6', 'Half-Time', 'Rnd 18', 'Map Point'],
-    yTicks: ['90%', '70%', '50%', '30%', '10%'],
-    change24h: '+31.0%',
-    isPositive: true,
-    lines: [
-      { name: 'Spirit', color: '#38bdf8', points: [52, 59, 66, 61, 74, 83] },
-      { name: 'MOUZ', color: '#ef4444', points: [48, 41, 34, 39, 26, 17] },
-    ],
-  },
-
-  // 10. Brewers vs Reds · Bot 5th (MLB Live Match)
-  'mlb-brewers-reds': {
-    labels: ['1st Inn', '2nd Inn', '3rd Inn', '4th Inn', 'Top 5th', 'Bot 5th'],
-    yTicks: ['90%', '70%', '50%', '30%', '10%'],
-    change24h: '+38.0%',
-    isPositive: true,
-    lines: [
-      { name: 'Reds (68-74)', color: '#ef4444', points: [48, 46, 53, 62, 74, 86] },
-      { name: 'Brewers (88-55)', color: '#3b82f6', points: [52, 54, 47, 38, 26, 14] },
-    ],
-  },
-  'pm-brewers-reds': {
-    labels: ['1st Inn', '2nd Inn', '3rd Inn', '4th Inn', 'Top 5th', 'Bot 5th'],
-    yTicks: ['90%', '70%', '50%', '30%', '10%'],
-    change24h: '+21.0%',
-    isPositive: true,
-    lines: [
-      { name: 'Reds', color: '#ef4444', points: [48, 45, 52, 61, 70, 71] },
-      { name: 'Brewers', color: '#3b82f6', points: [52, 55, 48, 39, 30, 29] },
     ],
   },
 
@@ -254,19 +170,37 @@ const MARKET_PROFILES: Record<string, RealisticChartData> = {
     ],
   },
 
-  // 12. Ethiopian Premier League Champion 2025/2026?
-  'pm-eth-premier-league': {
-    labels: ['Round 5', 'Round 12', 'Round 18', 'Round 24', 'Round 28', 'Latest'],
-    yTicks: ['50%', '40%', '30%', '20%', '10%'],
-    change24h: '+8.2%',
+  // 12. Russia-Ukraine ceasefire agreement by Dec 31, 2027
+  'russia-ukraine-ceasefire': {
+    labels: ['Jan 2026', 'Mar 2026', 'May 2026', 'Jul 2026', 'Sep 2026', 'Oct 2026'],
+    yTicks: ['40%', '35%', '30%', '25%', '20%'],
+    change24h: '+5.2%',
     isPositive: true,
     lines: [
-      { name: 'CBE SA', color: '#3b82f6', points: [25, 30, 36, 41, 44, 46] },
-      { name: 'Saint George SC', color: '#eab308', points: [42, 38, 35, 34, 33, 32] },
-      { name: 'Fasil Kenema', color: '#ef4444', points: [21, 20, 18, 16, 15, 14] },
-      { name: 'Defense Force SC', color: '#10b981', points: [12, 12, 11, 9, 8, 8] },
+      {
+        name: 'Yes',
+        color: '#10b981',
+        points: [22.0, 24.5, 27.0, 30.0, 33.0, 35.0],
+      },
     ],
   },
+
+  // 13. Ethiopian coffee export revenue exceeds 1.8B ETB
+  'pm-eth-coffee-export': {
+    labels: ['Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026'],
+    yTicks: ['80%', '70%', '60%', '50%', '40%'],
+    change24h: '+3.8%',
+    isPositive: true,
+    lines: [
+      {
+        name: 'Yes',
+        color: '#10b981',
+        points: [58.0, 62.0, 66.0, 69.0, 71.0, 72.0],
+      },
+    ],
+  },
+
+
 
   // 13. GERD generation hits 100% capacity in 2026?
   'pm-eth-gerd-capacity': {
@@ -313,53 +247,13 @@ const MARKET_PROFILES: Record<string, RealisticChartData> = {
     ],
   },
 
-  // 16. 2026 Men's US Open Winner (Tennis)
-  'pm-us-open': {
-    labels: ['1st Rnd', '2nd Rnd', '3rd Rnd', 'Quarter', 'Semi', 'Finals'],
-    yTicks: ['50%', '40%', '30%', '20%', '10%'],
-    change24h: '+9.4%',
-    isPositive: true,
-    lines: [
-      { name: 'Carlos Alcaraz', color: '#38bdf8', points: [31, 35, 38, 42, 45, 47] },
-      { name: 'Alexander Zverev', color: '#eab308', points: [18, 19, 21, 23, 24, 25] },
-    ],
-  },
 
-  // 17. G2 Esports vs Karmine Corp (LoL)
-  'pm-g2-karmine': {
-    labels: ['Game Start', 'First Blood', 'Herald', 'Baron Nashor', 'Late Game'],
-    yTicks: ['80%', '65%', '50%', '35%', '20%'],
-    change24h: '+23.0%',
-    isPositive: true,
-    lines: [
-      { name: 'G2 Esports', color: '#ef4444', points: [50, 57, 63, 71, 73] },
-      { name: 'Karmine Corp', color: '#38bdf8', points: [50, 43, 37, 29, 27] },
-    ],
-  },
 
-  // 18. Tigers vs Guardians (MLB)
-  'pm-tigers-guardians': {
-    labels: ['1st Inn', '2nd Inn', '3rd Inn', '4th Inn', 'Bot 1st'],
-    yTicks: ['70%', '60%', '50%', '40%', '30%'],
-    change24h: '+9.0%',
-    isPositive: true,
-    lines: [
-      { name: 'Tigers', color: '#3b82f6', points: [50, 52, 55, 57, 59] },
-      { name: 'Guardians', color: '#ef4444', points: [50, 48, 45, 43, 41] },
-    ],
-  },
 
-  // 19. M. Kostyuk vs L. Noskova (WTA)
-  'pm-kostyuk-noskova': {
-    labels: ['Set 1', 'Set 2 Game 1', 'Set 2 Game 3', 'Set 2 Game 5', 'Set 2'],
-    yTicks: ['70%', '60%', '50%', '40%', '30%'],
-    change24h: '+11.0%',
-    isPositive: true,
-    lines: [
-      { name: 'L. Noskova', color: '#ef4444', points: [50, 44, 53, 58, 61] },
-      { name: 'M. Kostyuk', color: '#84cc16', points: [50, 56, 47, 42, 39] },
-    ],
-  },
+
+
+
+
 
   // 20. Ethiopia Bitcoin Mining Hashrate
   'pm-eth-bitcoin-mining': {
@@ -367,9 +261,7 @@ const MARKET_PROFILES: Record<string, RealisticChartData> = {
     yTicks: ['60%', '45%', '30%', '15%'],
     change24h: '+14.2%',
     isPositive: true,
-    lines: [
-      {
-        name: 'Yes',
+    lines: [      { name: 'Yes',
         color: '#10b981',
         points: [16, 22, 29, 36, 41],
       },
@@ -392,7 +284,7 @@ export function getRealisticChartForMarket(
     return MARKET_PROFILES[marketId];
   }
 
-  // 2. Keyword profile matching in title
+  // 2. Will Addis Ababa's legal administrative status change before 2029?Keyword profile matching in title
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('addis ababa') && lowerTitle.includes('city')) {
     return MARKET_PROFILES['eth-addis-federal-city'];
@@ -403,11 +295,15 @@ export function getRealisticChartForMarket(
   if (lowerTitle.includes('red sea') || lowerTitle.includes('port')) {
     return MARKET_PROFILES['eth-red-sea-access'];
   }
-  if (lowerTitle.includes('clarity act')) {
-    return MARKET_PROFILES['clarity-act'];
-  }
+
   if (lowerTitle.includes('taiwan') || lowerTitle.includes('china')) {
     return MARKET_PROFILES['china-taiwan-2026'];
+  }
+  if (lowerTitle.includes('russia') && lowerTitle.includes('ukraine') && lowerTitle.includes('ceasefire')) {
+    return MARKET_PROFILES['russia-ukraine-ceasefire'];
+  }
+  if (lowerTitle.includes('coffee') && lowerTitle.includes('export')) {
+    return MARKET_PROFILES['pm-eth-coffee-export'];
   }
   if (lowerTitle.includes('gerd')) {
     return MARKET_PROFILES['pm-eth-gerd-capacity'];
@@ -415,17 +311,8 @@ export function getRealisticChartForMarket(
   if (lowerTitle.includes('birr') || lowerTitle.includes('nbe')) {
     return MARKET_PROFILES['pm-eth-birr-fx'];
   }
-  if (lowerTitle.includes('premier league') || lowerTitle.includes('champion')) {
-    return MARKET_PROFILES['pm-eth-premier-league'];
-  }
   if (lowerTitle.includes('abiy') || lowerTitle.includes('prime minister')) {
     return MARKET_PROFILES['pm-ethiopia-pm'];
-  }
-  if (lowerTitle.includes('spirit') && lowerTitle.includes('mouz')) {
-    return MARKET_PROFILES['cs2-spirit-mouz'];
-  }
-  if (lowerTitle.includes('brewers') && lowerTitle.includes('reds')) {
-    return MARKET_PROFILES['mlb-brewers-reds'];
   }
 
   // 3. Dynamic synthesis based on actual market outcomes and category

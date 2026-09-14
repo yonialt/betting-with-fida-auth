@@ -1,5 +1,5 @@
 import { PolymarketMarket, PolymarketOutcome } from '../types/polymarket';
-import { POLYMARKET_ALL_MARKETS } from '../data/polymarketData';
+import { POLYMARKET_ALL_MARKETS, marketLogoUrl } from '../data/polymarketData';
 
 const GAMMA_API_BASE = 'https://gamma-api.polymarket.com';
 
@@ -27,6 +27,74 @@ function parseJsonSafe<T>(val: any, fallback: T): T {
   } catch {
     return fallback;
   }
+}
+
+function normalizeGammaText(value?: string): string {
+  return (value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function compactGammaText(value?: string): string {
+  return (value || '').toLowerCase().replace(/[^a-z0-9]+/g, '').trim();
+}
+
+function resolveGammaProjectId(event: any): string | undefined {
+  const rawText = [
+    event?.id,
+    event?.slug,
+    event?.ticker,
+    event?.title,
+    event?.category,
+    event?.tags?.map((tag: any) => tag?.label || tag?.slug || tag?.name).join(' '),
+  ].filter(Boolean).join(' ');
+
+  const text = compactGammaText(rawText);
+
+  if (!text) return undefined;
+
+  const keyMatches = Object.keys(marketLogoUrl).find((key) => {
+    const compactKey = compactGammaText(key);
+    return !!compactKey && text.includes(compactKey.replace(/^pm/, ''));
+  });
+
+  if (keyMatches) return keyMatches;
+
+  const rules: Array<[RegExp, string]> = [
+    [/red\s*sea|sea\s*port|port\s*access/, 'pm-eth-redsea'],
+    [/coffee.*export|export.*coffee/, 'pm-eth-coffee-export'],
+    [/birr|fx.*etb|etb.*fx/, 'pm-eth-birr-fx'],
+    [/bitcoin.*mining|mining.*bitcoin|hash.*rate/, 'pm-eth-bitcoin-mining'],
+    [/gerd|dam.*capacity|capacity.*dam/, 'pm-eth-gerd-capacity'],
+    [/weather.*addis|addis.*weather|temperature.*addis/, 'pm-eth-weather-addis-temp'],
+    [/openai.*agi|agi.*2027/, 'pm-openai-agi-2027'],
+    [/hurricane|named.*storm/, 'weath-atlantic-named-hurricanes'],
+    [/warmest.*year|global.*warming|copernicus|noaa/, 'weath-global-2026-warmest'],
+    [/russia.*ukraine|ukraine.*ceasefire|ceasefire/, 'russia-ukraine-ceasefire'],
+    [/bitcoin|btc/, 'pm-btc-5m'],
+  ];
+
+  for (const [regex, id] of rules) {
+    if (regex.test(normalizeGammaText(rawText))) {
+      return id;
+    }
+  }
+
+  return undefined;
+}
+
+function resolveGammaMarketLogo(event: any): string | undefined {
+  const projectId = resolveGammaProjectId(event);
+  if (projectId && marketLogoUrl[projectId]) return marketLogoUrl[projectId];
+
+  const text = normalizeGammaText(
+    [event?.title, event?.ticker, event?.slug, event?.category, event?.tags?.map((tag: any) => tag?.label).join(' ')].join(' ')
+  );
+
+  const directMatch = Object.entries(marketLogoUrl).find(([key, logo]) => {
+    const compactKey = compactGammaText(key);
+    return compactKey && text.includes(compactKey.replace(/^pm/, '')) && !!logo;
+  });
+
+  return directMatch?.[1];
 }
 
 export async function fetchPolymarketGammaEvents(
@@ -119,14 +187,19 @@ export async function fetchPolymarketGammaEvents(
         ];
       }
 
+      const projectMarketId = resolveGammaProjectId(event) || String(event.id || `gamma-${idx}`);
+      const resolvedLogo = resolveGammaMarketLogo(event);
+      const finalImage = resolvedLogo || event.image || event.icon || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop';
+
       return {
-        id: String(event.id || `gamma-${idx}`),
+        id: projectMarketId,
         title: event.title || event.ticker || 'Prediction Market',
         category: primaryCategory,
         volume: formatVolume(event.volume || event.volume24hr),
         displayType,
-        avatarUrl: event.icon || event.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
-        imageUrl: event.image || event.icon,
+        avatarUrl: finalImage,
+        imageUrl: finalImage,
+        logoUrl: resolvedLogo,
         isLive: Boolean(event.active),
         outcomes,
         slug: event.slug,

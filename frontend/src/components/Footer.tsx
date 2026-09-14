@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Globe, ChevronDown } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { SportId } from '../types';
@@ -13,6 +13,33 @@ export const Footer: React.FC = () => {
     setBonusesModalOpen,
     openAuthModal,
   } = useBetting();
+
+  // Scroll-reactive circle animation (matches the reference footer animation)
+  const footerRef = useRef<HTMLElement | null>(null);
+  const [circleOffset, setCircleOffset] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const node = footerRef.current;
+      if (!node) return;
+
+      const rect = node.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || 1;
+
+      // How far the footer has entered the viewport, clamped 0 to 1
+      const raw = (viewportHeight - rect.top) / (rect.height + viewportHeight);
+      const progress = Math.min(1, Math.max(0, raw));
+
+      setScrollProgress(progress);
+      // Drift the circle vertically as the user scrolls up/down past the footer
+      setCircleOffset(progress * 140 - 70);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Column 1: Sport Betting
   const sportBettingLinks: { title: string; sportId?: SportId; action?: string }[] = [
@@ -131,8 +158,21 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer id="main-footer" className="w-full bg-[#101217] text-white border-t border-[#1f2330] mt-12 pt-12 pb-8 select-none">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+    <footer
+      id="main-footer"
+      ref={footerRef}
+      className="relative w-full overflow-hidden bg-[#101217] text-white border-t border-[#1f2330] mt-12 pt-12 pb-8 select-none"
+    >
+      {/* Scroll-reactive animated circle (decorative, non-interactive) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 top-0 w-[420px] h-[420px] rounded-full bg-gradient-to-br from-[#8DC63F]/25 via-emerald-500/10 to-transparent blur-3xl transition-transform duration-300 ease-out"
+        style={{
+          transform: `translateY(${circleOffset}px) scale(${1 + scrollProgress * 0.25})`,
+          opacity: 0.35 + scrollProgress * 0.35,
+        }}
+      />
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Brand Header: Unified ሃገራዊ BETTING & Polymarket */}
         <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex flex-wrap items-center gap-5">
@@ -162,15 +202,7 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[11px] font-semibold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              24/7 LIVE PLATFORM
-            </span>
-            <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono text-[11px] font-semibold">
-              INSTANT SETTLEMENT
-            </span>
-          </div>
+      
         </div>
 
         {/* Main 5-Column Navigation Grid */}

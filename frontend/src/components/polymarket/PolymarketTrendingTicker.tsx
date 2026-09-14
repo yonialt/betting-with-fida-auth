@@ -7,7 +7,8 @@ interface TrendingItem {
   title: string;
   category: string;
   categoryLabel: string;
-  icon: string;
+  logoUrl?: string;
+  icon?: string;
   accent: string;
   chance: number;
   volume: string;
@@ -17,18 +18,6 @@ interface TrendingItem {
 
 // Auto-rotating trending highlights. The three requested topics lead the loop.
 const TRENDING_ITEMS: TrendingItem[] = [
-  {
-    id: 'pm-eth-q-addis-federal-city',
-    title: 'Will Addis Ababa officially become a federally administered city before 2029?',
-    category: 'Politics',
-    categoryLabel: 'Addis Ababa · Federal Status',
-    icon: '🏛️',
-    accent: '#4f46e5',
-    chance: 26,
-    volume: '18.2M ETB Vol.',
-    endsDate: 'Jan 1, 2029',
-    description: 'Resolves to Yes if federal legislation formally designates Addis Ababa as a federally administered (chartered) city before January 1, 2029.',
-  },
   {
     id: 'pm-eth-q-military-service',
     title: 'Will Ethiopia enact mandatory national military service before 2029?',
@@ -58,7 +47,7 @@ const TRENDING_ITEMS: TrendingItem[] = [
     title: 'Will Ethiopia officially amend or replace its constitution before 2029?',
     category: 'Politics',
     categoryLabel: 'Constitution & Reform',
-    icon: '📜',
+    logoUrl: '/offical logos/id  pm-eth-q-constitution-2029 .png',
     accent: '#f59e0b',
     chance: 41,
     volume: '21.9M ETB Vol.',
@@ -167,13 +156,29 @@ export const PolymarketTrendingTicker: React.FC<PolymarketTrendingTickerProps> =
           key={active}
           className="flex-1 min-w-0 flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500"
         >
-          <span
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 ring-1 ring-white/10"
-            style={{ background: `linear-gradient(135deg, ${item.accent}, ${item.accent}22)` }}
-            aria-hidden="true"
-          >
-            {item.icon}
-          </span>
+          {item.logoUrl ? (
+            <img
+              src={item.logoUrl}
+              alt={item.title}
+              className="w-9 h-9 rounded-xl object-contain ring-1 ring-white/10 shrink-0"
+            />
+          ) : item.icon ? (
+            <span
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 ring-1 ring-white/10"
+              style={{ background: `linear-gradient(135deg, ${item.accent}, ${item.accent}22)` }}
+              aria-hidden="true"
+            >
+              {item.icon}
+            </span>
+          ) : (
+            <span
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 ring-1 ring-white/10"
+              style={{ background: `linear-gradient(135deg, ${item.accent}, ${item.accent}22)` }}
+              aria-hidden="true"
+            >
+              🏛️
+            </span>
+          )}
           <div className="min-w-0">
             <div className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5">
               <span>🇪🇹</span>

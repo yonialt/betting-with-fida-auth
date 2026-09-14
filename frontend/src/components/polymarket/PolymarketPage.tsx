@@ -28,7 +28,6 @@ import { PolymarketArtView } from './views/PolymarketArtView';
 import { PolymarketEsportsView } from './views/PolymarketEsportsView';
 import { PolymarketEthiopiaView } from './views/PolymarketEthiopiaView';
 import { PolymarketGeopoliticsView } from './views/PolymarketGeopoliticsView';
-import { PolymarketFinanceView } from './views/PolymarketFinanceView';
 import { PolymarketTechView } from './views/PolymarketTechView';
 import { PolymarketCultureView } from './views/PolymarketCultureView';
 import { PolymarketEconomyView } from './views/PolymarketEconomyView';
@@ -184,6 +183,7 @@ export const PolymarketPage: React.FC = () => {
       return (
         <PolymarketPoliticsView
           onSelectOutcome={handleSelectOutcome}
+          onOpenDetail={handleOpenDetail}
           onOpenMidterms={() => setShowMidtermsView(true)}
         />
       );
@@ -242,14 +242,7 @@ export const PolymarketPage: React.FC = () => {
       return (
         <PolymarketGeopoliticsView
           onSelectOutcome={handleSelectOutcome}
-        />
-      );
-    }
-
-    if (activeCategory === 'finance') {
-      return (
-        <PolymarketFinanceView
-          onSelectOutcome={handleSelectOutcome}
+          onOpenDetail={handleOpenDetail}
         />
       );
     }
@@ -258,6 +251,7 @@ export const PolymarketPage: React.FC = () => {
       return (
         <PolymarketTechView
           onSelectOutcome={handleSelectOutcome}
+          onOpenDetail={handleOpenDetail}
         />
       );
     }
@@ -266,6 +260,7 @@ export const PolymarketPage: React.FC = () => {
       return (
         <PolymarketCultureView
           onSelectOutcome={handleSelectOutcome}
+          onOpenDetail={handleOpenDetail}
         />
       );
     }
@@ -274,6 +269,7 @@ export const PolymarketPage: React.FC = () => {
       return (
         <PolymarketEconomyView
           onSelectOutcome={handleSelectOutcome}
+          onOpenDetail={handleOpenDetail}
         />
       );
     }
