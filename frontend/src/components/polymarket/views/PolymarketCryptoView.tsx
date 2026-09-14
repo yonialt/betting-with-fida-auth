@@ -20,6 +20,7 @@ interface Crypto5MinMarket {
   downMultiplier: string;
   volume: string;
   color: string;
+  logoUrl?: string;
 }
 
 export const PolymarketCryptoView: React.FC<{
@@ -69,14 +70,14 @@ export const PolymarketCryptoView: React.FC<{
   ];
 
   const shortTermMarkets: Crypto5MinMarket[] = [
-    { symbol: 'BTC', name: 'Bitcoin', priceToBeat: 79829, currentPrice: 79834, upMultiplier: 'UP 2.74X', downMultiplier: 'DOWN 1.57X', volume: '11M ETB Vol.', color: '#f59e0b' },
-    { symbol: 'ETH', name: 'Ethereum', priceToBeat: 2492.5, currentPrice: 2491.8, upMultiplier: 'UP 1.88X', downMultiplier: 'DOWN 2.12X', volume: '4.2M ETB Vol.', color: '#627eea' },
-    { symbol: 'SOL', name: 'Solana', priceToBeat: 106.4, currentPrice: 106.6, upMultiplier: 'UP 2.05X', downMultiplier: 'DOWN 1.94X', volume: '3.8M ETB Vol.', color: '#14b8a6' },
-    { symbol: 'XRP', name: 'XRP', priceToBeat: 0.584, currentPrice: 0.585, upMultiplier: 'UP 2.30X', downMultiplier: 'DOWN 1.76X', volume: '1.9M ETB Vol.', color: '#38bdf8' },
-    { symbol: 'DOGE', name: 'Dogecoin', priceToBeat: 0.0891, currentPrice: 0.0890, upMultiplier: 'UP 1.95X', downMultiplier: 'DOWN 2.05X', volume: '1.4M ETB Vol.', color: '#eab308' },
-    { symbol: 'HYPE', name: 'Hyperliquid', priceToBeat: 87.89, currentPrice: 88.02, upMultiplier: 'UP 2.50X', downMultiplier: 'DOWN 1.66X', volume: '2.1M ETB Vol.', color: '#ec4899' },
-    { symbol: 'BNB', name: 'BNB', priceToBeat: 747.98, currentPrice: 748.20, upMultiplier: 'UP 1.82X', downMultiplier: 'DOWN 2.20X', volume: '1.2M ETB Vol.', color: '#f59e0b' },
-    { symbol: 'ZEC', name: 'Zcash', priceToBeat: 1213.3, currentPrice: 1215.1, upMultiplier: 'UP 3.10X', downMultiplier: 'DOWN 1.45X', volume: '980K ETB Vol.', color: '#10b981' },
+    { symbol: 'BTC', name: 'Bitcoin', priceToBeat: 79829, currentPrice: 79834, upMultiplier: 'UP 2.74X', downMultiplier: 'DOWN 1.57X', volume: '11M ETB Vol.', color: '#f59e0b', logoUrl: '/bitcoincrypot.jpg' },
+    { symbol: 'ETH', name: 'Ethereum', priceToBeat: 2492.5, currentPrice: 2491.8, upMultiplier: 'UP 1.88X', downMultiplier: 'DOWN 2.12X', volume: '4.2M ETB Vol.', color: '#627eea', logoUrl: '/ETHcoincrypot.jpg' },
+    { symbol: 'SOL', name: 'Solana', priceToBeat: 106.4, currentPrice: 106.6, upMultiplier: 'UP 2.05X', downMultiplier: 'DOWN 1.94X', volume: '3.8M ETB Vol.', color: '#14b8a6', logoUrl: '/solcrypot.jpg' },
+    { symbol: 'XRP', name: 'XRP', priceToBeat: 0.584, currentPrice: 0.585, upMultiplier: 'UP 2.30X', downMultiplier: 'DOWN 1.76X', volume: '1.9M ETB Vol.', color: '#38bdf8', logoUrl: '/xrpcrypot.jpg' },
+    { symbol: 'DOGE', name: 'Dogecoin', priceToBeat: 0.0891, currentPrice: 0.0890, upMultiplier: 'UP 1.95X', downMultiplier: 'DOWN 2.05X', volume: '1.4M ETB Vol.', color: '#eab308', logoUrl: '/dogecrypot.jpg' },
+    { symbol: 'HYPE', name: 'Hyperliquid', priceToBeat: 87.89, currentPrice: 88.02, upMultiplier: 'UP 2.50X', downMultiplier: 'DOWN 1.66X', volume: '2.1M ETB Vol.', color: '#ec4899', logoUrl: '/hypecrypot.jpg' },
+    { symbol: 'BNB', name: 'BNB', priceToBeat: 747.98, currentPrice: 748.20, upMultiplier: 'UP 1.82X', downMultiplier: 'DOWN 2.20X', volume: '1.2M ETB Vol.', color: '#f59e0b', logoUrl: '/bnbcrypot.jpg' },
+    { symbol: 'ZEC', name: 'Zcash', priceToBeat: 1213.3, currentPrice: 1215.1, upMultiplier: 'UP 3.10X', downMultiplier: 'DOWN 1.45X', volume: '980K ETB Vol.', color: '#10b981', logoUrl: '/zcacrypot.jpg' },
   ];
 
   if (selectedCrypto) {
@@ -165,12 +166,21 @@ export const PolymarketCryptoView: React.FC<{
                   {/* Symbol Header */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white shadow-sm"
-                        style={{ backgroundColor: m.color }}
-                      >
-                        {m.symbol.slice(0, 3)}
-                      </div>
+                      {m.logoUrl ? (
+                        <img
+                          src={m.logoUrl}
+                          alt={m.symbol}
+                          className="w-7 h-7 rounded-full object-contain shadow-sm"
+                          style={{ backgroundColor: m.color }}
+                        />
+                      ) : (
+                        <div
+                          className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white shadow-sm"
+                          style={{ backgroundColor: m.color }}
+                        >
+                          {m.symbol.slice(0, 3)}
+                        </div>
+                      )}
                       <div>
                         <div className="font-bold text-sm text-white">{m.symbol}</div>
                         <div className="text-[10px] text-neutral-400">{m.name}</div>

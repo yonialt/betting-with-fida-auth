@@ -193,12 +193,13 @@ export const MARKET_TITLE_TRANSLATIONS: Record<string, string> = {
   'Ethiopia annual inflation below 15% in 2026?': 'የኢትዮጵያ አመታዊ የዋጋ ግሽበት በ2026 ከ15% በታች ይሆናል?',
   'Ethio Telecom share listing on ESX by Q4?': 'የኢትዮ ቴሌኮም አክሲዮን በኢትዮጵያ ሰነደ መዋዕለ ንዋይ ገበያ (ESX) ይቀርባል?',
   'Addis Ababa light rail expansion complete in 2026?': 'የአዲስ አበባ ቀላል ባቡር ማስፋፊያ በ2026 ይጠናቀቃል?',
+  "Ethiopian coffee export revenue exceeds 1.8 ETB Billion in fiscal year 2025/26?": 'የኢትዮጵያ በቤተሰቡ ንግድ ዋጋ 2025/26 በ1.8 ብር ብሊዮኔ አይደለም?', 
   'Which countries will have Ebola case in 2026?': 'በ2026 የኢቦላ በሽታ የሚገኝባቸው ሀገራት የትኞቹ ናቸው?',
 
   // Macro & World Politics
   'Fed Decision in September?': 'የፌደራል ሪዘርቭ መስከረም የወለድ ምጣኔ ውሳኔ?',
   'Fed interest rate cut in September 2026?': 'የፌደራል ሪዘርቭ በመስከረም ወር የወለድ ምጣኔ ይቀንሳል?',
-  'Clarity Act (H.R.3633) signed into law in 2026?': 'የክላሪቲ ህግ (H.R.3633) በ2026 ፀድቆ ይፈረማል?',
+
   'TikTok banned in the US in 2026?': 'ቲክቶክ በአሜሪካ በ2026 ይታገዳል?',
   'US Senate majority in 2026 midterms?': 'የአሜሪካ ሴኔት አብላጫ ድምፅ በ2026?',
   'US House of Representatives majority?': 'የአሜሪካ የተወካዮች ምክር ቤት አብላጫ ድምፅ?',
@@ -237,6 +238,7 @@ export const MARKET_TITLE_TRANSLATIONS: Record<string, string> = {
   'OpenAI GPT-5 public release before December?': 'የኦፕን ኤአይ ጂፒቲ-5 (GPT-5) ከታህሳስ በፊት ይለቀቃል?',
   'Apple announces foldable iPhone in 2026?': 'አፕል በ2026 የሚታጠፍ አይፎን ይፋ ያደርጋል?',
   'Will SpaceX Starship successfully catch booster?': 'የስፔስ ኤክስ ስታርሺፕ ሮኬት ማምጠቂያውን በተሳካ ሁኔታ ይይዛል?',
+  'Russia-Ukraine ceasefire agreement by December 31, 2027?': 'ሩስያ-ዩካሪን መጋባት ስምምነት ይህሊ 31 2027 ይሰማል?',
 };
 
 // Outcome name translations

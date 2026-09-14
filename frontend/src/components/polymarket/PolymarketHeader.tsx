@@ -21,9 +21,8 @@ import { PolymarketAuthModal } from './PolymarketAuthModal';
 import { t, translateMarketTitle } from '../../data/polymarketTranslations';
 import {
   POLYMARKET_SEARCH_AUTOCOMPLETE,
-  ETHIOPIA_PM_MARKET,
   BTC_5M_MARKET,
-  POLYMARKET_HERO,
+  ETHIOPIA_PM_MARKET,
   POLYMARKET_ALL_MARKETS,
 } from '../../data/polymarketData';
 import { PolymarketMarket } from '../../types/polymarket';
@@ -99,11 +98,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
       onOpenMarketDetail?.(BTC_5M_MARKET);
       return;
     }
-    if (itemId === 'pm-hero-fed-decision') {
-      onOpenMarketDetail?.(POLYMARKET_HERO);
-      return;
-    }
-
     const found = POLYMARKET_ALL_MARKETS.find((m) => m.id === itemId);
     if (found) {
       onOpenMarketDetail?.(found);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PolymarketTradeState } from '../../../types/polymarket';
+import { PolymarketMarket, PolymarketTradeState, PolymarketOutcome, PolymarketChartData } from '../../../types/polymarket';
 import {
   Globe,
   MapPin,
@@ -10,10 +10,19 @@ import {
 
 interface PolymarketGeopoliticsViewProps {
   onSelectOutcome: (trade: PolymarketTradeState) => void;
+  onOpenDetail: (market: PolymarketMarket) => void;
   isDarkMode?: boolean;
 }
 
-const subcategories = [
+interface GeopoliticsCard {
+  id: string;
+  region: string;
+  title: string;
+  volume: string;
+  chance?: string;
+}
+
+const GEOPOLITICS_SUBCATEGORIES = [
   { name: 'All', count: '2.8K' },
   { name: 'Ethiopia 🇪🇹', count: '340' },
   { name: 'Horn of Africa', count: '185' },
@@ -27,7 +36,7 @@ const subcategories = [
   { name: 'Arctic & Pacific', count: '85' },
 ];
 
-const geopoliticsCards = [
+const GEOPOLITICS_CARDS: GeopoliticsCard[] = [
   {
     id: 'geo-eth-djibouti',
     region: 'Ethiopia 🇪🇹',
@@ -114,8 +123,71 @@ const geopoliticsCards = [
   },
 ];
 
+const GEOPOLITICS_LOGO_MAP: Record<string, string> = {
+  'geo-eth-djibouti': '/readseaport.jpg',
+  'geo-eth-somalia': '/id  pm-eth-q-constitution-2029 .png',
+  'geo-eth-eritrea': '/russiaxukranie.jpg',
+  'geo-horn-stability': '/ethiopianmilitary.jpg',
+  'geo-us-china-taiwan': '/china-taiwan-2026.jpg',
+  'geo-us-china-trade': '/china-taiwan-2026.jpg',
+  'geo-ru-ukraine': '/russiaxukranie.jpg',
+  'geo-putin-out': '/russiaxukranie.jpg',
+  'geo-iran-blockade': '/russiaxukranie.jpg',
+  'geo-israel-pm': '/russiaxukranie.jpg',
+  'geo-nato-spending': '/weath-global-2026-warmest .png',
+  'geo-afghanistan': '/id  pm-eth-q-constitution-2029 .png',
+};
+
+// Convert a GeopoliticsCard to PolymarketMarket format
+const geopoliticsCardToMarket = (card: GeopoliticsCard): PolymarketMarket => {
+  const outcomes: PolymarketOutcome[] = [];
+
+  if (card.chance) {
+    const chanceNum = parseInt(card.chance.replace('%', '')) || 50;
+    outcomes.push(
+      { name: 'Yes', probability: chanceNum, yesPrice: chanceNum, noPrice: 100 - chanceNum },
+      { name: 'No', probability: 100 - chanceNum, yesPrice: 100 - chanceNum, noPrice: chanceNum }
+    );
+  }
+
+  // Generate chart data
+  const baseProb = outcomes[0]?.probability || 50;
+  const chartData: PolymarketChartData = {
+    labels: ['May 1', 'May 8', 'May 15', 'May 22', 'May 29', 'Jun 5', 'Jun 12', 'Jun 19'],
+    series: [
+      {
+        name: outcomes[0]?.name || 'Lead',
+        color: '#38bdf8',
+        currentVal: baseProb,
+        data: outcomes.map((_, i) => {
+          const trend = (i / outcomes.length) * 5;
+          const noise = (Math.random() - 0.5) * 3;
+          return Math.min(99, Math.max(1, baseProb + trend + noise));
+        }),
+      },
+    ],
+  };
+
+  return {
+    id: card.id,
+    title: card.title,
+    category: 'Geopolitics',
+    subcategory: card.region,
+    countryFlag: card.region.includes('Ethiopia') ? '🇪🇹' : undefined,
+    volume: card.volume,
+    displayType: 'binary_buttons',
+    outcomes,
+    chartData,
+    marketOpened: 'Jan 1, 2026',
+    resolverAddress: 'UMA 0x9fc47De9D...',
+    commentsCount: Math.floor(Math.random() * 50) + 20,
+    logoUrl: GEOPOLITICS_LOGO_MAP[card.id],
+  };
+};
+
 export const PolymarketGeopoliticsView: React.FC<PolymarketGeopoliticsViewProps> = ({
   onSelectOutcome,
+  onOpenDetail,
   isDarkMode = true,
 }) => {
   const [activeSubcat, setActiveSubcat] = useState<string>('All');
@@ -131,8 +203,15 @@ export const PolymarketGeopoliticsView: React.FC<PolymarketGeopoliticsViewProps>
 
   const filteredCards =
     activeSubcat === 'All'
-      ? geopoliticsCards
-      : geopoliticsCards.filter((c) => c.region === activeSubcat);
+      ? GEOPOLITICS_CARDS
+      : GEOPOLITICS_CARDS.filter((c) => c.region === activeSubcat);
+
+  const handleCardClick = (card: GeopoliticsCard) => {
+    const market = geopoliticsCardToMarket(card);
+    if (onOpenDetail) {
+      onOpenDetail(market);
+    }
+  };
 
   return (
     <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white">
@@ -143,7 +222,7 @@ export const PolymarketGeopoliticsView: React.FC<PolymarketGeopoliticsViewProps>
             Geopolitics
           </div>
           <div className="space-y-0.5">
-            {subcategories.map((sub) => {
+            {GEOPOLITICS_SUBCATEGORIES.map((sub) => {
               const isActive = activeSubcat === sub.name;
               return (
                 <button
@@ -179,57 +258,70 @@ export const PolymarketGeopoliticsView: React.FC<PolymarketGeopoliticsViewProps>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredCards.map((card) => {
               const isBookmarked = bookmarkedIds.has(card.id);
+              const market = geopoliticsCardToMarket(card);
+
               return (
                 <div
                   key={card.id}
-                  className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between group"
+                  onClick={(e) => { console.log('Card clicked:', card.id); handleCardClick(card); }}
+                  className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between group cursor-pointer"
                 >
                   <div>
-                    <span className="text-[10px] font-mono text-blue-400 font-bold uppercase">
-                      {card.region}
-                    </span>
+                    {card.region && (
+                      <span className="text-[10px] font-mono text-blue-400 font-bold uppercase">
+                        {card.region}
+                      </span>
+                    )}
                     <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mt-1.5 mb-3">
                       {card.title}
                     </h3>
-                    <div className="my-2">
-                      <div className="text-xl font-bold font-mono text-emerald-400">
-                        {card.chance} chance
+
+                    {card.chance ? (
+                      <div className="my-2">
+                        <div className="text-xl font-bold font-mono text-emerald-400">
+                          {card.chance}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectOutcome({
+                                market,
+                                outcome: market.outcomes[0],
+                                side: 'yes',
+                                price: market.outcomes[0].yesPrice,
+                              });
+                            }}
+                            className="py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectOutcome({
+                                market,
+                                outcome: market.outcomes[1],
+                                side: 'no',
+                                price: market.outcomes[1].yesPrice,
+                              });
+                            }}
+                            className="py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
+                          >
+                            No
+                          </button>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        <button
-                          onClick={() =>
-                            onSelectOutcome({
-                              marketId: card.id,
-                              outcomeName: 'Yes',
-                              price: parseInt(card.chance),
-                              side: 'yes',
-                            })
-                          }
-                          className="py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={() =>
-                            onSelectOutcome({
-                              marketId: card.id,
-                              outcomeName: 'No',
-                              price: 100 - parseInt(card.chance),
-                              side: 'no',
-                            })
-                          }
-                          className="py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
+                    ) : null}
                   </div>
+
+                  {/* Card Footer */}
                   <div className="pt-2.5 mt-2 border-t border-[#1a2333] flex items-center justify-between text-xs text-neutral-400">
                     <div className="flex items-center gap-1.5 font-mono">
                       <span>{card.volume}</span>
                       <Repeat2 className="w-3 h-3 text-neutral-500" />
                     </div>
+
                     <button
                       onClick={(e) => toggleBookmark(card.id, e)}
                       className="cursor-pointer hover:text-white"

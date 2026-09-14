@@ -25,8 +25,38 @@ import {
   PolymarketTradeState,
   PolymarketComment,
 } from '../../types/polymarket';
+
 import { useBetting } from '../../context/BettingContext';
 import { PolymarketInteractiveChart } from './PolymarketInteractiveChart';
+import { heroSlideLogoUrl } from '../../data/polymarketExtendedData';
+import { marketLogoUrl } from '../../data/polymarketData';
+
+// Resolve crypto logo URL based on market title/category
+const getCryptoLogoUrl = (market: PolymarketMarket): string | null => {
+  const titleLower = (market.title || '').toLowerCase();
+  const categoryLower = (market.category || '').toLowerCase();
+  const combined = `${titleLower} ${categoryLower}`;
+
+  if (/bitcoin|btc|₿/.test(combined)) return '/bitcoincrypot.jpg';
+  if (/ethereum|eth/.test(combined)) return '/ETHcoincrypot.jpg';
+  if (/solana|sol/.test(combined)) return '/solcrypot.jpg';
+  if (/dogecoin|doge/.test(combined)) return '/dogecrypot.jpg';
+  if (/binance|bnb/.test(combined)) return '/bnbcrypot.jpg';
+  if (/zcash|zec/.test(combined)) return '/zcacrypot.jpg';
+  if (/hyperliquid|hype/.test(combined)) return '/hypecrypot.jpg';
+  if (/ripple|xrp/.test(combined)) return '/xrpcrypot.jpg';
+  return null;
+};
+
+// Get the final logo URL for a market (checks multiple sources)
+const getMarketLogo = (market: PolymarketMarket): string | null => {
+  if (market.logoUrl) return market.logoUrl;
+  if (marketLogoUrl[market.id]) return marketLogoUrl[market.id];
+  if (market.imageUrl) return market.imageUrl;
+  if (market.avatarUrl) return market.avatarUrl;
+  if (getCryptoLogoUrl(market)) return getCryptoLogoUrl(market);
+  return null;
+};
 
 interface PolymarketDetailViewProps {
   market: PolymarketMarket;
@@ -75,7 +105,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
 
   const isBtc5m = market.id === 'pm-btc-5m' || market.displayType === 'up_down_btc';
   const isEthiopia = market.id === 'pm-ethiopia-pm';
-  const isFed = market.id === 'pm-hero-fed-decision';
+  const isFed = false;
 
   const selectedOutcome = market.outcomes[selectedOutcomeIndex] || market.outcomes[0];
 
@@ -219,7 +249,13 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
           <div className="bg-[#111622] border border-[#1e2738] rounded-2xl p-5 sm:p-6 shadow-xl">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                {market.countryFlag ? (
+                {getMarketLogo(market) ? (
+                  <img
+                    src={getMarketLogo(market)}
+                    alt={market.title}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-[#0b111c] border border-[#222c3e] shrink-0"
+                  />
+                ) : market.countryFlag ? (
                   <span className="text-3xl sm:text-4xl leading-none select-none">{market.countryFlag}</span>
                 ) : isBtc5m ? (
                   <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-xl shrink-0">
@@ -305,21 +341,7 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
             <div className="mt-6">
               {/* Date / Timeframe Selectors */}
               <div className="flex items-center justify-between gap-2 mb-3 text-xs">
-                {isFed ? (
-                  <div className="flex items-center gap-1.5 bg-[#090d14] p-1 rounded-lg border border-[#1e293b]">
-                    {['Post', 'Sep 16', 'Oct 28', 'Dec 9', 'Jan 27, 2027'].map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveDateTab(tab)}
-                        className={`px-2.5 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
-                          activeDateTab === tab ? 'bg-[#1e2738] text-white' : 'text-neutral-400 hover:text-white'
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                ) : hoveredChartPoint ? (
+                {hoveredChartPoint ? (
                   <div className="flex items-center gap-3 text-xs font-semibold text-neutral-300">
                     <span className="text-blue-400 font-bold">{hoveredChartPoint.leadName}</span>
                     <span className="font-mono text-white text-sm">{hoveredChartPoint.leadVal.toFixed(1)}%</span>
@@ -640,19 +662,33 @@ export const PolymarketDetailView: React.FC<PolymarketDetailViewProps> = ({
         {/* Right Sticky Sidebar (4 cols): Exact Polymarket Trade Widget */}
         <div className="lg:col-span-4 sticky top-20 flex flex-col gap-4">
           <div className="bg-[#111622] border border-[#1e2738] rounded-2xl p-5 shadow-2xl">
-            {/* Header info */}
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#1e2738]">
-              <div className="flex items-center gap-2 min-w-0">
-                {selectedOutcome.avatar && (
-                  <img src={selectedOutcome.avatar} alt="" className="w-6 h-6 rounded-full object-cover" />
-                )}
-                <span className="text-xs font-bold text-neutral-200 truncate">
+            {/* Header with Logo */}
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-[#1e2738]">
+              {getMarketLogo(market) ? (
+                <img
+                  src={getMarketLogo(market)}
+                  alt={market.title}
+                  className="w-8 h-8 rounded-lg object-contain bg-[#0b111c] border border-[#222c3e] shrink-0"
+                />
+              ) : market.countryFlag ? (
+                <span className="text-xl leading-none shrink-0">{market.countryFlag}</span>
+              ) : isBtc5m ? (
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">
+                  ₿
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+                  <Code2 className="w-4 h-4" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-bold text-neutral-200 truncate">
                   {market.title}
+                </div>
+                <span className="text-xs font-bold text-blue-400 truncate">
+                  {selectedOutcome.name}
                 </span>
               </div>
-              <span className="text-xs font-bold text-blue-400 shrink-0">
-                {selectedOutcome.name}
-              </span>
             </div>
 
             {/* Buy / Sell Toggle */}

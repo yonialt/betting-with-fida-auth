@@ -26,6 +26,65 @@ import { PartnersPanel } from './components/PartnersPanel';
 import { Footer } from './components/Footer';
 import { PolymarketPage } from './components/polymarket/PolymarketPage';
 import { AdminPage } from './components/admin/AdminPage';
+import PolymarketAdmin from './components/admin/PolymarketAdmin';
+
+// Seed the admin page with real data references via globals (read-only, one-time).
+// The admin component reads these to populate initial editable values without
+// importing the heavy real data modules at edit time.
+(function attachPolymarketAdminSeeds() {
+  if (typeof window !== 'undefined') {
+    // Prevent double-seed if the admin page is visited multiple times
+    if (!window['__polymarket_admin_seeded__']) {
+      window['__polymarket_admin_seeded__'] = true;
+      window['__polymarket_hero_slides__'] = window['__polymarket_hero_slides__'] || [];
+      window['__polymarket_hot_topics__'] = window['__polymarket_hot_topics__'] || [];
+      window['__polymarket_ethiopia_seed__'] = window['__polymarket_ethiopia_seed__'] || [];
+      window['__polymarket_breaking_seed__'] = window['__polymarket_breaking_seed__'] || [];
+    }
+  }
+})();
+
+// Attach the real data to globals so the admin editor can seed its initial values.
+// This runs once on module load; the admin component reads these globals.
+(function populateAdminGlobals() {
+  if (typeof window === 'undefined') return;
+  // Only populate once
+  if (window['__polymarket_admin_globals_populated__']) return;
+  window['__polymarket_admin_globals_populated__'] = true;
+
+  try {
+    const HERO_CAROUSEL_SLIDES = require('./data/polymarketExtendedData').HERO_CAROUSEL_SLIDES;
+    window['__polymarket_hero_slides__'] = HERO_CAROUSEL_SLIDES || [];
+  } catch {}
+  try {
+    const POLYMARKET_HOT_TOPICS = require('./data/polymarketData').POLYMARKET_HOT_TOPICS;
+    window['__polymarket_hot_topics__'] = POLYMARKET_HOT_TOPICS || [];
+  } catch {}
+  try {
+    const { ETHIOPIAN_MARKETS_DATA } = require('./components/polymarket/views/PolymarketEthiopiaView');
+    window['__polymarket_ethiopia_seed__'] = ETHIOPIAN_MARKETS_DATA || [];
+  } catch {}
+  try {
+    const { BREAKING_NEWS_ITEMS } = require('./data/polymarketExtendedData');
+    window['__polymarket_breaking_seed__'] = BREAKING_NEWS_ITEMS || [];
+  } catch {}
+  try {
+    const { WEATHER_CITY_MARKETS } = require('./data/polymarketExtendedData');
+    window['__polymarket_weather_cities_seed__'] = WEATHER_CITY_MARKETS || [];
+  } catch {}
+  try {
+    const { WEATHER_EVENT_MARKETS } = require('./data/polymarketExtendedData');
+    window['__polymarket_weather_events_seed__'] = WEATHER_EVENT_MARKETS || [];
+  } catch {}
+  try {
+    const { ART_MARKETS } = require('./data/polymarketExtendedData');
+    window['__polymarket_art_seed__'] = ART_MARKETS || [];
+  } catch {}
+  try {
+    const { PERP_TOKENS } = require('./data/polymarketExtendedData');
+    window['__polymarket_perps_seed__'] = PERP_TOKENS || [];
+  } catch {}
+})();
 import { ProfilePage } from './components/ProfilePage';
 import { TelebirrWithdrawModal } from './components/TelebirrWithdrawModal';
 import { CheckCircle, Info, AlertTriangle } from 'lucide-react';
@@ -85,7 +144,17 @@ const BettingAppContent: React.FC = () => {
   };
 
   // Dedicated /admin route hosting the Free Match & Odds API · Redis Cache Engine
+  // and the Polymarket admin editor at /admin/polymarket
   if (currentPath === '/admin' || currentPath.startsWith('/admin')) {
+    // Polymarket admin sub-route
+    if (currentPath === '/admin/polymarket' || currentPath.startsWith('/admin/polymarket')) {
+      return (
+        <>
+          <PolymarketAdmin onBack={() => navigateTo('/')} />
+          <ToastNotification />
+        </>
+      );
+    }
     return (
       <>
         <AdminPage onBack={() => navigateTo('/')} />

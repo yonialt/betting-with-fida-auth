@@ -6,7 +6,8 @@ import {
   ChevronRight,
   TrendingUp,
 } from 'lucide-react';
-import { POLYMARKET_HOT_TOPICS, POLYMARKET_HERO } from '../../data/polymarketData';
+import { POLYMARKET_HOT_TOPICS, POLYMARKET_HERO, marketLogoUrl } from '../../data/polymarketData';
+import { heroSlideLogoUrl, HERO_CAROUSEL_SLIDES } from '../../data/polymarketExtendedData';
 import { PolymarketChat } from './PolymarketChat';
 import { PolymarketTradeWidget } from './PolymarketTradeWidget';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
@@ -35,7 +36,26 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
   const { polymarketDarkMode } = useBetting();
   const { language } = useBetting();
   const [activeSecondaryTab, setActiveSecondaryTab] = useState<'trade' | 'chat' | 'topics'>('trade');
-  const displayMarket = selectedMarket || POLYMARKET_HERO;
+  
+  // Default market: Addis Ababa legal administrative status change before 2029
+  const addisAbabaLegalMarket: PolymarketMarket = {
+    id: 'eth-addis-federal-city',
+    title: "Will Addis Ababa's legal administrative status officially change before 2029?",
+    category: 'Politics',
+    subcategory: 'Ethiopia',
+    countryFlag: '🇪🇹',
+    volume: '14.7M ETB Vol',
+    displayType: 'binary_buttons',
+    outcomes: [
+      { name: 'Yes', probability: 38, yesPrice: 38, noPrice: 62 },
+      { name: 'No', probability: 62, yesPrice: 62, noPrice: 38 },
+    ],
+    marketOpened: 'Jan 1, 2029',
+    resolverAddress: 'UMA 0x9fc47De9D...',
+    logoUrl: heroSlideLogoUrl['eth-addis-federal-city'],
+  };
+  
+  const displayMarket = selectedMarket || addisAbabaLegalMarket;
 
   return (
     <div className="w-full flex flex-col gap-4">

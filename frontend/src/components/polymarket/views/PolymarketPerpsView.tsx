@@ -148,12 +148,21 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
                   {/* Token Header */}
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white shadow-sm"
-                        style={{ backgroundColor: token.logoBg }}
-                      >
-                        {token.symbol.slice(0, 3)}
-                      </div>
+                      {token.logoUrl ? (
+                        <img
+                          src={token.logoUrl}
+                          alt={token.symbol}
+                          className="w-7 h-7 rounded-full object-contain shadow-sm"
+                          style={{ backgroundColor: token.logoBg }}
+                        />
+                      ) : (
+                        <div
+                          className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white shadow-sm"
+                          style={{ backgroundColor: token.logoBg }}
+                        >
+                          {token.symbol.slice(0, 3)}
+                        </div>
+                      )}
                       <div>
                         <div className="font-bold text-sm text-white">{token.symbol}</div>
                         <div className="text-[10px] text-neutral-400">{token.category}</div>
@@ -232,12 +241,21 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
 
             {/* Modal Title */}
             <div className="flex items-center gap-2.5 mb-4">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white"
-                style={{ backgroundColor: selectedToken.logoBg }}
-              >
-                {selectedToken.symbol.slice(0, 3)}
-              </div>
+              {selectedToken.logoUrl ? (
+                <img
+                  src={selectedToken.logoUrl}
+                  alt={selectedToken.symbol}
+                  className="w-8 h-8 rounded-full object-contain"
+                  style={{ backgroundColor: selectedToken.logoBg }}
+                />
+              ) : (
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white"
+                  style={{ backgroundColor: selectedToken.logoBg }}
+                >
+                  {selectedToken.symbol.slice(0, 3)}
+                </div>
+              )}
               <div>
                 <h3 className="font-bold text-base text-white">
                   {tradeSide} {selectedToken.symbol}-PERP

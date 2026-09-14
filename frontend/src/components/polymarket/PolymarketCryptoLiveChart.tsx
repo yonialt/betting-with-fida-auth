@@ -33,6 +33,7 @@ export interface CryptoConfig {
   priceToBeat: number;
   currentPrice: number;
   color: string;
+  logoUrl?: string;
 }
 
 interface Props {
@@ -217,12 +218,21 @@ export const PolymarketCryptoLiveChart: React.FC<Props> = ({ crypto, onBack, isD
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white shadow-sm shrink-0"
-                style={{ backgroundColor: lineColor }}
-              >
-                {crypto.symbol.slice(0, 1)}
-              </div>
+              {crypto.logoUrl ? (
+                <img
+                  src={crypto.logoUrl}
+                  alt={crypto.symbol}
+                  className="w-9 h-9 rounded-xl object-contain shadow-sm shrink-0"
+                  style={{ backgroundColor: lineColor }}
+                />
+              ) : (
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white shadow-sm shrink-0"
+                  style={{ backgroundColor: lineColor }}
+                >
+                  {crypto.symbol.slice(0, 1)}
+                </div>
+              )}
               <div className="min-w-0">
                 <h1 className="text-lg font-black tracking-tight truncate">{crypto.symbol} Up or Down 5m</h1>
                 <div className={`flex items-center gap-1 text-[11px] ${T.soft}`}>
@@ -383,9 +393,18 @@ export const PolymarketCryptoLiveChart: React.FC<Props> = ({ crypto, onBack, isD
           <div className={`rounded-2xl border ${T.card} p-4`}>
             {/* head */}
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-sm" style={{ backgroundColor: lineColor }}>
-                {crypto.symbol.slice(0, 1)}
-              </div>
+              {crypto.logoUrl ? (
+                <img
+                  src={crypto.logoUrl}
+                  alt={crypto.symbol}
+                  className="w-8 h-8 rounded-lg object-contain"
+                  style={{ backgroundColor: lineColor }}
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-sm" style={{ backgroundColor: lineColor }}>
+                  {crypto.symbol.slice(0, 1)}
+                </div>
+              )}
               <div>
                 <div className="text-xs font-semibold">{crypto.symbol} Up or Down 5m</div>
                 <div className={`text-sm font-black ${side === 'up' ? 'text-emerald-500' : 'text-rose-500'}`}>

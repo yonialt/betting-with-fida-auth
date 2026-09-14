@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PolymarketTradeState } from '../../../types/polymarket';
+import { PolymarketMarket, PolymarketTradeState, PolymarketOutcome, PolymarketChartData } from '../../../types/polymarket';
 import {
   Music,
   Bookmark,
@@ -8,10 +8,19 @@ import {
 
 interface PolymarketCultureViewProps {
   onSelectOutcome: (trade: PolymarketTradeState) => void;
+  onOpenDetail: (market: PolymarketMarket) => void;
   isDarkMode?: boolean;
 }
 
-const subcategories = [
+interface CultureCard {
+  id: string;
+  region: string;
+  title: string;
+  volume: string;
+  chance?: string;
+}
+
+const CULTURE_SUBCATEGORIES = [
   { name: 'All', count: '2.1K' },
   { name: 'Ethiopia 🇪🇹', count: '220' },
   { name: 'Music', count: '340' },
@@ -25,7 +34,7 @@ const subcategories = [
   { name: 'Language', count: '60' },
 ];
 
-const cultureCards = [
+const CULTURE_CARDS: CultureCard[] = [
   {
     id: 'cul-eth-music',
     region: 'Ethiopia 🇪🇹',
@@ -112,8 +121,71 @@ const cultureCards = [
   },
 ];
 
+const CULTURE_LOGO_MAP: Record<string, string> = {
+  'cul-eth-music': '/best-ai-september .jpg',
+  'cul-eth-festival': '/best-ai-september .jpg',
+  'cul-eth-film': '/best-ai-september .jpg',
+  'cul-oscar': '/best-ai-september .jpg',
+  'cul-tiktok': '/best-ai-september .jpg',
+  'cul-mrbeast': '/best-ai-september .jpg',
+  'cul-grammy': '/best-ai-september .jpg',
+  'cul-nba': '/best-ai-september .jpg',
+  'cul-f1': '/best-ai-september .jpg',
+  'cul-netflix': '/best-ai-september .jpg',
+  'cul-fifa': '/best-ai-september .jpg',
+  'cul-anime': '/best-ai-september .jpg',
+};
+
+// Convert a CultureCard to PolymarketMarket format
+const cultureCardToMarket = (card: CultureCard): PolymarketMarket => {
+  const outcomes: PolymarketOutcome[] = [];
+
+  if (card.chance) {
+    const chanceNum = parseInt(card.chance.replace('%', '')) || 50;
+    outcomes.push(
+      { name: 'Yes', probability: chanceNum, yesPrice: chanceNum, noPrice: 100 - chanceNum },
+      { name: 'No', probability: 100 - chanceNum, yesPrice: 100 - chanceNum, noPrice: chanceNum }
+    );
+  }
+
+  // Generate chart data
+  const baseProb = outcomes[0]?.probability || 50;
+  const chartData: PolymarketChartData = {
+    labels: ['May 1', 'May 8', 'May 15', 'May 22', 'May 29', 'Jun 5', 'Jun 12', 'Jun 19'],
+    series: [
+      {
+        name: outcomes[0]?.name || 'Lead',
+        color: '#38bdf8',
+        currentVal: baseProb,
+        data: outcomes.map((_, i) => {
+          const trend = (i / outcomes.length) * 5;
+          const noise = (Math.random() - 0.5) * 3;
+          return Math.min(99, Math.max(1, baseProb + trend + noise));
+        }),
+      },
+    ],
+  };
+
+  return {
+    id: card.id,
+    title: card.title,
+    category: 'Culture',
+    subcategory: card.region,
+    countryFlag: card.region.includes('Ethiopia') ? '🇪🇹' : undefined,
+    volume: card.volume,
+    displayType: 'binary_buttons',
+    outcomes,
+    chartData,
+    marketOpened: 'Jan 1, 2026',
+    resolverAddress: 'UMA 0x9fc47De9D...',
+    commentsCount: Math.floor(Math.random() * 50) + 20,
+    logoUrl: CULTURE_LOGO_MAP[card.id],
+  };
+};
+
 export const PolymarketCultureView: React.FC<PolymarketCultureViewProps> = ({
   onSelectOutcome,
+  onOpenDetail,
   isDarkMode = true,
 }) => {
   const [activeSubcat, setActiveSubcat] = useState<string>('All');
@@ -129,8 +201,15 @@ export const PolymarketCultureView: React.FC<PolymarketCultureViewProps> = ({
 
   const filteredCards =
     activeSubcat === 'All'
-      ? cultureCards
-      : cultureCards.filter((c) => c.region === activeSubcat);
+      ? CULTURE_CARDS
+      : CULTURE_CARDS.filter((c) => c.region === activeSubcat);
+
+  const handleCardClick = (card: CultureCard) => {
+    const market = cultureCardToMarket(card);
+    if (onOpenDetail) {
+      onOpenDetail(market);
+    }
+  };
 
   return (
     <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white">
@@ -141,7 +220,7 @@ export const PolymarketCultureView: React.FC<PolymarketCultureViewProps> = ({
             Culture
           </div>
           <div className="space-y-0.5">
-            {subcategories.map((sub) => {
+            {CULTURE_SUBCATEGORIES.map((sub) => {
               const isActive = activeSubcat === sub.name;
               return (
                 <button
@@ -177,57 +256,70 @@ export const PolymarketCultureView: React.FC<PolymarketCultureViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredCards.map((card) => {
               const isBookmarked = bookmarkedIds.has(card.id);
+              const market = cultureCardToMarket(card);
+
               return (
                 <div
                   key={card.id}
-                  className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between group"
+                  onClick={(e) => { console.log('Card clicked:', card.id); handleCardClick(card); }}
+                  className="p-4 rounded-2xl bg-[#101622] border border-[#1b2536] hover:border-[#25344c] transition-all flex flex-col justify-between group cursor-pointer"
                 >
                   <div>
-                    <span className="text-[10px] font-mono text-pink-400 font-bold uppercase">
-                      {card.region}
-                    </span>
+                    {card.region && (
+                      <span className="text-[10px] font-mono text-pink-400 font-bold uppercase">
+                        {card.region}
+                      </span>
+                    )}
                     <h3 className="text-sm font-bold text-white group-hover:text-pink-400 transition-colors line-clamp-2 mt-1.5 mb-3">
                       {card.title}
                     </h3>
-                    <div className="my-2">
-                      <div className="text-xl font-bold font-mono text-emerald-400">
-                        {card.chance} chance
+
+                    {card.chance ? (
+                      <div className="my-2">
+                        <div className="text-xl font-bold font-mono text-emerald-400">
+                          {card.chance}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectOutcome({
+                                market,
+                                outcome: market.outcomes[0],
+                                side: 'yes',
+                                price: market.outcomes[0].yesPrice,
+                              });
+                            }}
+                            className="py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectOutcome({
+                                market,
+                                outcome: market.outcomes[1],
+                                side: 'no',
+                                price: market.outcomes[1].yesPrice,
+                              });
+                            }}
+                            className="py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
+                          >
+                            No
+                          </button>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        <button
-                          onClick={() =>
-                            onSelectOutcome({
-                              marketId: card.id,
-                              outcomeName: 'Yes',
-                              price: parseInt(card.chance),
-                              side: 'yes',
-                            })
-                          }
-                          className="py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={() =>
-                            onSelectOutcome({
-                              marketId: card.id,
-                              outcomeName: 'No',
-                              price: 100 - parseInt(card.chance),
-                              side: 'no',
-                            })
-                          }
-                          className="py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold transition-colors cursor-pointer text-center"
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
+                    ) : null}
                   </div>
+
+                  {/* Card Footer */}
                   <div className="pt-2.5 mt-2 border-t border-[#1a2333] flex items-center justify-between text-xs text-neutral-400">
                     <div className="flex items-center gap-1.5 font-mono">
                       <span>{card.volume}</span>
                       <Repeat2 className="w-3 h-3 text-neutral-500" />
                     </div>
+
                     <button
                       onClick={(e) => toggleBookmark(card.id, e)}
                       className="cursor-pointer hover:text-white"

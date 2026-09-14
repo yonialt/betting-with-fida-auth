@@ -12,6 +12,7 @@ import {
 import {
   POLYMARKET_ALL_MARKETS,
   POLYMARKET_TAG_PILLS,
+  marketLogoUrl,
 } from '../../data/polymarketData';
 import {
   PolymarketMarket,
@@ -92,10 +93,37 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
     }
   };
 
+  // Sports/esports categories to exclude from Polymarket view
+  const SPORTS_ESPORTS_KEYWORDS = [
+    'football', 'soccer', 'esport', 'basketball', 'tennis', 'baseball',
+    'american football', 'nfl', 'premier league', 'champions league',
+    'mlb', 'nba', 'ufc', 'f1', 'formula 1', 'motorsport',
+  ];
+
+  const isSportsOrEsports = (market: PolymarketMarket) => {
+    const titleLower = market.title.toLowerCase();
+    const categoryLower = market.category.toLowerCase();
+    const subcatLower = market.subcategory?.toLowerCase() || '';
+
+    // Check display type for sports-specific types
+    if (market.displayType === 'football_match' || market.displayType === 'versus_match' || market.displayType === 'match_versus') {
+      return true;
+    }
+
+    // Check title and category for sports keywords
+    const combined = `${titleLower} ${categoryLower} ${subcatLower}`;
+    return SPORTS_ESPORTS_KEYWORDS.some((keyword) => combined.includes(keyword));
+  };
+
   // Filter markets by search, tag, categoryFilter, and bookmark toggle
   const combinedSearch = (searchFilter || internalSearch).trim().toLowerCase();
 
   const filteredMarkets = markets.filter((market) => {
+    // Exclude sports and esports markets
+    if (isSportsOrEsports(market)) {
+      return false;
+    }
+
     if (showBookmarkedOnly && !bookmarkedMarkets.has(market.id)) {
       return false;
     }
@@ -132,6 +160,32 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
 
     return true;
   });
+
+  // Resolve crypto logo URL based on market title/category
+  const getCryptoLogoUrl = (market: PolymarketMarket): string | null => {
+    const titleLower = (market.title || '').toLowerCase();
+    const categoryLower = (market.category || '').toLowerCase();
+    const combined = `${titleLower} ${categoryLower}`;
+
+    if (/bitcoin|btc|₿/.test(combined)) return '/bitcoincrypot.jpg';
+    if (/ethereum|eth/.test(combined)) return '/ETHcoincrypot.jpg';
+    if (/solana|sol/.test(combined)) return '/solcrypot.jpg';
+    if (/dogecoin|doge/.test(combined)) return '/dogecrypot.jpg';
+    if (/binance|bnb/.test(combined)) return '/bnbcrypot.jpg';
+    if (/zcash|zec/.test(combined)) return '/zcacrypot.jpg';
+    if (/hyperliquid|hype/.test(combined)) return '/hypecrypot.jpg';
+    if (/ripple|xrp/.test(combined)) return '/xrpcrypot.jpg';
+    return null;
+  };
+
+  // Get the final logo URL for a market (checks multiple sources)
+  const getMarketLogo = (market: PolymarketMarket): string | null => {
+    if (market.logoUrl) return market.logoUrl;
+    if (marketLogoUrl[market.id]) return marketLogoUrl[market.id];
+    if (market.imageUrl) return market.imageUrl;
+    if (market.avatarUrl) return market.avatarUrl;
+    return getCryptoLogoUrl(market);
+  };
 
   // Render team or league emblem icon
   const renderEmblem = (logoType?: string, flag?: string) => {
@@ -176,14 +230,7 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
         </div>
       );
     }
-    if (logoType === 'brewers') {
-      return (
-        <div className="w-5 h-5 rounded-full bg-[#0a2351] border border-[#ffc52f]/40 flex items-center justify-center shrink-0">
-          <span className="font-black text-[10px] text-[#ffc52f] leading-none">M</span>
-        </div>
-      );
-    }
-    if (logoType === 'reds') {
+        if (logoType === 'reds') {
       return (
         <div className="w-5 h-5 rounded-full bg-[#c6011f] flex items-center justify-center shrink-0">
           <span className="font-serif font-black text-[10.5px] text-white leading-none">C</span>
@@ -333,123 +380,6 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
       );
     }
 
-    // 2. Versus Match Card (CS2 Spirit vs MOUZ, LoL G2 vs Karmine, MLB Brewers vs Reds, Tigers vs Guardians, Tennis Kostyuk vs Noskova)
-    if (market.displayType === 'match_versus' || market.displayType === 'versus_match') {
-      const out1 = market.outcomes[0];
-      const out2 = market.outcomes[1];
-
-      return (
-        <div
-          key={market.id}
-          onClick={() => onOpenDetail?.(market)}
-          className="bg-[#101622] border border-[#1a2333] hover:border-[#28374d] rounded-2xl p-4 text-white flex flex-col justify-between transition-all shadow-md group cursor-pointer"
-        >
-          <div>
-            {/* Two Teams / Competitors Rows */}
-            <div className="flex flex-col gap-2.5 mb-3.5">
-              {/* Competitor 1 */}
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 min-w-0">
-                  {renderEmblem(out1?.logoType, out1?.countryFlag)}
-                  {out1?.badge && (
-                    <span className="font-mono text-neutral-300 font-bold text-xs shrink-0">
-                      {out1.badge}
-                    </span>
-                  )}
-                  <span className="font-semibold text-white truncate text-xs">
-                    {out1?.name}
-                  </span>
-                </div>
-                <span className="font-mono font-bold text-white text-sm shrink-0 ml-2">
-                  {out1?.probability}%
-                </span>
-              </div>
-
-              {/* Competitor 2 */}
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 min-w-0">
-                  {renderEmblem(out2?.logoType, out2?.countryFlag)}
-                  {out2?.badge && (
-                    <span className="font-mono text-neutral-300 font-bold text-xs shrink-0">
-                      {out2.badge}
-                    </span>
-                  )}
-                  <span className="font-semibold text-white truncate text-xs">
-                    {out2?.name}
-                  </span>
-                </div>
-                <span className="font-mono font-bold text-white text-sm shrink-0 ml-2">
-                  {out2?.probability}%
-                </span>
-              </div>
-            </div>
-
-            {/* Team/Player Action Buttons side by side with custom themes */}
-            <div className="grid grid-cols-2 gap-2.5 my-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectOutcome({
-                    market,
-                    outcome: out1,
-                    side: 'team1',
-                    price: out1?.yesPrice || out1?.probability,
-                  });
-                }}
-                className={`py-2 rounded-xl text-xs font-bold transition-all truncate px-2 cursor-pointer shadow-xs active:scale-98 ${getMatchButtonClasses(
-                  out1?.buttonTheme
-                )}`}
-              >
-                {out1?.shortName || out1?.name}
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectOutcome({
-                    market,
-                    outcome: out2,
-                    side: 'team2',
-                    price: out2?.yesPrice || out2?.probability,
-                  });
-                }}
-                className={`py-2 rounded-xl text-xs font-bold transition-all truncate px-2 cursor-pointer shadow-xs active:scale-98 ${getMatchButtonClasses(
-                  out2?.buttonTheme
-                )}`}
-              >
-                {out2?.shortName || out2?.name}
-              </button>
-            </div>
-          </div>
-
-          {/* Match Footer: Live status dot + volume + category + bookmark */}
-          <div className="mt-3 pt-2.5 border-t border-[#1b2536] flex items-center justify-between text-xs text-neutral-400">
-            <div className="flex items-center gap-1.5 font-medium truncate">
-              {market.matchStatus && (
-                <span className="text-red-500 font-bold flex items-center gap-1 shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-pulse" />
-                  {market.matchStatus}
-                </span>
-              )}
-              <span className="text-neutral-400 truncate">
-                {formatBirrVolume(market.volume, language)}
-              </span>
-            </div>
-
-            <button
-              onClick={(e) => toggleBookmark(market.id, e)}
-              className="text-neutral-400 hover:text-white transition-colors cursor-pointer shrink-0 ml-1"
-              title="Bookmark market"
-            >
-              <Bookmark
-                className={`w-4 h-4 ${isBookmarked ? 'text-amber-400 fill-amber-400' : ''}`}
-              />
-            </button>
-          </div>
-        </div>
-      );
-    }
-
     // 3. Multi-Outcome standard card (Fed Decision, US Open Winner, etc.)
     return (
       <div
@@ -465,6 +395,12 @@ export const PolymarketAllMarketsGrid: React.FC<PolymarketAllMarketsGridProps> =
                 <span className="text-[7.5px] font-black text-[#0f2d59] leading-none tracking-tight">us open</span>
                 <div className="w-3.5 h-0.5 bg-[#f59e0b] rounded-full mt-0.5"></div>
               </div>
+            ) : getMarketLogo(market) ? (
+              <img
+                src={getMarketLogo(market)}
+                alt={market.title}
+                className="w-8 h-8 rounded-md object-contain shrink-0 border border-[#222c3e] bg-[#0b111c]"
+              />
             ) : market.imageUrl ? (
               <img
                 src={market.imageUrl}

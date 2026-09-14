@@ -52,14 +52,6 @@ export const PolymarketEsportsView: React.FC<{
       team2: { name: 'Karmine Corp', odds: '31%', prob: 31 },
     },
     {
-      id: 'cs2-spirit-mouz',
-      league: 'CS2 · BLAST Open Fall',
-      status: 'Map 4 of 5 · LIVE',
-      volume: '4.4M ETB Vol.',
-      team1: { name: 'Spirit', odds: '83%', prob: 83 },
-      team2: { name: 'MOUZ', odds: '17%', prob: 17 },
-    },
-    {
       id: 'dota2-spirit-liquid',
       league: 'Dota 2 · The International',
       status: 'Game 2 · Upcoming',
