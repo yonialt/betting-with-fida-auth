@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 permissions:
   id-token: write
   contents: read
@@ -20,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # --------------------------------------------------
+      # CHECKOUT
+      # --------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -30,7 +34,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::933858446201:role/GitHubActionsECRRole
-    aws-region: us-east-1
+          aws-region: us-east-1
 
       # --------------------------------------------------
       # ECR LOGIN
@@ -46,38 +50,52 @@ jobs:
         run: echo "DEPLOY_TAG=${GITHUB_SHA}" >> "$GITHUB_ENV"
 
       # --------------------------------------------------
-      # FRONTEND
+      # BUILD AND PUSH FRONTEND
       # --------------------------------------------------
       - name: Build and push frontend image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ env.DEPLOY_TAG }}
         run: |
+          echo "Building frontend..."
+
           docker build \
             --file frontend/Dockerfile \
             --tag "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG" \
             --tag "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest" \
             ./frontend
 
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest"
+          echo "Pushing frontend..."
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG"
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest"
 
       # --------------------------------------------------
-      # BACKEND
+      # BUILD AND PUSH BACKEND
       # --------------------------------------------------
       - name: Build and push backend image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ env.DEPLOY_TAG }}
         run: |
+          echo "Building backend..."
+
           docker build \
             --file backend-springboot/Dockerfile \
             --tag "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" \
             --tag "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest" \
             ./backend-springboot
 
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest"
+          echo "Pushing backend..."
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG"
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest"
 
       # --------------------------------------------------
       # DEPLOY TO EC2
@@ -89,16 +107,25 @@ jobs:
           DEPLOY_DIR: /home/${{ env.EC2_USERNAME }}/fida-bet
         run: |
 
-          # Create SSH key
+          echo "========================================="
+          echo "Preparing EC2 deployment"
+          echo "========================================="
+
+          # ------------------------------------------------
+          # CREATE SSH KEY
+          # ------------------------------------------------
           mkdir -p "$HOME/.ssh"
 
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > "$HOME/.ssh/ec2_key"
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" \
+            > "$HOME/.ssh/ec2_key"
 
           chmod 600 "$HOME/.ssh/ec2_key"
 
           # ------------------------------------------------
-          # Create deployment directory on EC2
+          # CREATE DEPLOYMENT DIRECTORY
           # ------------------------------------------------
+          echo "Creating deployment directory..."
+
           ssh \
             -i "$HOME/.ssh/ec2_key" \
             -o StrictHostKeyChecking=no \
@@ -106,8 +133,10 @@ jobs:
             "mkdir -p '$DEPLOY_DIR'"
 
           # ------------------------------------------------
-          # Create docker-compose.ec2.yml
+          # CREATE DOCKER COMPOSE FILE
           # ------------------------------------------------
+          echo "Creating docker-compose.ec2.yml..."
+
           cat > docker-compose.ec2.yml <<EOF
           services:
 
@@ -150,8 +179,10 @@ jobs:
           EOF
 
           # ------------------------------------------------
-          # Copy compose file to EC2
+          # COPY COMPOSE FILE TO EC2
           # ------------------------------------------------
+          echo "Copying Docker Compose file to EC2..."
+
           scp \
             -i "$HOME/.ssh/ec2_key" \
             -o StrictHostKeyChecking=no \
@@ -161,8 +192,10 @@ jobs:
           rm -f docker-compose.ec2.yml
 
           # ------------------------------------------------
-          # Deploy on EC2
+          # DEPLOY ON EC2
           # ------------------------------------------------
+          echo "Starting EC2 deployment..."
+
           ssh \
             -i "$HOME/.ssh/ec2_key" \
             -o StrictHostKeyChecking=no \
@@ -178,7 +211,7 @@ jobs:
             set -e
 
             echo "========================================="
-            echo "Deploying FidaBet"
+            echo "FidaBet Deployment"
             echo "========================================="
 
             cd "$DEPLOY_DIR"
@@ -187,7 +220,7 @@ jobs:
             echo "Image tag: $IMAGE_TAG"
 
             # ------------------------------------------------
-            # Login to ECR
+            # LOGIN TO ECR
             # ------------------------------------------------
             echo "Logging into Amazon ECR..."
 
@@ -198,26 +231,34 @@ jobs:
                 --password-stdin "$ECR_REGISTRY"
 
             # ------------------------------------------------
-            # Pull exact new images
+            # PULL FRONTEND
             # ------------------------------------------------
             echo "Pulling frontend image..."
 
             docker pull \
               "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG"
 
+            # ------------------------------------------------
+            # PULL BACKEND
+            # ------------------------------------------------
             echo "Pulling backend image..."
 
             docker pull \
               "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG"
 
             # ------------------------------------------------
-            # Start/recreate containers
+            # STOP OLD CONTAINERS
             # ------------------------------------------------
-            echo "Starting containers..."
+            echo "Stopping old containers..."
 
             docker compose \
               -f docker-compose.ec2.yml \
               down
+
+            # ------------------------------------------------
+            # START NEW CONTAINERS
+            # ------------------------------------------------
+            echo "Starting new containers..."
 
             docker compose \
               -f docker-compose.ec2.yml \
@@ -225,14 +266,14 @@ jobs:
               --remove-orphans
 
             # ------------------------------------------------
-            # Cleanup old images
+            # CLEAN OLD IMAGES
             # ------------------------------------------------
-            echo "Cleaning old Docker images..."
+            echo "Cleaning unused Docker images..."
 
             docker image prune -f
 
             # ------------------------------------------------
-            # Show status
+            # SHOW CONTAINER STATUS
             # ------------------------------------------------
             echo "========================================="
             echo "Running containers"
