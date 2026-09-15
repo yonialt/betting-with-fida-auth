@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_REGION: us-east-1
   ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_FRONTEND_REPOSITORY }}
   ECR_REPOSITORY_BACKEND: ${{ vars.ECR_BACKEND_REPOSITORY }}
   EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -20,19 +20,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # --------------------------------------------------
+      # AWS OIDC
+      # --------------------------------------------------
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsECRRole
           aws-region: ${{ env.AWS_REGION }}
 
+      # --------------------------------------------------
+      # ECR LOGIN
+      # --------------------------------------------------
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # --------------------------------------------------
+      # IMAGE TAG
+      # --------------------------------------------------
       - name: Set deployment tag
-        run: echo "DEPLOY_TAG=${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "DEPLOY_TAG=${GITHUB_SHA}" >> "$GITHUB_ENV"
 
+      # --------------------------------------------------
+      # FRONTEND
+      # --------------------------------------------------
       - name: Build and push frontend image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -40,12 +52,16 @@ jobs:
         run: |
           docker build \
             --file frontend/Dockerfile \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest \
+            --tag "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG" \
+            --tag "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest" \
             ./frontend
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest
 
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest"
+
+      # --------------------------------------------------
+      # BACKEND
+      # --------------------------------------------------
       - name: Build and push backend image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -53,43 +69,45 @@ jobs:
         run: |
           docker build \
             --file backend-springboot/Dockerfile \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest \
+            --tag "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" \
+            --tag "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest" \
             ./backend-springboot
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest
 
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest"
+
+      # --------------------------------------------------
+      # DEPLOY TO EC2
+      # --------------------------------------------------
       - name: Deploy to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ env.DEPLOY_TAG }}
-          DEPLOY_DIR: /home/$EC2_USERNAME/fida-bet
-          ECR_REPOSITORY_FRONTEND: ${{ env.ECR_REPOSITORY_FRONTEND }}
-          ECR_REPOSITORY_BACKEND: ${{ env.ECR_REPOSITORY_BACKEND }}
+          DEPLOY_DIR: /home/${{ env.EC2_USERNAME }}/fida-bet
         run: |
-          mkdir -p $HOME/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > $HOME/.ssh/ec2_key
-          chmod 600 $HOME/.ssh/ec2_key
 
-          # Create .env file on EC2 if it doesn't exist (only needs to be done once)
-          ssh -i $HOME/.ssh/ec2_key -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST << 'SETUPEOF'
-            set -e
-            DEPLOY_DIR="/home/$EC2_USERNAME/fida-bet"
-            mkdir -p "$DEPLOY_DIR"
-            cd "$DEPLOY_DIR"
+          # Create SSH key
+          mkdir -p "$HOME/.ssh"
 
-            # Create .env file for docker-compose if it doesn't exist
-            if [ ! -f .env ]; then
-              echo "ECR_REGISTRY=${ECR_REGISTRY}" > .env
-              echo "ECR_REPOSITORY_FRONTEND=${ECR_REPOSITORY_FRONTEND}" >> .env
-              echo "ECR_REPOSITORY_BACKEND=${ECR_REPOSITORY_BACKEND}" >> .env
-              echo "Created .env file"
-            fi
-          SETUPEOF
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > "$HOME/.ssh/ec2_key"
 
-          # Create docker-compose.ec2.yml locally with interpolated values and copy to EC2
-          cat > docker-compose.ec2.yml <<'LOCALEOF'
+          chmod 600 "$HOME/.ssh/ec2_key"
+
+          # ------------------------------------------------
+          # Create deployment directory on EC2
+          # ------------------------------------------------
+          ssh \
+            -i "$HOME/.ssh/ec2_key" \
+            -o StrictHostKeyChecking=no \
+            "$EC2_USERNAME@$EC2_HOST" \
+            "mkdir -p '$DEPLOY_DIR'"
+
+          # ------------------------------------------------
+          # Create docker-compose.ec2.yml
+          # ------------------------------------------------
+          cat > docker-compose.ec2.yml <<EOF
           services:
+
             redis:
               image: redis:7-alpine
               ports:
@@ -104,20 +122,20 @@ jobs:
               restart: unless-stopped
 
             fidabet-backend:
-              image: ${ECR_REGISTRY}/${ECR_REPOSITORY_BACKEND}:latest
+              image: ${ECR_REGISTRY}/${ECR_REPOSITORY_BACKEND}:${IMAGE_TAG}
               depends_on:
                 redis:
                   condition: service_healthy
               environment:
                 REDIS_HOST: redis
                 REDIS_PORT: 6379
-                API_FOOTBALL_KEY: ${API_FOOTBALL_KEY:-}
+                API_FOOTBALL_KEY: \${API_FOOTBALL_KEY:-}
               ports:
                 - "8080:8080"
               restart: unless-stopped
 
             fidabet-frontend:
-              image: ${ECR_REGISTRY}/${ECR_REPOSITORY_FRONTEND}:latest
+              image: ${ECR_REGISTRY}/${ECR_REPOSITORY_FRONTEND}:${IMAGE_TAG}
               depends_on:
                 - fidabet-backend
               ports:
@@ -126,45 +144,102 @@ jobs:
 
           volumes:
             redis-data:
-          LOCALEOF
+          EOF
 
-          sed -i "s|\${ECR_REGISTRY}|${ECR_REGISTRY}|g" docker-compose.ec2.yml
-          sed -i "s|\${ECR_REPOSITORY_BACKEND}|${ECR_REPOSITORY_BACKEND}|g" docker-compose.ec2.yml
-          sed -i "s|\${ECR_REPOSITORY_FRONTEND}|${ECR_REPOSITORY_FRONTEND}|g" docker-compose.ec2.yml
+          # ------------------------------------------------
+          # Copy compose file to EC2
+          # ------------------------------------------------
+          scp \
+            -i "$HOME/.ssh/ec2_key" \
+            -o StrictHostKeyChecking=no \
+            docker-compose.ec2.yml \
+            "$EC2_USERNAME@$EC2_HOST:$DEPLOY_DIR/docker-compose.ec2.yml"
 
-          scp -i $HOME/.ssh/ec2_key -o StrictHostKeyChecking=no docker-compose.ec2.yml $EC2_USERNAME@$EC2_HOST:$DEPLOY_DIR/docker-compose.ec2.yml
           rm -f docker-compose.ec2.yml
 
-          # Main deployment
-          ssh -i $HOME/.ssh/ec2_key -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST << 'DEPLOYEOF'
+          # ------------------------------------------------
+          # Deploy on EC2
+          # ------------------------------------------------
+          ssh \
+            -i "$HOME/.ssh/ec2_key" \
+            -o StrictHostKeyChecking=no \
+            "$EC2_USERNAME@$EC2_HOST" \
+            "ECR_REGISTRY='$ECR_REGISTRY' \
+             ECR_REPOSITORY_FRONTEND='$ECR_REPOSITORY_FRONTEND' \
+             ECR_REPOSITORY_BACKEND='$ECR_REPOSITORY_BACKEND' \
+             IMAGE_TAG='$IMAGE_TAG' \
+             AWS_REGION='$AWS_REGION' \
+             DEPLOY_DIR='$DEPLOY_DIR' \
+             bash -s" <<'DEPLOYEOF'
+
             set -e
 
-            DEPLOY_DIR="/home/$EC2_USERNAME/fida-bet"
+            echo "========================================="
+            echo "Deploying FidaBet"
+            echo "========================================="
+
             cd "$DEPLOY_DIR"
 
-            # Load environment variables from .env file
-            if [ -f .env ]; then
-              export $(grep -v '^#' .env | xargs)
-            fi
+            echo "AWS Region: $AWS_REGION"
+            echo "Image tag: $IMAGE_TAG"
 
+            # ------------------------------------------------
             # Login to ECR
-            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+            # ------------------------------------------------
+            echo "Logging into Amazon ECR..."
 
-            # Pull the new images
-            docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY_FRONTEND}:${IMAGE_TAG}
-            docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY_BACKEND}:${IMAGE_TAG}
+            aws ecr get-login-password \
+              --region "$AWS_REGION" \
+              | docker login \
+                --username AWS \
+                --password-stdin "$ECR_REGISTRY"
 
-            # Tag as latest for local docker-compose use
-            docker tag ${ECR_REGISTRY}/${ECR_REPOSITORY_FRONTEND}:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPOSITORY_FRONTEND}:latest
-            docker tag ${ECR_REGISTRY}/${ECR_REPOSITORY_BACKEND}:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPOSITORY_BACKEND}:latest
+            # ------------------------------------------------
+            # Pull exact new images
+            # ------------------------------------------------
+            echo "Pulling frontend image..."
 
-            # Recreate containers with new images
-            docker compose -f docker-compose.ec2.yml pull
-            docker compose -f docker-compose.ec2.yml up -d --remove-orphans
+            docker pull \
+              "$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG"
 
-            # Clean up old images
+            echo "Pulling backend image..."
+
+            docker pull \
+              "$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG"
+
+            # ------------------------------------------------
+            # Start/recreate containers
+            # ------------------------------------------------
+            echo "Starting containers..."
+
+            docker compose \
+              -f docker-compose.ec2.yml \
+              down
+
+            docker compose \
+              -f docker-compose.ec2.yml \
+              up -d \
+              --remove-orphans
+
+            # ------------------------------------------------
+            # Cleanup old images
+            # ------------------------------------------------
+            echo "Cleaning old Docker images..."
+
             docker image prune -f
 
-            # Show running containers
-            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            # ------------------------------------------------
+            # Show status
+            # ------------------------------------------------
+            echo "========================================="
+            echo "Running containers"
+            echo "========================================="
+
+            docker ps \
+              --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+            echo "========================================="
+            echo "Deployment complete"
+            echo "========================================="
+
           DEPLOYEOF
