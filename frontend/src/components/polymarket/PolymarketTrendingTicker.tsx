@@ -47,7 +47,7 @@ const TRENDING_ITEMS: TrendingItem[] = [
     title: 'Will Ethiopia officially amend or replace its constitution before 2029?',
     category: 'Politics',
     categoryLabel: 'Constitution & Reform',
-    logoUrl: '/offical logos/id  pm-eth-q-constitution-2029 .png',
+    logoUrl: '/ethiopianmilitary.png',
     accent: '#f59e0b',
     chance: 41,
     volume: '21.9M ETB Vol.',

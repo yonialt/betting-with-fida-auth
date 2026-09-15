@@ -1,41 +1,64 @@
 package com.fidabet.backend.service;
 
+import com.fidabet.backend.entity.Favorite;
+import com.fidabet.backend.entity.User;
+import com.fidabet.backend.repository.FavoriteRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
 /**
- * Favourite-match store (/api/favorites), ported from the Express in-memory {@code favoriteMatchIds}
- * set. Resolves ids against {@link MatchService} to return full match objects.
+ * Favourite-match store backed by PostgreSQL.
+ * Resolves ids against MatchService to return full match objects.
+ * Persists favorites per user; the acting user comes from the request bearer token.
  */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class FavouritesService {
 
     private final MatchService matchService;
-    private final Set<String> favouriteIds = ConcurrentHashMap.newKeySet();
+    private final UserAccountService userAccountService;
+    private final FavoriteRepository favoriteRepository;
 
-    public FavouritesService(MatchService matchService) {
-        this.matchService = matchService;
-        favouriteIds.add("arg-1"); // mirrors the Express seed
-    }
-
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> getFavourites() {
+        User user = userAccountService.resolveUser(TokenContext.token());
+        List<Favorite> favorites = favoriteRepository.findAllByUserId(user.getId());
         List<Map<String, Object>> out = new ArrayList<>();
-        for (String id : favouriteIds) {
-            matchService.getById(id).ifPresent(out::add);
+        for (Favorite favorite : favorites) {
+            matchService.getById(favorite.getMatchId()).ifPresent(out::add);
         }
         return out;
     }
 
+    @Transactional
     public void add(String matchId) {
-        favouriteIds.add(matchId);
+        User user = userAccountService.resolveUser(TokenContext.token());
+        Optional<Favorite> existing = favoriteRepository.findByUser_IdAndMatchId(user.getId(), matchId);
+        if (existing.isEmpty()) {
+            Favorite favorite = Favorite.builder()
+                    .user(user)
+                    .matchId(matchId)
+                    .build();
+            favoriteRepository.save(favorite);
+            log.info("Added favorite: {} for user {}", matchId, user.getId());
+        }
     }
 
+    @Transactional
     public void remove(String matchId) {
-        favouriteIds.remove(matchId);
+        User user = userAccountService.resolveUser(TokenContext.token());
+        Optional<Favorite> existing = favoriteRepository.findByUser_IdAndMatchId(user.getId(), matchId);
+        existing.ifPresent(favorite -> {
+            favoriteRepository.delete(favorite);
+            log.info("Removed favorite: {} for user {}", matchId, user.getId());
+        });
     }
 }

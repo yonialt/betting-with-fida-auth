@@ -54,6 +54,14 @@ public class ApiFootballResponseDto<T> {
         private Periods periods;
         private Venue venue;
         private Status status;
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public Venue getVenue() {
+            return venue;
+        }
     }
 
     @Data
@@ -77,6 +85,14 @@ public class ApiFootballResponseDto<T> {
         private String longName;
         private String shortName; // "1H", "2H", "HT", "FT", "NS"
         private Integer elapsed;
+
+        public String getShortName() {
+            return shortName;
+        }
+
+        public Integer getElapsed() {
+            return elapsed;
+        }
     }
 
     @Data
@@ -89,6 +105,18 @@ public class ApiFootballResponseDto<T> {
         private String flag;
         private Integer season;
         private String round;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getCountry() {
+            return country;
+        }
+
+        public String getFlag() {
+            return flag;
+        }
     }
 
     @Data
@@ -96,6 +124,14 @@ public class ApiFootballResponseDto<T> {
     public static class Teams {
         private Team home;
         private Team away;
+
+        public Team getHome() {
+            return home;
+        }
+
+        public Team getAway() {
+            return away;
+        }
     }
 
     @Data
@@ -105,6 +141,14 @@ public class ApiFootballResponseDto<T> {
         private String name;
         private String logo;
         private Boolean winner;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getLogo() {
+            return logo;
+        }
     }
 
     @Data
@@ -112,6 +156,14 @@ public class ApiFootballResponseDto<T> {
     public static class Goals {
         private Integer home;
         private Integer away;
+
+        public Integer getHome() {
+            return home;
+        }
+
+        public Integer getAway() {
+            return away;
+        }
     }
 
     @Data

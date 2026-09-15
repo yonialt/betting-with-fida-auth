@@ -18,17 +18,24 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public UserProfile profile() {
-        return users.getCurrentUser();
+    public UserProfile profile(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        return users.getCurrentUser(bearer(authorization));
     }
 
     @PutMapping("/profile")
-    public UserProfile updateProfile(@RequestBody(required = false) Map<String, Object> body) {
-        return users.updateProfile(body);
+    public UserProfile updateProfile(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return users.updateProfile(bearer(authorization), body);
     }
 
     @PostMapping("/kyc")
     public Map<String, Object> kyc() {
         return Map.<String, Object>of("status", "APPROVED", "message", "KYC documents received and verified");
+    }
+
+    private static String bearer(String authorization) {
+        return (authorization != null && authorization.startsWith("Bearer "))
+                ? authorization.substring("Bearer ".length()) : "";
     }
 }

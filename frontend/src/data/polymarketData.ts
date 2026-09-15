@@ -18,7 +18,7 @@ export const marketLogoUrl: Record<string, string> = {
   'weather-addis-ababa': '/weather-addis-ababa .jpg',
   'russia-ukraine-ceasefire': '/russiaxukranie.jpg',
   'pm-eth-q-addis-legal-status': '/pm-eth-q-addis-legal-status .jpg',
-  'pm-eth-q-constitution-2029': '/offical logos/id  pm-eth-q-constitution-2029 .png',
+  'pm-eth-q-constitution-2029': '/ethiopianmilitary.png',
   'pm-eth-addis-mayor-vote': '/addis ababa city.jpg',
   'pm-eth-au-summit-2026': '/addis ababa city.jpg',
   'pm-eth-ruling-majority-2026': '/addis ababa city.jpg',

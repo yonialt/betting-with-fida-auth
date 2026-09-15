@@ -34,28 +34,19 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1c263a] bg-[#0a0e17]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#0066ff] flex items-center justify-center text-white">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-4 h-4"
-              >
-                <path d="M12 2.5L21.5 8V16L12 21.5L2.5 16V8L12 2.5Z" />
-                <path d="M12 2.5V21.5" />
-                <path d="M2.5 8L21.5 16" />
-                <path d="M2.5 16L21.5 8" />
-              </svg>
+            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center overflow-hidden">
+              <img
+                src="/hagerawi-logo.png"
+                alt="Hagerawi"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h2 className="text-base font-bold text-white tracking-tight">
-                How Polymarket Works
+                ሃገራዊ predication market
               </h2>
               <p className="text-xs text-[#8e9eb3]">
-                The world's largest real-time prediction market
+                Hagerawi prediction market
               </p>
             </div>
           </div>
@@ -163,7 +154,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
                 }}
                 className="px-4 py-1.5 rounded-lg text-xs font-bold bg-[#0066ff] hover:bg-[#1a75ff] text-white flex items-center gap-1 transition-all cursor-pointer shadow-xs"
               >
-                <span>Start Trading</span>
+                <span>Start Predicting</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}

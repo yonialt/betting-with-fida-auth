@@ -1,0 +1,38 @@
+# Compiled class files
+target/
+*.class
+
+# Log files
+*.log
+logs/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Database export files
+*.sql
+*.dump
+
+# Keystore files
+*.jks
+*.keystore

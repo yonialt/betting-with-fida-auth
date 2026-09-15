@@ -1,5 +1,6 @@
 package com.fidabet.backend.controller;
 
+import com.fidabet.backend.entity.User;
 import com.fidabet.backend.model.UserProfile;
 import com.fidabet.backend.security.TokenService;
 import com.fidabet.backend.service.UserAccountService;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * Authentication endpoints, ported from the Express /api/auth/* routes.
  * The token lifecycle (issue on login/register, validate on session, invalidate on logout) is
- * preserved exactly; the underlying token store is now {@link TokenService}.
+ * preserved exactly; tokens are owned by the acting user and stored in PostgreSQL.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -29,20 +30,22 @@ public class AuthController {
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody(required = false) Map<String, Object> body) {
-        UserProfile user = users.login(strField(body, "username"));
-        return authPayload(user);
+        User entity = users.login(strField(body, "username"));
+        return authPayload(entity);
     }
 
     @PostMapping("/register")
     public Map<String, Object> register(@RequestBody(required = false) Map<String, Object> body) {
-        UserProfile user = users.register(strField(body, "username"), strField(body, "phone"));
-        return authPayload(user);
+        User entity = users.register(strField(body, "username"), strField(body, "phone"));
+        return authPayload(entity);
     }
 
     @PostMapping("/refresh")
-    public Map<String, Object> refresh() {
+    public Map<String, Object> refresh(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+        String token = bearer(authorization);
+        User entity = token.isBlank() ? users.getCurrentUserEntity() : users.resolveUserOrDemo(token);
         Map<String, Object> res = new LinkedHashMap<>();
-        res.put("token", tokens.issueAccessToken());
+        res.put("token", tokens.issueAccessToken(entity));
         res.put("refreshToken", tokens.issueRefreshToken());
         return res;
     }
@@ -56,7 +59,7 @@ public class AuthController {
         }
         Map<String, Object> res = new LinkedHashMap<>();
         res.put("token", token);
-        res.put("user", users.getCurrentUser());
+        res.put("user", users.getCurrentUser(token));
         return ResponseEntity.ok(res);
     }
 
@@ -77,11 +80,11 @@ public class AuthController {
         return Map.<String, Object>of("verified", true);
     }
 
-    private Map<String, Object> authPayload(UserProfile user) {
+    private Map<String, Object> authPayload(User entity) {
         Map<String, Object> res = new LinkedHashMap<>();
-        res.put("token", tokens.issueAccessToken());
+        res.put("token", tokens.issueAccessToken(entity));
         res.put("refreshToken", tokens.issueRefreshToken());
-        res.put("user", user);
+        res.put("user", UserAccountService.toUserProfile(entity));
         return res;
     }
 

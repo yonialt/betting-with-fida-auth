@@ -48,95 +48,18 @@ public class OddsEngineService {
 
         Map<String, OddsItemDto> map = new HashMap<>();
 
-        map.put("w1", OddsItemDto.builder()
-                .id("w1-" + matchId)
-                .label("1")
-                .name(team1)
-                .marketName("1X2")
-                .value(w1Val)
-                .trend("same")
-                .build());
+        map.put("w1", OddsItemDto.of("w1-" + matchId, "1", team1, "1X2", w1Val, "same"));
+        map.put("x", OddsItemDto.of("x-" + matchId, "X", "Draw", "1X2", xVal, "same"));
+        map.put("w2", OddsItemDto.of("w2-" + matchId, "2", team2, "1X2", w2Val, "same"));
 
-        map.put("x", OddsItemDto.builder()
-                .id("x-" + matchId)
-                .label("X")
-                .name("Draw")
-                .marketName("1X2")
-                .value(xVal)
-                .trend("same")
-                .build());
+        map.put("x1", OddsItemDto.of("x1-" + matchId, "1X", team1 + " or Draw", "Double Chance", dc1x, "same"));
+        map.put("w12", OddsItemDto.of("w12-" + matchId, "12", team1 + " or " + team2, "Double Chance", dc12, "same"));
+        map.put("x2", OddsItemDto.of("x2-" + matchId, "X2", "Draw or " + team2, "Double Chance", dcX2, "same"));
 
-        map.put("w2", OddsItemDto.builder()
-                .id("w2-" + matchId)
-                .label("2")
-                .name(team2)
-                .marketName("1X2")
-                .value(w2Val)
-                .trend("same")
-                .build());
-
-        map.put("x1", OddsItemDto.builder()
-                .id("x1-" + matchId)
-                .label("1X")
-                .name(team1 + " or Draw")
-                .marketName("Double Chance")
-                .value(dc1x)
-                .trend("same")
-                .build());
-
-        map.put("w12", OddsItemDto.builder()
-                .id("w12-" + matchId)
-                .label("12")
-                .name(team1 + " or " + team2)
-                .marketName("Double Chance")
-                .value(dc12)
-                .trend("same")
-                .build());
-
-        map.put("x2", OddsItemDto.builder()
-                .id("x2-" + matchId)
-                .label("X2")
-                .name("Draw or " + team2)
-                .marketName("Double Chance")
-                .value(dcX2)
-                .trend("same")
-                .build());
-
-        map.put("totalOver", OddsItemDto.builder()
-                .id("tot-o-" + matchId)
-                .label("Over 2.5")
-                .name("Over 2.5 Goals")
-                .marketName("Total Goals")
-                .value(1.85)
-                .trend("same")
-                .build());
-
-        map.put("totalUnder", OddsItemDto.builder()
-                .id("tot-u-" + matchId)
-                .label("Under 2.5")
-                .name("Under 2.5 Goals")
-                .marketName("Total Goals")
-                .value(1.95)
-                .trend("same")
-                .build());
-
-        map.put("handicap1", OddsItemDto.builder()
-                .id("h1-" + matchId)
-                .label("H1 (0.0)")
-                .name(team1 + " (0.0)")
-                .marketName("Handicap")
-                .value(1.90)
-                .trend("same")
-                .build());
-
-        map.put("handicap2", OddsItemDto.builder()
-                .id("h2-" + matchId)
-                .label("H2 (0.0)")
-                .name(team2 + " (0.0)")
-                .marketName("Handicap")
-                .value(1.90)
-                .trend("same")
-                .build());
+        map.put("totalOver", OddsItemDto.of("tot-o-" + matchId, "Over 2.5", "Over 2.5 Goals", "Total Goals", 1.85, "same"));
+        map.put("totalUnder", OddsItemDto.of("tot-u-" + matchId, "Under 2.5", "Under 2.5 Goals", "Total Goals", 1.95, "same"));
+        map.put("handicap1", OddsItemDto.of("h1-" + matchId, "H1 (0.0)", team1 + " (0.0)", "Handicap", 1.90, "same"));
+        map.put("handicap2", OddsItemDto.of("h2-" + matchId, "H2 (0.0)", team2 + " (0.0)", "Handicap", 1.90, "same"));
 
         return map;
     }
@@ -158,15 +81,11 @@ public class OddsEngineService {
         if (odds.containsKey("x")) matchWinnerList.add(odds.get("x"));
         if (odds.containsKey("w2")) matchWinnerList.add(odds.get("w2"));
 
-        groups.add(MarketGroupDto.builder()
-                .id("mg-1x2")
-                .name("1X2 (Full Time Winner)")
-                .markets(List.of(MarketGroupDto.MarketDto.builder()
-                        .id("m-1x2-" + match.getId())
-                        .name("Match Result")
-                        .odds(matchWinnerList)
-                        .build()))
-                .build());
+        groups.add(MarketGroupDto.of(
+                "mg-1x2",
+                "1X2 (Full Time Winner)",
+                List.of(MarketGroupDto.MarketDto.of("m-1x2-" + match.getId(), "Match Result", matchWinnerList))
+        ));
 
         // Double Chance Group
         List<OddsItemDto> dcList = new ArrayList<>();
@@ -174,30 +93,22 @@ public class OddsEngineService {
         if (odds.containsKey("w12")) dcList.add(odds.get("w12"));
         if (odds.containsKey("x2")) dcList.add(odds.get("x2"));
 
-        groups.add(MarketGroupDto.builder()
-                .id("mg-dc")
-                .name("Double Chance")
-                .markets(List.of(MarketGroupDto.MarketDto.builder()
-                        .id("m-dc-" + match.getId())
-                        .name("Double Chance")
-                        .odds(dcList)
-                        .build()))
-                .build());
+        groups.add(MarketGroupDto.of(
+                "mg-dc",
+                "Double Chance",
+                List.of(MarketGroupDto.MarketDto.of("m-dc-" + match.getId(), "Double Chance", dcList))
+        ));
 
         // Total Goals Group
         List<OddsItemDto> totalsList = new ArrayList<>();
         if (odds.containsKey("totalOver")) totalsList.add(odds.get("totalOver"));
         if (odds.containsKey("totalUnder")) totalsList.add(odds.get("totalUnder"));
 
-        groups.add(MarketGroupDto.builder()
-                .id("mg-totals")
-                .name("Total Goals (Over / Under 2.5)")
-                .markets(List.of(MarketGroupDto.MarketDto.builder()
-                        .id("m-tot-" + match.getId())
-                        .name("Total Goals 2.5")
-                        .odds(totalsList)
-                        .build()))
-                .build());
+        groups.add(MarketGroupDto.of(
+                "mg-totals",
+                "Total Goals (Over / Under 2.5)",
+                List.of(MarketGroupDto.MarketDto.of("m-tot-" + match.getId(), "Total Goals 2.5", totalsList))
+        ));
 
         return groups;
     }

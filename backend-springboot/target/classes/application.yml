@@ -5,6 +5,27 @@ server:
 spring:
   application:
     name: fidabet-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/fidabet;MODE=PostgreSQL;AUTO_SERVER=TRUE}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -38,7 +59,7 @@ api-football:
     ttl-upcoming-seconds: 180
     ttl-markets-seconds: 60
   sync:
-    enabled: true
+    enabled: ${API_FOOTBALL_SYNC_ENABLED:false}
     interval-ms: 20000
 
 # Resilience4j Circuit Breaker & Rate Limiter for external sports feeds
@@ -59,6 +80,9 @@ resilience4j:
 
 # Management & Observability
 management:
+  health:
+    redis:
+      enabled: false
   endpoints:
     web:
       exposure:
