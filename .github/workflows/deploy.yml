@@ -10,12 +10,11 @@ permissions:
   contents: read
 
 env:
-  env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY_FRONTEND: ${{ secrets.ECR_FRONTEND_REPOSITORY }}
   ECR_REPOSITORY_BACKEND: ${{ secrets.ECR_BACKEND_REPOSITORY }}
   EC2_HOST: ${{ secrets.EC2_HOST }}
-EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+  EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
 
 jobs:
   build-and-deploy:
