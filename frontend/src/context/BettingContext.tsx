@@ -111,6 +111,27 @@ const BettingContext = createContext<BettingContextType | undefined>(undefined);
 // localStorage key recording that this browser has passed Fayda age verification.
 // Kept while logged in (so a verified user is not asked again), cleared on logout.
 const AGE_VERIFIED_KEY = 'fidabet_age_verified';
+const DEFAULT_LANGUAGE: 'en' | 'am' = 'en';
+const DEFAULT_POLYMARKET_DARK_MODE = false;
+
+const accountStorageKey = (name: string, userId: string) =>
+  `fidabet:${name}:${encodeURIComponent(userId || 'guest')}`;
+
+const readAccountPreference = (name: string, userId: string): string | null => {
+  try {
+    return localStorage.getItem(accountStorageKey(name, userId));
+  } catch {
+    return null;
+  }
+};
+
+const writeAccountPreference = (name: string, userId: string, value: string) => {
+  try {
+    localStorage.setItem(accountStorageKey(name, userId), value);
+  } catch {
+    // ignore storage failures
+  }
+};
 
 // Signed-out visitor profile (used when the user logs out / switches account)
 const GUEST_USER: UserProfile = {
@@ -152,49 +173,32 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [selectedMatchForTracker, setSelectedMatchForTracker] = useState<Match | null>(null);
   const [selectedEventMatch, setSelectedEventMatch] = useState<Match | null>(INITIAL_MATCHES[0]);
   const [activeCenterView, setActiveCenterView] = useState<'matches' | 'event'>('matches');
-  const [appMode, setAppMode] = useState<'1xbet' | 'polymarket'>('polymarket');
+  // Guests enter the light sportsbook. Polymarket remains an explicit mode switch.
+  const [appMode, setAppMode] = useState<'1xbet' | 'polymarket'>('1xbet');
   // Casino / Live Casino lobby overlay (opened from the sportsbook top navigation)
   const [casinoView, setCasinoView] = useState<'none' | 'casino' | 'live-casino'>('none');
   const [casinoCategory, setCasinoCategory] = useState<string>('all');
-  const [language, setLanguageState] = useState<'en' | 'am'>(() => {
-    try {
-      const saved = localStorage.getItem('hagerawi_language');
-      return (saved === 'en' || saved === 'am') ? saved : 'am';
-    } catch {
-      return 'am';
-    }
-  });
+  const [language, setLanguageState] = useState<'en' | 'am'>(DEFAULT_LANGUAGE);
 
   const setLanguage = (lang: 'en' | 'am') => {
+    // Language is a sportsbook preference. Polymarket stays English and cannot
+    // overwrite the sportsbook preference through its shared context.
+    if (appMode === 'polymarket') return;
     setLanguageState(lang);
-    try {
-      localStorage.setItem('hagerawi_language', lang);
-    } catch {
-      // ignore
-    }
+    writeAccountPreference('language', user.userId, lang);
   };
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'am' : 'en');
   };
 
-  // Polymarket theme (dark = default). Persisted per browser.
-  const [polymarketDarkMode, setPolymarketDarkMode] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('polymarket_theme') !== 'light';
-    } catch {
-      return true;
-    }
-  });
+  // Polymarket theme (dark = default). Persisted per account, never browser-wide.
+  const [polymarketDarkMode, setPolymarketDarkMode] = useState<boolean>(DEFAULT_POLYMARKET_DARK_MODE);
 
   const togglePolymarketDarkMode = () => {
     setPolymarketDarkMode((prev) => {
       const next = !prev;
-      try {
-        localStorage.setItem('polymarket_theme', next ? 'dark' : 'light');
-      } catch {
-        // ignore
-      }
+      writeAccountPreference('polymarket-theme', user.userId, next ? 'dark' : 'light');
       return next;
     });
   };
@@ -598,7 +602,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // ---- Shared Sign up / Log in (one account across sport betting & Polymarket) ----
   const applyAuthUser = (rawUser: any) => {
-    setUser({
+    const nextUser: UserProfile = {
       isLoggedIn: true,
       username: rawUser?.username || 'Player',
       userId: rawUser?.userId || rawUser?.id || '',
@@ -606,7 +610,22 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       currency: rawUser?.currency || 'ETB',
       bonusBalance: Number(rawUser?.bonusBalance) || 0,
       phone: rawUser?.phone || '',
-    });
+    };
+
+    // Account switches are a hard client-state boundary. No slip, bet history,
+    // favorites, or preferences from the previous identity may survive it.
+    setUser(nextUser);
+    setBetSlip([]);
+    setPlacedBets([]);
+    setFavorites(new Set());
+    setPromoCode('');
+    setActiveTabSlip('slip');
+
+    const savedLanguage = readAccountPreference('language', nextUser.userId);
+    setLanguageState(savedLanguage === 'en' || savedLanguage === 'am' ? savedLanguage : DEFAULT_LANGUAGE);
+
+    const savedTheme = readAccountPreference('polymarket-theme', nextUser.userId);
+    setPolymarketDarkMode(savedTheme === 'light' ? false : DEFAULT_POLYMARKET_DARK_MODE);
   };
 
   const openAuthModal = (mode: 'login' | 'signup' = 'login') => {
@@ -665,6 +684,14 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
     fidaBetApi.clearTokens();
     setUser(GUEST_USER);
+    setAppMode('1xbet');
+    setBetSlip([]);
+    setPlacedBets([]);
+    setFavorites(new Set());
+    setPromoCode('');
+    setActiveTabSlip('slip');
+    setLanguageState(DEFAULT_LANGUAGE);
+    setPolymarketDarkMode(DEFAULT_POLYMARKET_DARK_MODE);
     setAgeVerified(false);
     try {
       localStorage.removeItem(AGE_VERIFIED_KEY);
@@ -756,7 +783,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         isBetSlipCollapsed,
         setIsBetSlipCollapsed,
         toggleBetSlipCollapsed,
-        language,
+        language: appMode === 'polymarket' ? 'en' : language,
         setLanguage,
         toggleLanguage,
         polymarketDarkMode,

@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Globe, ChevronDown } from 'lucide-react';
+import { Mail, Globe } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
-import { SportId } from '../types';
 
 export const Footer: React.FC = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const {
     setAppMode,
-    setActiveSport,
-    setActiveSubTab,
-    setBonusesModalOpen,
-    openAuthModal,
   } = useBetting();
 
   // Scroll-reactive circle animation (matches the reference footer animation)
@@ -42,15 +35,15 @@ export const Footer: React.FC = () => {
   }, []);
 
   // Column 1: Sport Betting
-  const sportBettingLinks: { title: string; sportId?: SportId; action?: string }[] = [
-    { title: 'Football / Soccer', sportId: 'football' },
-    { title: 'Ethiopian Premier League', sportId: 'football' },
-    { title: 'Basketball', sportId: 'basketball' },
-    { title: 'Tennis', sportId: 'tennis' },
+  const sportBettingLinks = [
+    { title: 'Football / Soccer' },
+    { title: 'Ethiopian Premier League' },
+    { title: 'Basketball' },
+    { title: 'Tennis' },
     { title: 'Live Match Tracker', action: 'tracker' },
-    { title: 'Table Tennis', sportId: 'table_tennis' },
-    { title: 'Volleyball', sportId: 'volleyball' },
-    { title: 'Esports & Virtuals', sportId: 'esports' },
+    { title: 'Table Tennis' },
+    { title: 'Volleyball' },
+    { title: 'Esports & Virtuals' },
   ];
 
   // Column 2: Betting
@@ -102,59 +95,16 @@ export const Footer: React.FC = () => {
     'Admin Console',
   ];
 
-  const handleSportClick = (item: (typeof sportBettingLinks)[0]) => {
-    setAppMode('1xbet');
-    if (item.sportId) {
-      setActiveSport(item.sportId);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleBettingClick = (item: (typeof bettingLinks)[0]) => {
-    if (item.action === 'crypto' || item.action === 'perps') {
-      setAppMode('polymarket');
-    } else if (item.action === 'bonuses') {
-      setBonusesModalOpen(true);
-      return;
-    } else if (item.action === 'live') {
-      setAppMode('1xbet');
-      setActiveSubTab('live');
-    } else {
-      setAppMode('1xbet');
-      setActiveSubTab('all');
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleInfoClick = (_title: string) => {
-    setBonusesModalOpen(true);
-  };
-
-  const handleSupportLinkClick = (_linkName: string) => {
-    setBonusesModalOpen(true);
-  };
-
   const handlePolymarketLinkClick = (linkName: string) => {
     if (linkName === 'Admin Console') {
       window.history.pushState({}, '', '/admin');
       window.dispatchEvent(new PopStateEvent('popstate'));
-    } else if (linkName === 'Prediction Markets' || linkName === 'Rewards Program') {
-      setAppMode('polymarket');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      setBonusesModalOpen(true);
     }
   };
 
-  const handleLegalClick = (name: string) => {
-    if (name === 'Admin Console') {
-      window.history.pushState({}, '', '/admin');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    } else if (name === 'Sign In' || name === 'Registration') {
-      openAuthModal('signup');
-    } else {
-      setBonusesModalOpen(true);
-    }
+  const handleAdminConsoleClick = () => {
+    window.history.pushState({}, '', '/admin');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   return (
@@ -217,7 +167,6 @@ export const Footer: React.FC = () => {
                 <button
                   key={item.title}
                   type="button"
-                  onClick={() => handleSportClick(item)}
                   className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
                 >
                   {item.title}
@@ -236,7 +185,6 @@ export const Footer: React.FC = () => {
                 <button
                   key={item.title}
                   type="button"
-                  onClick={() => handleBettingClick(item)}
                   className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
                 >
                   {item.title}
@@ -255,7 +203,6 @@ export const Footer: React.FC = () => {
                 <button
                   key={item.title}
                   type="button"
-                  onClick={() => handleInfoClick(item.title)}
                   className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
                 >
                   {item.title}
@@ -274,7 +221,6 @@ export const Footer: React.FC = () => {
                 <button
                   key={link}
                   type="button"
-                  onClick={() => handleSupportLinkClick(link)}
                   className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
                 >
                   {link}
@@ -313,7 +259,6 @@ export const Footer: React.FC = () => {
           <div className="flex items-center gap-4 text-neutral-300">
             <button
               type="button"
-              onClick={() => setBonusesModalOpen(true)}
               className="hover:text-white transition-colors cursor-pointer"
               title="Email Newsletter"
             >
@@ -367,52 +312,25 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-normal">
             <span className="font-semibold text-neutral-300">ሃገራዊ PREDICTION MARKET & Polymarket © 2026</span>
             <span>·</span>
-            <button type="button" onClick={() => handleLegalClick('Privacy')} className="hover:text-neutral-200 transition-colors cursor-pointer">Privacy</button>
+            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Privacy</button>
             <span>·</span>
-            <button type="button" onClick={() => handleLegalClick('Terms of Use')} className="hover:text-neutral-200 transition-colors cursor-pointer">Terms of Use</button>
+            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Terms of Use</button>
             <span>·</span>
-            <button type="button" onClick={() => handleLegalClick('Responsible Gaming')} className="hover:text-neutral-200 transition-colors cursor-pointer">Responsible Gaming (21+)</button>
+            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Responsible Gaming (21+)</button>
             <span>·</span>
-            <button type="button" onClick={() => handleLegalClick('Transparency')} className="hover:text-neutral-200 transition-colors cursor-pointer">Transparency</button>
+            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Transparency</button>
             <span>·</span>
-            <button type="button" onClick={() => handleLegalClick('Help Center')} className="hover:text-neutral-200 transition-colors cursor-pointer">Help Center</button>
+            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Help Center</button>
             <span>·</span>
-            <button type="button" onClick={() => handleLegalClick('Admin Console')} className="hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
+            <button type="button" onClick={handleAdminConsoleClick} className="hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
           </div>
 
           {/* Language Selector */}
           <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#1c202a] hover:bg-[#262c3a] border border-[#2b3142] text-xs text-neutral-300 hover:text-white transition-colors cursor-pointer"
-            >
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#1c202a] border border-[#2b3142] text-xs text-neutral-300">
               <Globe className="w-3.5 h-3.5" />
-              <span>{selectedLanguage}</span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-
-            {isLangMenuOpen && (
-              <div className="absolute right-0 bottom-full mb-2 bg-[#1c202a] border border-[#2b3142] rounded-lg shadow-xl py-1 z-30 min-w-[130px]">
-                {['English', 'አማርኛ (Amharic)', 'Español', 'Français', 'Deutsch', '中文', '日本語'].map((lang) => (
-                  <button
-                    key={lang}
-                    type="button"
-                    onClick={() => {
-                      setSelectedLanguage(lang);
-                      setIsLangMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
-                      selectedLanguage === lang
-                        ? 'bg-blue-600 text-white font-semibold'
-                        : 'text-neutral-300 hover:bg-[#252b39] hover:text-white'
-                    }`}
-                  >
-                    {lang}
-                  </button>
-                ))}
-              </div>
-            )}
+              <span>English</span>
+            </div>
           </div>
         </div>
 

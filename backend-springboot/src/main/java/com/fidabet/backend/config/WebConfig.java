@@ -24,6 +24,9 @@ public class WebConfig implements WebMvcConfigurer {
     private final String[] allowedOrigins;
 
     public WebConfig(@Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173}") String origins) {
+        // APP_CORS_ALLOWED_ORIGINS env var is honored via relaxed binding (app.cors.allowed-origins).
+        // Deployment default: same-origin nginx proxying means no CORS is needed in prod,
+        // but the origins stay configurable for split-origin deployments.
         this.allowedOrigins = origins.split("\\s*,\\s*");
     }
 

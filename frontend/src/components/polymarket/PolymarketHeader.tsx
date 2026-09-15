@@ -17,7 +17,6 @@ import {
 import { useBetting } from '../../context/BettingContext';
 import { HowItWorksModal } from './HowItWorksModal';
 import { PolymarketMoreMenu } from './PolymarketMoreMenu';
-import { PolymarketAuthModal } from './PolymarketAuthModal';
 import { t, translateMarketTitle } from '../../data/polymarketTranslations';
 import {
   POLYMARKET_SEARCH_AUTOCOMPLETE,
@@ -66,7 +65,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState<boolean>(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
-  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
   const [searchTab, setSearchTab] = useState<'markets' | 'profiles'>('markets');
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -641,7 +639,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
                   <button
                     onClick={() => {
                       setDrawerOpen(false);
-                      setAuthModalOpen(true);
+                      openAuthModal('login');
                     }}
                     className="py-2.5 rounded-lg bg-[#141b27] hover:bg-[#1c2638] border border-[#243248] text-white text-xs font-bold transition-colors cursor-pointer text-center"
                   >
@@ -650,7 +648,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
                   <button
                     onClick={() => {
                       setDrawerOpen(false);
-                      setAuthModalOpen(true);
+                      openAuthModal('signup');
                     }}
                     className="py-2.5 rounded-lg bg-[#0066ff] hover:bg-[#1a75ff] text-white text-xs font-bold transition-colors cursor-pointer text-center shadow-xs"
                   >
@@ -667,13 +665,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
       <HowItWorksModal
         isOpen={howItWorksOpen}
         onClose={() => setHowItWorksOpen(false)}
-        onOpenSignUp={() => setAuthModalOpen(true)}
-      />
-
-      {/* Polymarket Auth Modal */}
-      <PolymarketAuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onOpenSignUp={() => openAuthModal('signup')}
       />
     </>
   );

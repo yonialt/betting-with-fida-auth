@@ -693,7 +693,7 @@ export const ETHIOPIAN_MARKETS_DATA: EthiopianMarketItem[] = [
     chance: 41,
     endsDate: 'Jan 1, 2029',
     isHot: true,
-    imageUrl: '/offical logos/id  pm-eth-q-constitution-2029 .png',
+    imageUrl: '/ethiopianmilitary.png',
     icon: '📜',
     accent: '#f59e0b',
     description: 'Resolves to Yes if a constitutional amendment is ratified, or a new constitution is adopted, through the official process before January 1, 2029.',

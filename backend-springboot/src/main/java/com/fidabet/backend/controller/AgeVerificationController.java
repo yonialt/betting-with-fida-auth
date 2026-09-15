@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Fayda (Ethiopian National ID) age-verification endpoints (/api/age-verification/*).
- * Public — the age gate runs for guests before login.
+ * Public — the age gate runs for guests before login, so it operates on the demo account.
  */
 @RestController
 @RequestMapping("/api/age-verification")
@@ -24,7 +24,7 @@ public class AgeVerificationController {
 
     @GetMapping("/status")
     public Map<String, Object> status() {
-        UserProfile user = users.getCurrentUser();
+        UserProfile user = com.fidabet.backend.service.UserAccountService.toUserProfile(users.getCurrentUserEntity());
         boolean verified = user.getIsAgeVerified() == null || user.getIsAgeVerified();
 
         Map<String, Object> latest = new LinkedHashMap<>();

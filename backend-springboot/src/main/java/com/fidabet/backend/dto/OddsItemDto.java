@@ -26,4 +26,16 @@ public class OddsItemDto implements Serializable {
     private String trend;  // "up" | "down" | "same"
     private Boolean isLocked;
     private Long lastUpdated;
+
+    public static OddsItemDto of(String id, String label, String name, String marketName,
+                                 Double value, String trend) {
+        OddsItemDto dto = new OddsItemDto();
+        dto.id = id;
+        dto.label = label;
+        dto.name = name;
+        dto.marketName = marketName;
+        dto.value = value;
+        dto.trend = trend;
+        return dto;
+    }
 }

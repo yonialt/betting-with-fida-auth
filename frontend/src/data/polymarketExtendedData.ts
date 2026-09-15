@@ -12,7 +12,7 @@ export const heroSlideLogoUrl: Record<string, string> = {
   'china-taiwan-2026': '/china-taiwan-2026.jpg',
   'russia-ukraine-ceasefire': '/russiaxukranie.jpg',
   'pm-eth-coffee-export': '/pm-eth-coffee-export .jpg',
-  'pm-eth-q-constitution-2029': '/pm-eth-q-constitution-2029.png',
+  'pm-eth-q-constitution-2029': '/ethiopianmilitary.png',
   'pm-eth-national-dialogue-report': '/pm-eth-national-dialogue-report.png',
 };
 

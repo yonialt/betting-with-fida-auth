@@ -1,5 +1,6 @@
 package com.fidabet.backend.security;
 
+import com.fidabet.backend.service.TokenContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,9 @@ import java.io.IOException;
  * {@link com.fidabet.backend.config.WebConfig}, so public routes (auth, matches, football, redis,
  * ai, age-verification, health) are never blocked. CORS pre-flight ({@code OPTIONS}) is always
  * allowed through.</p>
+ *
+ * <p>The presented token is also stored in {@link TokenContext} for the duration of the request
+ * so the service layer can resolve the acting user account (per-user wallet, bets, settings).</p>
  */
 public class TokenAuthFilter extends OncePerRequestFilter {
 
@@ -33,20 +37,25 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+        try {
+            if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            String token = bearerToken(request);
+            if (!tokenService.isValid(token)) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
+                return;
+            }
+
+            TokenContext.set(token);
             chain.doFilter(request, response);
-            return;
+        } finally {
+            TokenContext.clear();
         }
-
-        String token = bearerToken(request);
-        if (!tokenService.isValid(token)) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
-            return;
-        }
-
-        chain.doFilter(request, response);
     }
 
     private String bearerToken(HttpServletRequest request) {

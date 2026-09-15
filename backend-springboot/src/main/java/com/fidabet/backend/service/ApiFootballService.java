@@ -134,30 +134,27 @@ public class ApiFootballService {
 
         Map<String, OddsItemDto> odds = oddsEngineService.calculateCoreOdds(id, team1, team2, score1, score2);
 
-        return MatchDto.builder()
-                .id(id)
-                .matchCode(id.length() > 6 ? id.substring(id.length() - 6) : id)
-                .sport("football")
-                .league(l.getName() != null ? (l.getCountry() + ". " + l.getName()) : "Premier League")
-                .country(l.getCountry())
-                .flag(l.getFlag())
-                .team1(team1)
-                .team2(team2)
-                .team1Logo(t.getHome() != null ? t.getHome().getLogo() : null)
-                .team2Logo(t.getAway() != null ? t.getAway().getLogo() : null)
-                .score1(score1)
-                .score2(score2)
-                .timeDisplay(elapsed + "'")
-                .seconds(elapsed * 60)
-                .period(f.getStatus() != null ? f.getStatus().getShortName() : "1H")
-                .isLive(true)
-                .hasLiveStream(true)
-                .isFavorite(false)
-                .extraMarketsCount(64)
-                .venue(f.getVenue() != null ? f.getVenue().getName() : "National Stadium")
-                .referee(f.getReferee())
-                .odds(odds)
-                .build();
+        return MatchDto.of(
+                id,
+                id.length() > 6 ? id.substring(id.length() - 6) : id,
+                "football",
+                l.getName() != null ? (l.getCountry() + ". " + l.getName()) : "Premier League",
+                l.getCountry(),
+                team1,
+                team2,
+                score1,
+                score2,
+                elapsed + "'",
+                elapsed * 60,
+                f.getStatus() != null ? f.getStatus().getShortName() : "1H",
+                true,
+                true,
+                false,
+                64,
+                f.getVenue() != null ? f.getVenue().getName() : "National Stadium",
+                f.getReferee(),
+                odds
+        );
     }
 
     private MatchDto findMatchById(String matchId) {
@@ -171,72 +168,52 @@ public class ApiFootballService {
         List<MatchDto> list = new ArrayList<>();
 
         // Match 1: Arsenal vs Manchester City
-        list.add(MatchDto.builder()
-                .id("arg-1")
-                .matchCode("89421")
-                .sport("football")
-                .league("England. Premier League")
-                .country("England")
-                .team1("Arsenal")
-                .team2("Manchester City")
-                .score1(2)
-                .score2(1)
-                .timeDisplay("78'")
-                .seconds(78 * 60)
-                .period("2H")
-                .isLive(true)
-                .hasLiveStream(true)
-                .isFavorite(true)
-                .extraMarketsCount(72)
-                .venue("Emirates Stadium")
-                .referee("Michael Oliver")
-                .odds(oddsEngineService.calculateCoreOdds("arg-1", "Arsenal", "Manchester City", 2, 1))
-                .build());
+        list.add(MatchDto.of(
+                "arg-1",
+                "89421",
+                "football",
+                "England. Premier League",
+                "England",
+                "Arsenal",
+                "Manchester City",
+                2, 1,
+                "78'", 78 * 60,
+                "2H", true, true, true, 72,
+                "Emirates Stadium", "Michael Oliver",
+                oddsEngineService.calculateCoreOdds("arg-1", "Arsenal", "Manchester City", 2, 1)
+        ));
 
         // Match 2: Real Madrid vs Barcelona (El Clasico)
-        list.add(MatchDto.builder()
-                .id("arg-2")
-                .matchCode("89422")
-                .sport("football")
-                .league("Spain. La Liga")
-                .country("Spain")
-                .team1("Real Madrid")
-                .team2("Barcelona")
-                .score1(1)
-                .score2(1)
-                .timeDisplay("64'")
-                .seconds(64 * 60)
-                .period("2H")
-                .isLive(true)
-                .hasLiveStream(true)
-                .isFavorite(false)
-                .extraMarketsCount(85)
-                .venue("Santiago Bernabéu")
-                .referee("Jesus Gil Manzano")
-                .odds(oddsEngineService.calculateCoreOdds("arg-2", "Real Madrid", "Barcelona", 1, 1))
-                .build());
+        list.add(MatchDto.of(
+                "arg-2",
+                "89422",
+                "football",
+                "Spain. La Liga",
+                "Spain",
+                "Real Madrid",
+                "Barcelona",
+                1, 1,
+                "64'", 64 * 60,
+                "2H", true, true, false, 85,
+                "Santiago Bernabéu", "Jesus Gil Manzano",
+                oddsEngineService.calculateCoreOdds("arg-2", "Real Madrid", "Barcelona", 1, 1)
+        ));
 
         // Match 3: Saint George vs Ethiopian Coffee
-        list.add(MatchDto.builder()
-                .id("eth-1")
-                .matchCode("89423")
-                .sport("football")
-                .league("Ethiopia. Premier League")
-                .country("Ethiopia")
-                .team1("Saint George SC")
-                .team2("Ethiopian Coffee")
-                .score1(0)
-                .score2(0)
-                .timeDisplay("32'")
-                .seconds(32 * 60)
-                .period("1H")
-                .isLive(true)
-                .hasLiveStream(true)
-                .isFavorite(false)
-                .extraMarketsCount(42)
-                .venue("Addis Ababa Stadium")
-                .odds(oddsEngineService.calculateCoreOdds("eth-1", "Saint George SC", "Ethiopian Coffee", 0, 0))
-                .build());
+        list.add(MatchDto.of(
+                "eth-1",
+                "89423",
+                "football",
+                "Ethiopia. Premier League",
+                "Ethiopia",
+                "Saint George SC",
+                "Ethiopian Coffee",
+                0, 0,
+                "32'", 32 * 60,
+                "1H", true, true, false, 42,
+                "Addis Ababa Stadium", null,
+                oddsEngineService.calculateCoreOdds("eth-1", "Saint George SC", "Ethiopian Coffee", 0, 0)
+        ));
 
         return list;
     }

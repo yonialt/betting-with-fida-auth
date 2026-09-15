@@ -22,22 +22,26 @@ public class WalletController {
     }
 
     @GetMapping("/balance")
-    public Map<String, Object> balance() {
-        return users.balanceView();
+    public Map<String, Object> balance(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        return users.balanceView(users.resolveUser(bearer(authorization)));
     }
 
     @PostMapping("/deposit")
-    public Map<String, Object> deposit(@RequestBody(required = false) Map<String, Object> body) {
+    public Map<String, Object> deposit(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody(required = false) Map<String, Object> body) {
         double amount = Bodies.toDouble(body, "amount", 0);
         String method = Bodies.toStr(body, "paymentMethod", "telebirr");
-        return wallet.deposit(amount, method);
+        return wallet.deposit(users.resolveUser(bearer(authorization)), amount, method);
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@RequestBody(required = false) Map<String, Object> body) {
+    public ResponseEntity<?> withdraw(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody(required = false) Map<String, Object> body) {
         double amount = Bodies.toDouble(body, "amount", 0);
         String method = Bodies.toStr(body, "paymentMethod", "telebirr");
-        Map<String, Object> result = wallet.withdraw(amount, method);
+        Map<String, Object> result = wallet.withdraw(users.resolveUser(bearer(authorization)), amount, method);
         if (result == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Insufficient balance"));
         }
@@ -45,7 +49,12 @@ public class WalletController {
     }
 
     @GetMapping("/transactions")
-    public Object transactions() {
-        return wallet.transactions();
+    public Object transactions(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        return wallet.transactions(users.resolveUser(bearer(authorization)));
+    }
+
+    private static String bearer(String authorization) {
+        return (authorization != null && authorization.startsWith("Bearer "))
+                ? authorization.substring("Bearer ".length()) : "";
     }
 }

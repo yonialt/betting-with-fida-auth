@@ -1,0 +1,25 @@
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java/Node build artifacts
+target/
+node_modules/
+dist/
