@@ -15,16 +15,19 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Run as non-root user
+# Create non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
 
+# Copy application
 COPY --from=build /app/target/*.jar app.jar
+
+# Create writable directory for H2
+RUN mkdir -p /app/data && chown -R spring:spring /app
 
 USER spring
 
 EXPOSE 8080
 
-# Actuator health endpoint (app tolerates Redis being down, so this checks the app itself)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
   CMD wget -qO- http://localhost:8080/actuator/health | grep -q '"status":"UP"' || exit 1
 
