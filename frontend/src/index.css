@@ -467,7 +467,7 @@
    ============================================================ */
 .footer-reveal-bg {
   background:
-    url('/footer-pattern.svg') repeat center center / 150px 150px,
+    url('/footer-pattern.svg') repeat center center / 90px 90px,
     linear-gradient(112.41deg, #363f4d -29.38%, #10151d 64.03%);
   background-attachment: fixed, fixed;
 }

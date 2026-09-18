@@ -1,26 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
   <defs>
-    <!-- Hagerawi mini-radar tile: one small logo motif per tile —
-         green rings + a gold clock-hand line rising to the upper right,
-         exactly like the logo. Motif is self-contained so tiling is
-         automatically seamless. -->
-    <pattern id="radar-mini" width="150" height="150" patternUnits="userSpaceOnUse">
-      <!-- outer faint ring (logo's outer circle) -->
-      <circle cx="75" cy="75" r="66" fill="none" stroke="#8DC63F" stroke-width="0.8" opacity="0.07"/>
-      <!-- main ring (logo's bold circle) -->
-      <circle cx="75" cy="75" r="48" fill="none" stroke="#8DC63F" stroke-width="1.2" opacity="0.14"/>
+    <!-- Hagerawi footer tile — derived strictly from the hagerawi logo motif:
+         ONE green circle + ONE gold ascending line, exactly as in the logo.
+         Geometry (logo units -> tile units, uniform scale 0.36, motif centered
+         at the tile center so tiling is automatically seamless):
+           - inner ring r=95            -> r=34  (stroke #8DC63F, logo green)
+           - trend line through center  -> same polyline scaled, ~32.4° rise
+                                          (stroke #E8B84B, logo gold)
+           - arrowhead at the upper-right tip, as in the logo marker
+         The motif's max extent (~55px) stays inside the 150px tile, so the
+         pattern repeats with clean gaps and no seams. -->
+    <pattern id="hagerawi-motif" width="150" height="150" patternUnits="userSpaceOnUse">
+      <!-- the circle (logo's inner ring) -->
+      <circle cx="75" cy="75" r="34" fill="none" stroke="#8DC63F" stroke-width="2.4" opacity="0.35"/>
 
-      <!-- clock-hand line: center dot -> up-right, like the logo's hand -->
-      <g stroke="#F0B445" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.34">
-        <path d="M75 75 L114 36"/>
-        <!-- small arrowhead, like the logo -->
-        <path d="M114 36 L103 37.5" opacity="0.9"/>
-        <path d="M114 36 L112.5 47" opacity="0.9"/>
+      <!-- the line (logo's gold trend polyline: rises through the circle center) -->
+      <g stroke="#E8B84B" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.65">
+        <path d="M44.4 93 L60.6 78.6 L75 75 L96.6 60.6 L118.2 46.2"/>
+        <!-- arrowhead at the tip, matching the logo's marker -->
+        <path d="M113.2 53.1 L118.2 46.2 L109.8 48.1"/>
       </g>
-      <!-- center node dot -->
-      <circle cx="75" cy="75" r="3" fill="#F0B445" opacity="0.4"/>
     </pattern>
   </defs>
 
-  <rect width="150" height="150" fill="url(#radar-mini)"/>
+  <rect width="150" height="150" fill="url(#hagerawi-motif)"/>
 </svg>
