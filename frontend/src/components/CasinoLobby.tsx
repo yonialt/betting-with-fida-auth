@@ -11,6 +11,7 @@ import {
   Bell,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
+import { ComingSoonSection } from './ComingSoonSection';
 
 /**
  * ሃገራዊ CASINO — full-screen games lobby overlay.
@@ -315,8 +316,16 @@ export const CasinoLobby: React.FC = () => {
         </div>
       </div>
 
-      {/* ===== Scrollable Body ===== */}
-      <div className="flex-1 overflow-y-auto">
+      {/* ===== Scrollable Body — wrapped in the reusable ComingSoonSection:
+          content renders for a short load beat, then blurs (inert) with a
+          centered white "Coming soon" card. The top bar above stays crisp
+          and fully functional. ===== */}
+      <ComingSoonSection
+        title={isLive ? 'Live Casino' : 'Casino'}
+        beatKey={`${casinoView}:${casinoCategory}`}
+        contentClassName="h-full overflow-y-auto"
+        className="relative flex-1 min-h-0"
+      >
         {/* Hero strip */}
         <div
           className={`relative overflow-hidden bg-gradient-to-r ${
@@ -484,7 +493,7 @@ export const CasinoLobby: React.FC = () => {
             launching soon. Gambling can be addictive.
           </p>
         </div>
-      </div>
+      </ComingSoonSection>
 
       {/* ===== Game Detail Modal ===== */}
       {selectedGame && (

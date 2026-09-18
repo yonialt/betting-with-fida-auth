@@ -14,6 +14,7 @@ import { PolymarketFooter } from './PolymarketFooter';
 import { PolymarketChat } from './PolymarketChat';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
 import { useBetting } from '../../context/BettingContext';
+import { ComingSoonSection } from '../ComingSoonSection';
 import { PolymarketCombosView } from './views/PolymarketCombosView';
 import { PolymarketPerpsView } from './views/PolymarketPerpsView';
 import { PolymarketBreakingView } from './views/PolymarketBreakingView';
@@ -151,7 +152,15 @@ export const PolymarketPage: React.FC = () => {
     }
 
     if (activeCategory === 'perps') {
-      return <PolymarketPerpsView isDarkMode={polymarketDarkMode} />;
+      return (
+        <ComingSoonSection
+          title="Perps"
+          beatKey={activeCategory}
+          contentClassName="w-full"
+        >
+          <PolymarketPerpsView isDarkMode={polymarketDarkMode} />
+        </ComingSoonSection>
+      );
     }
 
     if (activeCategory === 'breaking') {
@@ -215,10 +224,16 @@ export const PolymarketPage: React.FC = () => {
 
     if (activeCategory === 'elections') {
       return (
-        <PolymarketElectionsView
-          onOpenMidterms={() => setShowMidtermsView(true)}
-          onSelectOutcome={handleSelectOutcome}
-        />
+        <ComingSoonSection
+          title="Elections"
+          beatKey={activeCategory}
+          contentClassName="w-full"
+        >
+          <PolymarketElectionsView
+            onOpenMidterms={() => setShowMidtermsView(true)}
+            onSelectOutcome={handleSelectOutcome}
+          />
+        </ComingSoonSection>
       );
     }
 

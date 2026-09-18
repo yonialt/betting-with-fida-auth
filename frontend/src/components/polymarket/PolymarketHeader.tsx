@@ -413,7 +413,8 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               </>
             )}
 
-            {/* How it works — icon-only on mobile (opens the explainer popout), text on lg+ */}
+            {/* How it works — desktop only (opens the explainer popout).
+                Hidden on mobile to keep the navbar uncluttered. */}
             <button
               id="btn-polymarket-how-it-works"
               onClick={() => setHowItWorksOpen(true)}
@@ -426,12 +427,14 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               <span className="hidden lg:inline">{t('how_it_works', language, 'How it works')}</span>
             </button>
 
-            {/* Settings Gear — now opens the More pop-out menu (with the Dark mode toggle) */}
+            {/* Settings Gear — opens the More pop-out menu (with the Dark mode
+                toggle and the betting SettingsModal entry). Visible on all
+                breakpoints including mobile. */}
             <button
               ref={moreBtnRef}
               id="btn-settings"
               onClick={() => setMoreMenuOpen((v) => !v)}
-              className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-full transition-colors cursor-pointer"
+              className="flex p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-full transition-colors cursor-pointer"
               title="More"
             >
               <Settings className="w-3.5 h-3.5" />

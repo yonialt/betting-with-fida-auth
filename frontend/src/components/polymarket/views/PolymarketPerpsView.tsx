@@ -9,7 +9,6 @@ import {
   CheckCircle,
   HelpCircle,
   Shield,
-  Zap,
   BarChart3,
 } from 'lucide-react';
 import { PerpsChartPanel } from '../PerpsChartPanel';
@@ -24,7 +23,6 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
   const [leverage, setLeverage] = useState<number>(5);
   const [tradeAmount, setTradeAmount] = useState<string>('100');
   const [orderConfirmed, setOrderConfirmed] = useState<boolean>(false);
-  const [comingSoonDismissed, setComingSoonDismissed] = useState<boolean>(false);
 
   const categories = [
     { name: 'All', count: 47 },
@@ -61,30 +59,6 @@ export const PolymarketPerpsView: React.FC<{ isDarkMode?: boolean }> = ({
 
   return (
     <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-5 text-white relative">
-      {/* Coming Soon Blur Overlay */}
-      {!comingSoonDismissed && (
-        <div className="absolute inset-0 z-20 flex items-start justify-center pt-12 backdrop-blur-md bg-black/40 rounded-2xl">
-          <div className="bg-[#101622] border border-[#26364e] rounded-2xl px-8 py-6 text-center shadow-2xl max-w-sm mx-4">
-            <div className="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mx-auto mb-3">
-              <Zap className="w-6 h-6 text-amber-400" />
-            </div>
-            <h3 className="text-lg font-black text-white mb-1">Coming Soon</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Perpetuals trading is under construction. Stay tuned for up to 20x leverage on crypto, stocks, and commodities.
-            </p>
-            <div className="mt-4 flex items-center justify-center gap-1.5 text-[10px] font-mono text-amber-400 mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Under Development
-            </div>
-            <button
-              onClick={() => setComingSoonDismissed(true)}
-              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs transition-colors cursor-pointer"
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Sidebar: Categories (from video 00:32) */}
