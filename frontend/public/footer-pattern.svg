@@ -1,21 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
   <defs>
     <!-- Hagerawi footer tile — derived strictly from the hagerawi logo motif:
-         ONE green circle + ONE gold ascending line, exactly as in the logo.
-         Geometry (logo units -> tile units, uniform scale 0.36, motif centered
-         at the tile center so tiling is automatically seamless):
-           - inner ring r=95            -> r=34  (stroke #8DC63F, logo green)
-           - trend line through center  -> same polyline scaled, ~32.4° rise
-                                          (stroke #E8B84B, logo gold)
-           - arrowhead at the upper-right tip, as in the logo marker
-         The motif's max extent (~55px) stays inside the 150px tile, so the
-         pattern repeats with clean gaps and no seams. -->
+         ONE circle + ONE ascending line with arrowhead, exactly as in the logo.
+         Color scheme matches quranenc.com's footer texture: monochrome slate-gray
+         at low opacity (their footer-bg.svg is a single #203239->#141E27 artwork
+         at 0.18 opacity) so the pattern reads as a subtle tone-on-tone texture,
+         not a colorful brand element. -->
     <pattern id="hagerawi-motif" width="150" height="150" patternUnits="userSpaceOnUse">
-      <!-- the circle (logo's inner ring) -->
-      <circle cx="75" cy="75" r="34" fill="none" stroke="#8DC63F" stroke-width="2.4" opacity="0.35"/>
+      <!-- the circle (logo's ring) -->
+      <circle cx="75" cy="75" r="34" fill="none" stroke="#8A98A8" stroke-width="2.4" opacity="0.18"/>
 
-      <!-- the line (logo's gold trend polyline: rises through the circle center) -->
-      <g stroke="#E8B84B" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.65">
+      <!-- the line (logo's trend polyline: rises through the circle center) -->
+      <g stroke="#8A98A8" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.22">
         <path d="M44.4 93 L60.6 78.6 L75 75 L96.6 60.6 L118.2 46.2"/>
         <!-- arrowhead at the tip, matching the logo's marker -->
         <path d="M113.2 53.1 L118.2 46.2 L109.8 48.1"/>

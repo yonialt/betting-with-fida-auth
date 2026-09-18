@@ -444,6 +444,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               isDarkMode={polymarketDarkMode}
               onToggleDarkMode={togglePolymarketDarkMode}
               onSelectOption={onSelectMoreOption}
+              onOpenSettings={() => setSettingsModalOpen(true)}
               anchorRef={moreBtnRef}
             />
           </div>

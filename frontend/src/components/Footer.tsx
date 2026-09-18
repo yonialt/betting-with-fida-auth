@@ -365,17 +365,17 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-normal text-[#CBCBCB]">
             <span className="font-semibold text-white">ሃገራዊ PREDICTION MARKET & Polymarket © 2026</span>
             <span>·</span>
-            <button type="button" className="hover:text-white transition-colors cursor-pointer">Privacy</button>
+            <button type="button" className="py-1.5 hover:text-white transition-colors cursor-pointer">Privacy</button>
             <span>·</span>
-            <button type="button" className="hover:text-white transition-colors cursor-pointer">Terms of Use</button>
+            <button type="button" className="py-1.5 hover:text-white transition-colors cursor-pointer">Terms of Use</button>
             <span>·</span>
-            <button type="button" className="hover:text-white transition-colors cursor-pointer">Responsible Gaming (21+)</button>
+            <button type="button" className="py-1.5 hover:text-white transition-colors cursor-pointer">Responsible Gaming (21+)</button>
             <span>·</span>
-            <button type="button" className="hover:text-white transition-colors cursor-pointer">Transparency</button>
+            <button type="button" className="py-1.5 hover:text-white transition-colors cursor-pointer">Transparency</button>
             <span>·</span>
-            <button type="button" className="hover:text-white transition-colors cursor-pointer">Help Center</button>
+            <button type="button" className="py-1.5 hover:text-white transition-colors cursor-pointer">Help Center</button>
             <span>·</span>
-            <button type="button" onClick={handleAdminConsoleClick} className="hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
+            <button type="button" onClick={handleAdminConsoleClick} className="py-1.5 hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
           </div>
 
           {/* Language Selector */}
