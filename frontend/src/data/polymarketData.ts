@@ -19,6 +19,7 @@ export const marketLogoUrl: Record<string, string> = {
   'russia-ukraine-ceasefire': '/russiaxukranie.jpg',
   'pm-eth-q-addis-legal-status': '/pm-eth-q-addis-legal-status .jpg',
   'pm-eth-q-constitution-2029': '/ethiopianmilitary.png',
+  'pm-eth-q-military-service': '/ethiopianmilitary.png',
   'pm-eth-addis-mayor-vote': '/addis ababa city.jpg',
   'pm-eth-au-summit-2026': '/addis ababa city.jpg',
   'pm-eth-ruling-majority-2026': '/addis ababa city.jpg',
@@ -27,7 +28,7 @@ export const marketLogoUrl: Record<string, string> = {
   // Crypto markets
   'pm-btc-5m': '/bitcoincrypot.jpg',
   // Hero carousel slide logos
-  'eth-military-service': '/ethiopianmilitary.jpg',
+  'eth-military-service': '/ethiopianmilitary.png',
   'eth-red-sea-access': '/readseaport.jpg',
   'btc-up-down': '/btcupdown.jpg',
   'midterms-balance-power': '/weath-global-2026-warmest .png',
@@ -201,7 +202,7 @@ export const ETHIOPIA_PM_MARKET: PolymarketMarket = {
   category: 'Politics',
   subcategory: 'Ethiopia',
   countryFlag: '🇪🇹',
-  imageUrl: '/ethiopianmilitary.jpg',
+  imageUrl: '/ethiopianmilitary.png',
   volume: '285.8M ETB Vol.',
   displayType: 'binary_buttons',
   isLive: true,

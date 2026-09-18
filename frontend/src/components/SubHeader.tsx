@@ -42,7 +42,7 @@ export const SubHeader: React.FC = () => {
       }}
     >
       {/* Left: Breadcrumbs & Navigation Tabs */}
-      <div className="flex items-center gap-0.5 min-w-0">
+      <div className="flex items-center gap-0.5 min-w-0 flex-1">
         {/* Breadcrumb Trail */}
         <div
           className="flex items-center gap-0.5 text-neutral-300 shrink-0 pr-1 border-r border-[#204975]"
@@ -81,8 +81,8 @@ export const SubHeader: React.FC = () => {
           </button>
         </div>
 
-        {/* Sub Tabs */}
-        <div className="flex items-center gap-0 shrink-0">
+        {/* Sub Tabs — horizontally scrollable on narrow screens instead of being clipped */}
+        <div className="flex items-center gap-0 shrink-0 flex-1 min-w-0 overflow-x-auto no-scrollbar -my-1 py-1">
           {tabs.map((tab) => {
             const isActive = activeSubTab === tab.id;
 
@@ -111,7 +111,7 @@ export const SubHeader: React.FC = () => {
       </div>
 
       {/* Right: Search Input */}
-      <div className="relative shrink-0 w-44 sm:w-48 md:w-52">
+      <div className="relative shrink-0 w-28 sm:w-44 md:w-52">
         <div className="relative flex items-center">
           <input
             id="input-search-match"
@@ -119,10 +119,9 @@ export const SubHeader: React.FC = () => {
             placeholder="Search by match"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-6 bg-[#0d2238] border border-[#204975] text-white rounded-full pl-2.5 pr-8 py-0.5 text-xs placeholder-neutral-400 focus:outline-none focus:border-[#0091ff] transition-all"
+            className="w-full h-6 bg-[#0d2238] border border-[#204975] text-white rounded-full pl-2.5 pr-8 py-0.5 text-xs placeholder-neutral-400 focus:outline-none focus:border-[#0091ff] transition-all sm:ml-[37px]"
             style={{
               borderWidth: '3px',
-              marginLeft: '37px',
             }}
           />
 

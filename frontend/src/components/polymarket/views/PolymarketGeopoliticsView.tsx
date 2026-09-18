@@ -127,7 +127,7 @@ const GEOPOLITICS_LOGO_MAP: Record<string, string> = {
   'geo-eth-djibouti': '/readseaport.jpg',
   'geo-eth-somalia': '/id  pm-eth-q-constitution-2029 .png',
   'geo-eth-eritrea': '/russiaxukranie.jpg',
-  'geo-horn-stability': '/ethiopianmilitary.jpg',
+  'geo-horn-stability': '/ethiopianmilitary.png',
   'geo-us-china-taiwan': '/china-taiwan-2026.jpg',
   'geo-us-china-trade': '/china-taiwan-2026.jpg',
   'geo-ru-ukraine': '/russiaxukranie.jpg',

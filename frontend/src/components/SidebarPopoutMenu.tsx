@@ -256,11 +256,20 @@ interface SidebarPopoutMenuProps {
   isPinned: boolean;
   onTogglePin: () => void;
   onClose?: () => void;
+  /** Mobile drawer mode: fill the host container instead of the fixed desktop drawer width. */
+  fullWidth?: boolean;
+  /** Hide the pin control (hover-pinning is meaningless on touch screens). */
+  hidePin?: boolean;
+  /** Fired after any sport/league is picked — used by the mobile drawer to auto-close. */
+  onSportSelect?: () => void;
 }
 
 export const SidebarPopoutMenu: React.FC<SidebarPopoutMenuProps> = ({
   isPinned,
   onTogglePin,
+  fullWidth = false,
+  hidePin = false,
+  onSportSelect,
 }) => {
   const { activeSport, setActiveSport, setActiveSubTab, setSearchQuery } = useBetting();
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
@@ -286,6 +295,7 @@ export const SidebarPopoutMenu: React.FC<SidebarPopoutMenuProps> = ({
       setSearchQuery(item.name);
     }
     setActiveSubTab('matches');
+    onSportSelect?.();
   };
 
   const handleSelectLeague = (leagueName: string, item: SportMenuEntry) => {
@@ -296,6 +306,7 @@ export const SidebarPopoutMenu: React.FC<SidebarPopoutMenuProps> = ({
     const cleaned = leagueName.replace(/\s*\(\d+\)$/, '');
     setSearchQuery(cleaned);
     setActiveSubTab('matches');
+    onSportSelect?.();
   };
 
   const filterList = (items: SportMenuEntry[]) => {
@@ -313,7 +324,9 @@ export const SidebarPopoutMenu: React.FC<SidebarPopoutMenuProps> = ({
   return (
     <div
       id="sidebar-popout-drawer"
-      className="w-64 sm:w-72 bg-white h-full flex flex-col border-r border-neutral-300 shadow-2xl z-20 select-none text-[#1e2329]"
+      className={`bg-white h-full flex flex-col border-r border-neutral-300 shadow-2xl z-20 select-none text-[#1e2329] ${
+        fullWidth ? 'w-full' : 'w-64 sm:w-72'
+      }`}
     >
       {/* 1. Top Tabs Bar: TOP | LIVE | SPORTS matching 1xBet video exact layout */}
       <div className="bg-[#1b4470] text-white flex items-stretch text-xs font-black tracking-tight border-b border-[#14365b]">
@@ -334,18 +347,20 @@ export const SidebarPopoutMenu: React.FC<SidebarPopoutMenuProps> = ({
           );
         })}
 
-        {/* Pin button */}
-        <button
-          onClick={onTogglePin}
-          className={`px-2 py-1 flex items-center justify-center transition-colors cursor-pointer border-l border-[#14365b] ${
-            isPinned
-              ? 'bg-[#ffc600] text-black'
-              : 'text-neutral-300 hover:text-white hover:bg-white/10'
-          }`}
-          title={isPinned ? 'Unpin Sidebar' : 'Pin Sidebar Open'}
-        >
-          {isPinned ? <Pin className="w-3.5 h-3.5" /> : <PinOff className="w-3.5 h-3.5" />}
-        </button>
+        {/* Pin button (desktop hover flow only) */}
+        {!hidePin && (
+          <button
+            onClick={onTogglePin}
+            className={`px-2 py-1 flex items-center justify-center transition-colors cursor-pointer border-l border-[#14365b] ${
+              isPinned
+                ? 'bg-[#ffc600] text-black'
+                : 'text-neutral-300 hover:text-white hover:bg-white/10'
+            }`}
+            title={isPinned ? 'Unpin Sidebar' : 'Pin Sidebar Open'}
+          >
+            {isPinned ? <Pin className="w-3.5 h-3.5" /> : <PinOff className="w-3.5 h-3.5" />}
+          </button>
+        )}
       </div>
 
       {/* 2. Sub-bar: All 684 | 232 Filter & Search */}

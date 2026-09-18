@@ -14,6 +14,8 @@ import {
   LogOut,
   Plus,
   Check,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
@@ -35,8 +37,12 @@ export const Header: React.FC = () => {
 
   const [activeNavTab, setActiveNavTab] = useState<string>('live');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  // Phones: the category links live in an accordion behind a "Menu" button.
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
 
   const handleMenuEnter = (menuKey: string) => {
     if (closeTimerRef.current) {
@@ -62,17 +68,23 @@ export const Header: React.FC = () => {
     }
   };
 
-  // Close any open category dropdown when clicking outside the nav
+  // Close any open category dropdown / the mobile menu when clicking outside
   useEffect(() => {
-    if (!openMenu) return;
+    if (!openMenu && !isMobileNavOpen) return;
     const onDocMouseDown = (e: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideDesktopNav = navRef.current ? navRef.current.contains(target) : false;
+      const insideMobileNav =
+        (mobileNavRef.current ? mobileNavRef.current.contains(target) : false) ||
+        (mobilePanelRef.current ? mobilePanelRef.current.contains(target) : false);
+      if (!insideDesktopNav && !insideMobileNav) {
         setOpenMenu(null);
+        setIsMobileNavOpen(false);
       }
     };
     document.addEventListener('mousedown', onDocMouseDown);
     return () => document.removeEventListener('mousedown', onDocMouseDown);
-  }, [openMenu]);
+  }, [openMenu, isMobileNavOpen]);
 
   // Shared presentation for the top-level category items: uniform type,
   // single-color icons, one accent for active/hover (no per-category colors).
@@ -245,6 +257,107 @@ export const Header: React.FC = () => {
   const popupItemClass =
     'w-full block px-4 py-2 text-[12.5px] font-semibold text-neutral-700 hover:bg-neutral-100/90 hover:text-black transition-colors cursor-pointer text-left whitespace-nowrap';
 
+  // ---- Mobile menu: the same categories as the desktop row, as an accordion.
+  // The item lists reuse the dropdown datasets above so the two stay in sync.
+  const mobileNavSections: {
+    key: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+    iconColor?: string;
+    groups: { title: string; items: { label: string; onSelect: () => void }[] }[];
+  }[] = [
+    {
+      key: 'top-events',
+      label: 'TOP-EVENTS',
+      icon: Flame,
+      groups: [
+        {
+          title: '',
+          items: quickViews.map((it) => ({
+            label: it.label,
+            onSelect: () => openMatches(it.sport, it.subTab, 'top-events'),
+          })),
+        },
+      ],
+    },
+    {
+      key: 'sports',
+      label: 'SPORTS',
+      icon: Zap,
+      groups: [
+        {
+          title: '',
+          items: sportsMenu.map((it) => ({
+            label: it.label,
+            onSelect: () => openMatches(it.sport, 'matches', 'sports'),
+          })),
+        },
+      ],
+    },
+    {
+      key: 'live',
+      label: 'LIVE',
+      icon: Radio,
+      iconColor: '#ff0404',
+      groups: [
+        {
+          title: '',
+          items: liveMenu.map((it) => ({
+            label: it.label,
+            onSelect: () => openMatches(it.sport, it.subTab, 'live'),
+          })),
+        },
+      ],
+    },
+    {
+      key: 'esports',
+      label: 'ESPORTS',
+      icon: Gamepad2,
+      groups: [
+        {
+          title: '',
+          items: esportsMenu.map((it) => ({
+            label: it.label,
+            onSelect: () => openMatches(it.sport, 'matches', 'esports'),
+          })),
+        },
+      ],
+    },
+    {
+      key: 'casino',
+      label: 'CASINO',
+      icon: Spade,
+      groups: casinoColumns.map((col) => ({
+        title: col.title,
+        items: col.items.map((it) => ({
+          label: it.label,
+          onSelect: () => openCasino('casino', it.category, 'casino'),
+        })),
+      })),
+    },
+    {
+      key: 'live-casino',
+      label: 'LIVE CASINO',
+      icon: Tv,
+      groups: [
+        {
+          title: 'Providers',
+          items: liveCasinoProviders.map((provider) => ({
+            label: provider,
+            onSelect: () => openCasino('live-casino', 'all', 'live-casino'),
+          })),
+        },
+        ...liveCasinoColumns.map((col) => ({
+          title: col.title,
+          items: col.items.map((it) => ({
+            label: it.label,
+            onSelect: () => openCasino('live-casino', it.category, 'live-casino'),
+          })),
+        })),
+      ],
+    },
+  ];
+
   const handleLogoClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -404,7 +517,7 @@ export const Header: React.FC = () => {
           fender arch so TOP-EVENTS and categories start cleanly to the right.
          ======================================================== */}
       <div
-        className="w-full bg-white border-b pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5"
+        className="relative w-full bg-white border-b pl-[118px] sm:pl-[128px] lg:pl-[140px] pr-3 sm:pr-4 lg:pr-6 py-1.5"
         style={{
           backgroundColor: '#ffffff',
           borderColor: '#1b2838',
@@ -414,10 +527,10 @@ export const Header: React.FC = () => {
           className="w-full flex items-center justify-between gap-1 sm:gap-2 text-[12px] sm:text-[13px] font-extrabold"
           style={{ backgroundColor: '#ffffff' }}
         >
-          {/* Left Category Pillar Links */}
+          {/* Left Category Pillar Links (desktop / large screens) */}
           <div
             ref={navRef}
-            className="flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap"
+            className="hidden lg:flex items-center gap-1 sm:gap-1.5 lg:gap-2.5 flex-wrap"
           >
             {/* TOP-EVENTS ▾ — quick match views */}
             <div
@@ -700,12 +813,97 @@ export const Header: React.FC = () => {
               P
             </div>
             <span className="font-extrabold tracking-tight">POLYMARKET</span>
-            <span className="bg-[#ffc600] text-black text-[9px] px-1 py-0.2 rounded font-black tracking-wider flex items-center gap-1">
+            <span className="hidden sm:flex bg-[#ffc600] text-black text-[9px] px-1 py-0.2 rounded font-black tracking-wider items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
               LIVE
             </span>
           </button>
+
+          {/* Phones/tablets: single "Menu" button (three horizontal lines) that opens
+              the category accordion — anchored to the right edge, between the
+              POLYMARKET button and the screen edge */}
+          <div ref={mobileNavRef} className="lg:hidden ml-1.5 sm:ml-2.5">
+            <button
+              id="btn-mobile-categories"
+              onClick={() => {
+                setIsMobileNavOpen((prev) => !prev);
+                setOpenMenu(null);
+              }}
+              aria-expanded={isMobileNavOpen}
+              aria-controls="mobile-categories-panel"
+              aria-label="Betting categories"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-200 text-neutral-700 hover:text-emerald-600 hover:border-emerald-600 transition-colors cursor-pointer text-xs font-extrabold uppercase tracking-wide active:scale-95"
+            >
+              {isMobileNavOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              <span className="hidden sm:inline">Menu</span>
+            </button>
+          </div>
         </nav>
+
+        {/* Phones/tablets: all categories, accordion (overlays the page, so the
+            bar keeps its single-line height instead of wrapping into 6 rows) */}
+        {isMobileNavOpen && (
+          <div
+            ref={mobilePanelRef}
+            id="mobile-categories-panel"
+            className="lg:hidden absolute left-0 right-0 top-full z-50 bg-white border-t border-neutral-200 shadow-2xl max-h-[70vh] overflow-y-auto"
+          >
+            {mobileNavSections.map((section) => {
+              const Icon = section.icon;
+              const isExpanded = openMenu === section.key;
+
+              return (
+                <div key={section.key} className="border-b border-neutral-100 last:border-b-0">
+                  <button
+                    id={`mobile-cat-${section.key}`}
+                    onClick={() => toggleMenu(section.key)}
+                    aria-expanded={isExpanded}
+                    className="w-full flex items-center gap-2 px-3 py-3 text-left text-[13px] font-extrabold uppercase tracking-wide text-neutral-800 hover:bg-neutral-50 transition-colors cursor-pointer"
+                  >
+                    <Icon
+                      className="w-4 h-4 shrink-0 text-slate-400"
+                      style={section.iconColor ? { color: section.iconColor } : undefined}
+                    />
+                    <span className={isExpanded ? 'text-emerald-600' : ''}>{section.label}</span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 ml-auto text-slate-400 transition-transform ${
+                        isExpanded ? 'rotate-180 text-emerald-600' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {isExpanded && (
+                    <div className="pb-2">
+                      {section.groups.map((group) => (
+                        <div key={group.title || section.key}>
+                          {group.title && (
+                            <div className="px-3 pt-1.5 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 select-none">
+                              {group.title}
+                            </div>
+                          )}
+                          <div className="grid grid-cols-2 gap-0.5 px-2">
+                            {group.items.map((item) => (
+                              <button
+                                key={item.label}
+                                onClick={() => {
+                                  item.onSelect();
+                                  setIsMobileNavOpen(false);
+                                }}
+                                className="text-left px-2 py-2 rounded text-[12.5px] font-semibold text-neutral-700 hover:bg-neutral-100 hover:text-black active:bg-neutral-200 transition-colors cursor-pointer"
+                              >
+                                {item.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ========================================================
@@ -730,12 +928,6 @@ export const Header: React.FC = () => {
             marginRight: '7px',
             marginTop: '-3px',
             marginBottom: '-7px',
-            height: '115px',
-            width: '110px',
-            paddingTop: '-10px',
-            paddingLeft: '-12px',
-            paddingRight: '-13px',
-            paddingBottom: '-10px',
           }}
         >
           {/* Rasterized badge (square PNG with a transparent
@@ -759,10 +951,10 @@ export const Header: React.FC = () => {
       <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
         <defs>
           <clipPath id="fender-cutout-mobile" clipPathUnits="userSpaceOnUse">
-            <path d="M 88.66 0 A 52 52 0 0 1 109.65 36 L 9999 36 L 9999 0 Z" />
+            <path d="M 88.66 0 A 52 52 0 0 1 109.85 46 L 9999 46 L 9999 0 Z" />
           </clipPath>
           <clipPath id="fender-cutout-sm" clipPathUnits="userSpaceOnUse">
-            <path d="M 97.33 0 A 58 58 0 0 1 119.69 40 L 9999 40 L 9999 0 Z" />
+            <path d="M 97.33 0 A 58 58 0 0 1 120 46 L 9999 46 L 9999 0 Z" />
           </clipPath>
           <clipPath id="fender-cutout-lg" clipPathUnits="userSpaceOnUse">
             <path d="M 107.53 0 A 65 65 0 0 1 130.93 47 L 9999 47 L 9999 0 Z" />

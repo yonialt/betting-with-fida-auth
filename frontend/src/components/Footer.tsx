@@ -2,6 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Globe } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 
+// Helper: staggered transition delay for the AOS-style fade-up.
+// The .footer-fade-up / .is-visible classes live in index.css and are
+// driven by an IntersectionObserver inside the Footer component.
+const fadeUp = (delayMs: number): React.CSSProperties =>
+  ({ '--fade-delay': `${delayMs}ms` } as React.CSSProperties);
+
+const fadeCls = (entered: boolean) =>
+  `footer-fade-up ${entered ? 'is-visible' : ''}`;
+
 export const Footer: React.FC = () => {
   const {
     setAppMode,
@@ -11,6 +20,28 @@ export const Footer: React.FC = () => {
   const footerRef = useRef<HTMLElement | null>(null);
   const [circleOffset, setCircleOffset] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  // AOS-style entrance: fade-up sections once the footer enters the viewport
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const node = footerRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setEntered(true);
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,11 +138,15 @@ export const Footer: React.FC = () => {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
+  // Shared quranenc-style footer link classes: soft gray, block, hover white
+  const footerLinkCls =
+    'block w-full text-left text-sm text-[#CBCBCB] hover:text-white transition-colors py-2 cursor-pointer';
+
   return (
     <footer
       id="main-footer"
       ref={footerRef}
-      className="relative w-full overflow-hidden bg-[#101217] text-white border-t border-[#1f2330] mt-12 pt-12 pb-8 select-none"
+      className="footer-reveal-bg relative w-full overflow-hidden text-white mt-12 select-none"
     >
       {/* Scroll-reactive animated circle (decorative, non-interactive) */}
       <div
@@ -122,9 +157,13 @@ export const Footer: React.FC = () => {
           opacity: 0.35 + scrollProgress * 0.35,
         }}
       />
+
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Brand Header: Unified ሃገራዊ BETTING & Polymarket */}
-        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        {/* Top Row: Brand Header — separated from links by a white/16 divider */}
+        <div
+          className={`${fadeCls(entered)} pt-12 pb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/15`}
+          style={fadeUp(0)}
+        >
           <div className="flex flex-wrap items-center gap-5">
             {/* Sports Brand */}
             <div
@@ -151,23 +190,21 @@ export const Footer: React.FC = () => {
               </div>
             </div>
           </div>
-
-      
         </div>
 
         {/* Main 5-Column Navigation Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6 pb-12 border-b border-[#212534]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6 pt-10 pb-10">
           {/* Column 1 - Sport Betting */}
-          <div className="flex flex-col">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-4">
+          <div className={`${fadeCls(entered)} flex flex-col`} style={fadeUp(100)}>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-3">
               Sport Betting
             </h4>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               {sportBettingLinks.map((item) => (
                 <button
                   key={item.title}
                   type="button"
-                  className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
+                  className={footerLinkCls}
                 >
                   {item.title}
                 </button>
@@ -176,16 +213,16 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Column 2 - Betting */}
-          <div className="flex flex-col">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-4">
+          <div className={`${fadeCls(entered)} flex flex-col`} style={fadeUp(200)}>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-3">
               Betting
             </h4>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               {bettingLinks.map((item) => (
                 <button
                   key={item.title}
                   type="button"
-                  className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
+                  className={footerLinkCls}
                 >
                   {item.title}
                 </button>
@@ -194,16 +231,16 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Column 3 - Information */}
-          <div className="flex flex-col">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-4">
+          <div className={`${fadeCls(entered)} flex flex-col`} style={fadeUp(300)}>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-3">
               Information
             </h4>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               {infoLinks.map((item) => (
                 <button
                   key={item.title}
                   type="button"
-                  className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
+                  className={footerLinkCls}
                 >
                   {item.title}
                 </button>
@@ -212,16 +249,16 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Column 4 - Support & Social */}
-          <div className="flex flex-col">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-4">
+          <div className={`${fadeCls(entered)} flex flex-col`} style={fadeUp(400)}>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-3">
               Support & Social
             </h4>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               {supportLinks.map((link) => (
                 <button
                   key={link}
                   type="button"
-                  className="text-sm text-neutral-300 hover:text-white transition-colors text-left cursor-pointer"
+                  className={footerLinkCls}
                 >
                   {link}
                 </button>
@@ -230,20 +267,20 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Column 5 - Polymarket */}
-          <div className="flex flex-col">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-4">
+          <div className={`${fadeCls(entered)} flex flex-col`} style={fadeUp(500)}>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-3">
               Polymarket
             </h4>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               {polymarketLinks.map((link) => (
                 <button
                   key={link}
                   type="button"
                   onClick={() => handlePolymarketLinkClick(link)}
-                  className={`text-sm transition-colors text-left cursor-pointer ${
+                  className={`block w-full text-left text-sm py-2 transition-colors cursor-pointer ${
                     link === 'Admin Console'
                       ? 'text-emerald-400 hover:text-emerald-300 font-semibold'
-                      : 'text-neutral-300 hover:text-white'
+                      : 'text-[#CBCBCB] hover:text-white'
                   }`}
                 >
                   {link}
@@ -253,13 +290,29 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* quranenc-style terms / warning card */}
+        <div
+          className={`${fadeCls(entered)} rounded-2xl bg-white/[0.04] px-6 py-5 text-xs text-white/80 leading-relaxed space-y-1.5`}
+          style={fadeUp(300)}
+        >
+          <p>
+            ሃገራዊ PREDICTION MARKET is licensed and regulated under Ethiopian national gaming regulations and lottery administration frameworks. Access is strictly restricted to verified persons aged 21 and older with valid Fayda identification. Please gamble responsibly.
+          </p>
+          <p>
+            Polymarket prediction markets operate globally via decentralized contract mechanisms. Prediction markets involve risk of loss and are not available to prohibited jurisdictions.
+          </p>
+        </div>
+
         {/* Bottom Bar: Social Icons + Legal Links + Language Selector */}
-        <div className="py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
-          {/* Social Icons */}
-          <div className="flex items-center gap-4 text-neutral-300">
+        <div
+          className={`${fadeCls(entered)} py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-400`}
+          style={fadeUp(400)}
+        >
+          {/* Social Icons — white circles like quranenc */}
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              className="hover:text-white transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white text-[#10151d] flex items-center justify-center hover:bg-[#dfe3ea] transition-colors cursor-pointer"
               title="Email Newsletter"
             >
               <Mail className="w-4 h-4" />
@@ -268,7 +321,7 @@ export const Footer: React.FC = () => {
               href="https://x.com"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-white transition-colors cursor-pointer font-bold text-xs"
+              className="w-9 h-9 rounded-full bg-white text-[#10151d] flex items-center justify-center hover:bg-[#dfe3ea] transition-colors cursor-pointer font-bold text-xs"
               title="𝕏 (Twitter)"
             >
               𝕏
@@ -277,7 +330,7 @@ export const Footer: React.FC = () => {
               href="https://instagram.com"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-white transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white text-[#10151d] flex items-center justify-center hover:bg-[#dfe3ea] transition-colors cursor-pointer"
               title="Instagram"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -288,7 +341,7 @@ export const Footer: React.FC = () => {
               href="https://discord.com"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-white transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white text-[#10151d] flex items-center justify-center hover:bg-[#dfe3ea] transition-colors cursor-pointer"
               title="Discord"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -299,7 +352,7 @@ export const Footer: React.FC = () => {
               href="https://tiktok.com"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-white transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white text-[#10151d] flex items-center justify-center hover:bg-[#dfe3ea] transition-colors cursor-pointer"
               title="TikTok"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -309,39 +362,29 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Legal / Company Notice */}
-          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-normal">
-            <span className="font-semibold text-neutral-300">ሃገራዊ PREDICTION MARKET & Polymarket © 2026</span>
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center font-normal text-[#CBCBCB]">
+            <span className="font-semibold text-white">ሃገራዊ PREDICTION MARKET & Polymarket © 2026</span>
             <span>·</span>
-            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Privacy</button>
+            <button type="button" className="hover:text-white transition-colors cursor-pointer">Privacy</button>
             <span>·</span>
-            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Terms of Use</button>
+            <button type="button" className="hover:text-white transition-colors cursor-pointer">Terms of Use</button>
             <span>·</span>
-            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Responsible Gaming (21+)</button>
+            <button type="button" className="hover:text-white transition-colors cursor-pointer">Responsible Gaming (21+)</button>
             <span>·</span>
-            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Transparency</button>
+            <button type="button" className="hover:text-white transition-colors cursor-pointer">Transparency</button>
             <span>·</span>
-            <button type="button" className="hover:text-neutral-200 transition-colors cursor-pointer">Help Center</button>
+            <button type="button" className="hover:text-white transition-colors cursor-pointer">Help Center</button>
             <span>·</span>
             <button type="button" onClick={handleAdminConsoleClick} className="hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
           </div>
 
           {/* Language Selector */}
           <div className="relative">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#1c202a] border border-[#2b3142] text-xs text-neutral-300">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs text-white/90">
               <Globe className="w-3.5 h-3.5" />
               <span>English</span>
             </div>
           </div>
-        </div>
-
-        {/* Regulatory Disclaimer Text */}
-        <div className="pt-4 border-t border-[#1c202c] text-[11px] text-neutral-500 leading-relaxed space-y-1.5">
-          <p>
-            ሃገራዊ PREDICTION MARKET is licensed and regulated under Ethiopian national gaming regulations and lottery administration frameworks. Access is strictly restricted to verified persons aged 21 and older with valid Fayda identification. Please gamble responsibly.
-          </p>
-          <p>
-            Polymarket prediction markets operate globally via decentralized contract mechanisms. Prediction markets involve risk of loss and are not available to prohibited jurisdictions.
-          </p>
         </div>
       </div>
     </footer>

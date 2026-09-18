@@ -7,16 +7,16 @@
    - Uniform radial clearance gap (~13.5-15.7px) wrapping smoothly over the top of the logo wheel.
    - Flowing seamlessly from the top edge into the seam, with zero flat spots and zero pinch. */
 .top-navbar-cutout {
-  -webkit-clip-path: path("M 88.66 0 A 52 52 0 0 1 109.65 36 L 9999 36 L 9999 0 Z");
+  -webkit-clip-path: path("M 88.66 0 A 52 52 0 0 1 109.85 46 L 9999 46 L 9999 0 Z");
   clip-path: url(#fender-cutout-mobile);
-  clip-path: path("M 88.66 0 A 52 52 0 0 1 109.65 36 L 9999 36 L 9999 0 Z");
+  clip-path: path("M 88.66 0 A 52 52 0 0 1 109.85 46 L 9999 46 L 9999 0 Z");
 }
 
 @media (min-width: 640px) {
   .top-navbar-cutout {
-    -webkit-clip-path: path("M 97.33 0 A 58 58 0 0 1 119.69 40 L 9999 40 L 9999 0 Z");
+    -webkit-clip-path: path("M 97.33 0 A 58 58 0 0 1 120 46 L 9999 46 L 9999 0 Z");
     clip-path: url(#fender-cutout-sm);
-    clip-path: path("M 97.33 0 A 58 58 0 0 1 119.69 40 L 9999 40 L 9999 0 Z");
+    clip-path: path("M 97.33 0 A 58 58 0 0 1 120 46 L 9999 46 L 9999 0 Z");
   }
 }
 
@@ -456,4 +456,54 @@
 }
 .hagerawi-ripple-delay {
   animation-delay: 1.4s;
+}
+
+/* ============================================================
+   Footer parallax reveal (quranenc.com style).
+   The dark patterned background stays pinned to the viewport
+   (background-attachment: fixed), so as the user scrolls down the
+   page slides away and the footer is revealed from underneath;
+   scrolling up covers it again — no JS needed.
+   ============================================================ */
+.footer-reveal-bg {
+  background:
+    url('/footer-pattern.svg') repeat center center / 150px 150px,
+    linear-gradient(112.41deg, #363f4d -29.38%, #10151d 64.03%);
+  background-attachment: fixed, fixed;
+}
+
+/* Mobile: fixed backgrounds are buggy/janky on touch devices —
+   let the background scroll normally there instead. */
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+  .footer-reveal-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* AOS-style entrance animations (fade-up) applied on scroll via
+   a tiny IntersectionObserver — mirrors quranenc's AOS setup
+   (1000ms ease-in-out, plays once) without a new dependency. */
+.footer-fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+  transition-delay: var(--fade-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.footer-fade-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .footer-fade-up {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .footer-reveal-bg {
+    background-attachment: scroll;
+  }
 }

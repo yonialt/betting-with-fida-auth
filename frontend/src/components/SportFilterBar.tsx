@@ -34,9 +34,9 @@ export const SportFilterBar: React.FC = () => {
       id="sports-filter-bar"
       className="w-full bg-[#163b63] border-b border-[#102d4d] px-2 sm:px-3 py-1 flex items-center gap-2 text-xs select-none text-white"
     >
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Sports List */}
-        <div className="flex items-center gap-1 sm:gap-2">
+      {/* Sports List — horizontally scrollable on narrow screens instead of being clipped */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {sports.map((s) => {
             const isSelected = activeSport === s.id;
             return (

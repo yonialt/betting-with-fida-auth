@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Lock, CheckCircle, X, Phone, AlertCircle, ArrowDown, ArrowUpRight } from 'lucide-react';
+import { Lock, CheckCircle, X, Phone, AlertCircle, ArrowDown, ArrowUpRight, ArrowLeft, ShieldCheck, Fingerprint, ReceiptText, Copy, Check } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { fidaBetApi } from '../services/fidaBetApi';
 
@@ -18,6 +18,7 @@ const AMOUNTS = [100, 200, 500, 1000, 2000];
 
 const BRAND = 'Hagerawi Prediction Market';
 const LOGO = '/hagerawi-logo.png';
+const TELEBIRR_LOGO = '/telebirr-official.png';
 
 export const TelebirrDepositModal: React.FC = () => {
   const {
@@ -42,6 +43,7 @@ export const TelebirrDepositModal: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [pin, setPin] = useState('');
   const [merchantOrderId, setMerchantOrderId] = useState('');
+  const [copiedRef, setCopiedRef] = useState(false);
 
   const isOpen = depositModalOpen || withdrawModalOpen;
   const balance = user?.balance || 0;
@@ -53,8 +55,22 @@ export const TelebirrDepositModal: React.FC = () => {
   const fmtFull = (n: number) =>
     `ETB ${(Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
+  // Tracks whether the modal was open on the previous effect run, so the
+  // reset below only fires when the modal *opens* — not when `user` changes
+  // mid-flow (e.g. balance refresh after a successful deposit), which used
+  // to yank the success screen away instantly.
+  const wasOpenRef = React.useRef(false);
+
   // Sync mode when modal triggers open
   useEffect(() => {
+    const open = depositModalOpen || withdrawModalOpen;
+    if (!open) {
+      wasOpenRef.current = false;
+      return;
+    }
+    if (wasOpenRef.current) return; // stayed open — keep current step
+    wasOpenRef.current = true;
+
     if (withdrawModalOpen) {
       setMode('withdraw');
       setStep('form');
@@ -221,6 +237,22 @@ export const TelebirrDepositModal: React.FC = () => {
 
   // ========== SIMULATED TELEBIRR SCREENS ==========
 
+  // Shared SLIM header for the simulated telebirr screens:
+  // small official Ethio Telecom logo in one compact row (like an app navbar).
+  const TelebirrCheckoutHeader: React.FC<{ subtitle: string; onClose: () => void }> = ({ subtitle, onClose }) => (
+    <div className="relative flex items-center justify-center gap-2.5 px-4 py-2.5 bg-white border-b border-[#eceff1]">
+      <button
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 text-[#546e7a] hover:text-[#263238] transition-colors cursor-pointer"
+      >
+        <X className="h-[18px] w-[18px]" />
+      </button>
+      <img src={TELEBIRR_LOGO} alt="telebirr" className="h-7 w-auto object-contain select-none" draggable={false} />
+      <span className="text-[11px] text-[#90a4ae]">{subtitle}</span>
+    </div>
+  );
+
   // Phone Entry Screen
   if (step === 'phone-entry') {
     return (
@@ -230,16 +262,7 @@ export const TelebirrDepositModal: React.FC = () => {
           className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto"
           style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
         >
-          <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
-                <div style={{ fontSize: 11, opacity: 0.85 }}>Secure {mode === 'deposit' ? 'Payment' : 'Payout'}</div>
-              </div>
-            </div>
-            <button onClick={handleClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: 8, padding: '6px 12px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-          </div>
+          <TelebirrCheckoutHeader subtitle={`Secure ${mode === 'deposit' ? 'Payment' : 'Payout'}`} onClose={handleClose} />
 
           <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '16px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -249,14 +272,14 @@ export const TelebirrDepositModal: React.FC = () => {
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{BRAND}</div>
               </div>
             </div>
-            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 14, color: '#666' }}>Amount</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: '#d32f2f' }}>{fmtFull(amount)}</span>
+            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eceff1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 14, color: '#78909c' }}>Amount</span>
+              <span style={{ fontSize: 22, fontWeight: 800, color: '#33691e' }}>{fmtFull(amount)}</span>
             </div>
           </div>
 
           <div style={{ background: 'white', margin: '0 16px 16px', borderRadius: 12, padding: '24px 20px' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' }}>Enter your phone number</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#263238' }}>Enter your phone number</h2>
             <p style={{ fontSize: 13, color: '#888', margin: '0 0 20px' }}>The phone number registered with your telebirr account</p>
             <div style={{ display: 'flex', border: '2px solid #e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
               <div style={{ background: '#f5f5f5', padding: '14px 12px', fontSize: 16, fontWeight: 600, color: '#333', borderRight: '2px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 6 }}>🇪🇹 +251</div>
@@ -275,11 +298,11 @@ export const TelebirrDepositModal: React.FC = () => {
                 if (checkoutPhone.length < 8) { setNotification({ message: 'Enter a valid phone number', type: 'warning' }); return; }
                 setStep('name-entry');
               }}
-              style={{ width: '100%', marginTop: 20, padding: '16px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
+              style={{ width: '100%', marginTop: 20, padding: '16px', background: '#7CB342', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
             >Continue</button>
           </div>
 
-          <div style={{ textAlign: 'center', padding: '12px 16px', fontSize: 11, color: '#bbb' }}>Powered by Ethio Telecom · telebirr</div>
+          <div style={{ textAlign: 'center', padding: '12px 16px', fontSize: 11, color: '#b0bec5' }}>Powered by Ethio Telecom · telebirr</div>
         </div>
       </div>
     );
@@ -291,16 +314,7 @@ export const TelebirrDepositModal: React.FC = () => {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
         <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-          <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
-                <div style={{ fontSize: 11, opacity: 0.85 }}>Secure {mode === 'deposit' ? 'Payment' : 'Payout'}</div>
-              </div>
-            </div>
-            <button onClick={handleClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: 8, padding: '6px 12px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-          </div>
+          <TelebirrCheckoutHeader subtitle="Secure Payout & Payment" onClose={handleClose} />
 
           <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '16px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -310,14 +324,14 @@ export const TelebirrDepositModal: React.FC = () => {
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{BRAND}</div>
               </div>
             </div>
-            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 14, color: '#666' }}>Amount</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: '#d32f2f' }}>{fmtFull(amount)}</span>
+            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eceff1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 14, color: '#78909c' }}>Amount</span>
+              <span style={{ fontSize: 22, fontWeight: 800, color: '#33691e' }}>{fmtFull(amount)}</span>
             </div>
           </div>
 
           <div style={{ background: 'white', margin: '0 16px 16px', borderRadius: 12, padding: '24px 20px' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' }}>Enter your full name</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#263238' }}>Enter your full name</h2>
             <p style={{ fontSize: 13, color: '#888', margin: '0 0 20px' }}>The full name registered with your telebirr account</p>
             <input
               type="text"
@@ -333,89 +347,116 @@ export const TelebirrDepositModal: React.FC = () => {
                 if (fullName.trim().length < 2) { setNotification({ message: 'Enter your full name', type: 'warning' }); return; }
                 setStep('pin-entry');
               }}
-              style={{ width: '100%', marginTop: 20, padding: '16px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
+              style={{ width: '100%', marginTop: 20, padding: '16px', background: '#7CB342', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
             >Continue</button>
           </div>
 
-          <div style={{ textAlign: 'center', padding: '12px 16px', fontSize: 11, color: '#bbb' }}>Powered by Ethio Telecom · telebirr</div>
+          <div style={{ textAlign: 'center', padding: '12px 16px', fontSize: 11, color: '#b0bec5' }}>Powered by Ethio Telecom · telebirr</div>
         </div>
       </div>
     );
   }
 
-  // PIN Entry Screen
+  // PIN Entry Screen — full-bleed like the real telebirr SuperApp:
+  // lavender screen, X top-left, "Enter PIN" + hollow dots + "Forgot PIN"
+  // high up, flat borderless keypad pushed toward the bottom. No header,
+  // no amount card (matches PINEntry.png).
   if (step === 'pin-entry') {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-          <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
-                <div style={{ fontSize: 11, opacity: 0.85 }}>PIN Authorization</div>
-              </div>
-            </div>
-            <button onClick={handleClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: 8, padding: '6px 12px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-          </div>
+        <div
+          className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] flex flex-col"
+          style={{ background: '#E8E6F0', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', minHeight: 640 }}
+        >
+          {/* Close X — top-left, like the app */}
+          <button
+            onClick={handleClose}
+            aria-label="Close"
+            className="absolute top-4 left-4 z-10 p-1.5 text-[#263238] hover:text-black transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
-          <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '16px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <img src={LOGO} alt={BRAND} style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'contain' }} />
-              <div>
-                <div style={{ fontSize: 13, color: '#666' }}>{mode === 'deposit' ? 'Payment to' : 'Payout from'}</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{BRAND}</div>
-              </div>
-            </div>
-            <div style={{ marginTop: 8, padding: '12px 0', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 14, color: '#666' }}>Amount</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: '#d32f2f' }}>{fmtFull(amount)}</span>
-            </div>
-          </div>
+          {/* Top block: title + dots + forgot, positioned like PINEntry.png */}
+          <div style={{ textAlign: 'center', paddingTop: 68 }}>
+            <h2 style={{ fontSize: 28, fontWeight: 400, margin: '0 0 26px', color: '#212121' }}>Enter PIN</h2>
 
-          <div style={{ background: 'white', margin: '0 16px 16px', borderRadius: 12, padding: '24px 20px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' }}>Enter telebirr PIN</h2>
-            <p style={{ fontSize: 13, color: '#888', margin: '0 0 20px' }}>Enter your 6-digit PIN to authorize this {mode === 'deposit' ? 'transaction' : 'payout'}</p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 20 }}>
+            {/* Hollow PIN dots */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 22, marginBottom: 20 }}>
               {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div key={i} style={{ width: 14, height: 14, borderRadius: '50%', background: i < pin.length ? '#d32f2f' : '#e0e0e0', transition: 'background 0.15s' }} />
-              ))}
-            </div>
-
-            <input
-              type="password"
-              autoFocus
-              maxLength={6}
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              style={{ position: 'absolute', opacity: 0, width: 1, height: 1 }}
-            />
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, maxWidth: 280, margin: '0 auto' }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, 'del'].map((num, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    if (num === 'del') setPin((p) => p.slice(0, -1));
-                    else if (num !== null) setPin((p) => (p.length < 6 ? p + num : p));
-                  }}
-                  disabled={num === null}
+                <div
+                  key={i}
                   style={{
-                    padding: '16px', borderRadius: 10, border: '1px solid #e8e8e8',
-                    background: num === null ? 'transparent' : '#f8f8f8',
-                    fontSize: 20, fontWeight: 600, color: num === 'del' ? '#d32f2f' : '#1a1a1a',
-                    cursor: num === null ? 'default' : 'pointer',
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    border: i < pin.length ? 'none' : '2px solid #5f6368',
+                    background: i < pin.length ? '#33691e' : 'transparent',
+                    transform: i < pin.length ? 'scale(1.08)' : 'scale(1)',
+                    transition: 'all 0.15s ease',
                   }}
-                >{num === null ? '' : num}</button>
+                />
               ))}
             </div>
 
-            <button onClick={() => setPin('')} style={{ marginTop: 16, background: 'none', border: 'none', color: '#d32f2f', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Clear PIN</button>
+            <button
+              type="button"
+              onClick={() => setPin('')}
+              style={{ background: 'none', border: 'none', color: '#212121', fontSize: 16, fontWeight: 700, cursor: 'pointer', padding: '2px 8px' }}
+            >
+              Forgot PIN
+            </button>
           </div>
 
-          <div style={{ textAlign: 'center', padding: '12px 16px', fontSize: 11, color: '#bbb' }}>Powered by Ethio Telecom · telebirr</div>
+          {/* Spacer pushes the keypad to the bottom like the app */}
+          <div style={{ flex: 1, minHeight: 60 }} />
+
+          {/* Flat borderless keypad — bottom section. width:100% is required:
+              margin auto alone lets the grid shrink to content width inside
+              the flex column, which crammed the digits together. */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              width: '100%',
+              maxWidth: 320,
+              margin: '0 auto',
+              paddingBottom: 32,
+            }}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, 'del'].map((num, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  if (num === 'del') setPin((p) => p.slice(0, -1));
+                  else if (num !== null) setPin((p) => (p.length < 6 ? p + num : p));
+                }}
+                disabled={num === null}
+                style={{
+                  height: 76,
+                  border: 'none',
+                  background: 'transparent',
+                  fontSize: 30,
+                  fontWeight: 400,
+                  color: '#212121',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: num === null ? 'default' : 'pointer',
+                  transition: 'background 0.12s ease',
+                  borderRadius: 14,
+                }}
+                onTouchStart={num === null ? undefined : (e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; }}
+                onTouchEnd={num === null ? undefined : (e) => { e.currentTarget.style.background = 'transparent'; }}
+                onMouseDown={num === null ? undefined : (e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; }}
+                onMouseUp={num === null ? undefined : (e) => { e.currentTarget.style.background = 'transparent'; }}
+                onMouseLeave={num === null ? undefined : (e) => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                {num === 'del' ? <ArrowLeft className="w-6 h-6" style={{ color: '#212121' }} strokeWidth={1.5} /> : num === null ? '' : num}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -427,12 +468,9 @@ export const TelebirrDepositModal: React.FC = () => {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
         <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-          <div style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#d32f2f' }}>telebirr</div>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
-          </div>
+          <TelebirrCheckoutHeader subtitle="Processing your transaction…" onClose={handleClose} />
           <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '40px 20px', textAlign: 'center' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', border: '4px solid #f5f5f5', borderTopColor: '#d32f2f', animation: 'telebirr-spin 0.8s linear infinite', margin: '0 auto 20px' }} />
+            <div style={{ width: 56, height: 56, borderRadius: '50%', border: '4px solid #f1f8e9', borderTopColor: '#7CB342', animation: 'telebirr-spin 0.8s linear infinite', margin: '0 auto 20px' }} />
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1a1a1a' }}>
               {mode === 'deposit' ? 'Processing payment...' : 'Processing payout...'}
             </h2>
@@ -447,42 +485,160 @@ export const TelebirrDepositModal: React.FC = () => {
     );
   }
 
-  // Success Screen
+  // Success Screen — matches the real telebirr receipt:
+  // green check -> "Successful" -> "Payment Method" + big amount ->
+  // thin divider -> transaction rows (purple number chip) -> Payment QR Code.
   if (step === 'success') {
+    const setCopied = setCopiedRef;
+    const copied = copiedRef;
+    const copyRef = () => {
+      navigator.clipboard?.writeText(receiptRef).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1800);
+      }).catch(() => {});
+    };
+    const txTime = new Date().toLocaleString('en-GB', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    }).replace(/\//g, '/');
+
+    // Deterministic QR-style matrix from the receipt ref (same ref -> same QR)
+    const qrSize = 21;
+    let seed = 0;
+    for (let i = 0; i < receiptRef.length; i++) seed = (seed * 31 + receiptRef.charCodeAt(i)) >>> 0;
+    const rand = () => {
+      seed = (seed + 0x6D2B79F5) >>> 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const inFinder = (r: number, c: number) =>
+      (r < 7 && c < 7) || (r < 7 && c >= qrSize - 7) || (r >= qrSize - 7 && c < 7);
+    const finderCell = (r: number, c: number) => {
+      const lr = r < 7 ? r : r - (qrSize - 7);
+      const lc = c < 7 ? c : c - (qrSize - 7);
+      const ring = Math.max(Math.abs(lr - 3), Math.abs(lc - 3));
+      return ring !== 2; // filled center 4x4 + 1px frame, hollow ring
+    };
+    const qrCells: boolean[][] = Array.from({ length: qrSize }, (_, r) =>
+      Array.from({ length: qrSize }, (_, c) =>
+        inFinder(r, c) ? finderCell(r, c) : rand() > 0.52
+      )
+    );
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#f5f5f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-          <div style={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, color: '#2e7d32' }}>telebirr</div>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>telebirr</div>
-          </div>
-          <div style={{ background: 'white', margin: '16px', borderRadius: 12, padding: '30px 20px', textAlign: 'center' }}>
-            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 32 }}>✅</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px', color: '#2e7d32' }}>
-              {mode === 'deposit' ? 'Deposit Successful' : 'Withdrawal Successful'}
-            </h2>
-            <p style={{ fontSize: 14, color: '#666', margin: '0 0 4px' }}>
-              {mode === 'deposit' ? (
-                <>You have deposited <strong>{fmtFull(amount)}</strong></>
-              ) : (
-                <>You have withdrawn <strong>{fmtFull(amount)}</strong></>
-              )}
-            </p>
-            <p style={{ fontSize: 13, color: '#999', margin: '0 0 20px' }}>
-              {mode === 'deposit' ? `to ${BRAND}` : `to your Telebirr account (${phone})`}
-            </p>
-            <div style={{ background: '#f5f5f5', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#888', maxWidth: 280, margin: '0 auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span>Reference</span>
-                <span style={{ color: '#333', fontWeight: 600 }}>{receiptRef}</span>
+        <div className="relative w-full max-w-[420px] rounded-2xl overflow-hidden shadow-3xl my-auto max-h-[94vh] overflow-y-auto" style={{ background: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+          {/* Receipt starts directly with the check — no logo header (like the app) */}
+          <div style={{ padding: '34px 28px 30px', textAlign: 'center', position: 'relative' }}>
+            <button
+              onClick={handleClose}
+              aria-label="Close"
+              className="absolute top-4 right-4 p-1.5 text-[#90a4ae] hover:text-[#263238] transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            {/* Green check circle */}
+            <div
+              className="mx-auto flex items-center justify-center rounded-full"
+              style={{ width: 64, height: 64, background: '#8BC34A', marginTop: 10 }}
+            >
+              <Check className="w-8 h-8 text-white" strokeWidth={3} />
+            </div>
+            <div style={{ fontSize: 17, color: '#8BC34A', fontWeight: 400, marginTop: 12, marginBottom: 26 }}>
+              Successful
+            </div>
+
+            {/* Payment Method + big amount (like the app receipt) */}
+            <div style={{ fontSize: 17, color: '#78909c', marginBottom: 8 }}>Payment Method</div>
+            <div style={{ fontSize: 38, fontWeight: 400, color: '#263238', letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+              {mode === 'deposit' ? '-' : '+'}{amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span style={{ fontSize: 15, color: '#78909c', marginLeft: 6 }}>(ETB)</span>
+            </div>
+
+            {/* Thin divider */}
+            <div style={{ height: 1, background: '#eceff1', margin: '28px 0 18px' }} />
+
+            {/* Transaction rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
+                <span style={{ color: '#90a4ae' }}>Transaction Time:</span>
+                <span style={{ color: '#263238', fontWeight: 500 }}>{txTime}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Status</span>
-                <span style={{ color: '#2e7d32', fontWeight: 600 }}>Completed</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
+                <span style={{ color: '#90a4ae' }}>Transaction Type:</span>
+                <span style={{ color: '#263238', fontWeight: 500 }}>{mode === 'deposit' ? 'Transfer Money' : 'Withdraw Money'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
+                <span style={{ color: '#90a4ae' }}>Transaction To:</span>
+                <span style={{ color: '#263238', fontWeight: 500, maxWidth: '58%', textAlign: 'right' }}>
+                  {mode === 'deposit' ? (fullName || BRAND) : 'Your Telebirr'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
+                <span style={{ color: '#90a4ae' }}>Transaction Number:</span>
+                <button
+                  onClick={copyRef}
+                  className="flex items-center gap-1.5 rounded-md px-2.5 py-1 transition-colors cursor-pointer"
+                  style={{
+                    background: copied ? '#c5e1a5' : '#d1c4e9',
+                    color: copied ? '#33691e' : '#37474f',
+                    fontWeight: 500,
+                    fontSize: 13.5,
+                    border: 'none',
+                  }}
+                  title="Copy transaction number"
+                >
+                  {receiptRef}
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
               </div>
             </div>
-            <button onClick={handleClose} style={{ width: '100%', marginTop: 20, padding: '14px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>Done</button>
+
+            {/* Payment QR Code (deterministic from the receipt number) */}
+            <div
+              className="mx-auto"
+              style={{
+                width: 218,
+                padding: 16,
+                background: '#f5f5f5',
+                borderRadius: 10,
+                marginTop: 26,
+              }}
+            >
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${qrSize}, 1fr)`,
+                  gap: 0,
+                  width: 178,
+                  height: 178,
+                  margin: '0 auto',
+                }}
+              >
+                {qrCells.flatMap((row, r) =>
+                  row.map((on, c) => (
+                    <div key={`${r}-${c}`} style={{ background: on ? '#263238' : 'transparent', aspectRatio: '1' }} />
+                  ))
+                )}
+              </div>
+            </div>
+            <div style={{ fontSize: 14.5, color: '#78909c', marginTop: 12 }}>
+              Payment QR Code
+            </div>
+
+            <button
+              onClick={handleClose}
+              style={{
+                width: '100%', marginTop: 24, padding: '14px',
+                background: '#7CB342', color: 'white', border: 'none',
+                borderRadius: 10, fontSize: 15.5, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              Done
+            </button>
           </div>
         </div>
       </div>

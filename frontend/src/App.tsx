@@ -198,7 +198,7 @@ const BettingAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eaedf1] text-[#222] font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-[#eaedf1] text-[#222] font-sans antialiased pb-[60px] lg:pb-0 overflow-x-clip">
       {/* Top Main Navigation Header (Row 1 & Row 2 Navbars) */}
       <Header />
 
@@ -212,11 +212,10 @@ const BettingAppContent: React.FC = () => {
 
         {/* Center Live Matches Area / Event Detailed View */}
         <main
-          className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5 transition-all duration-200"
-          style={{
-            marginLeft: '0px',
-            marginRight: isBetSlipCollapsed ? '45px' : '0px',
-          }}
+          className={`flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5 transition-all duration-200 ${
+            isBetSlipCollapsed ? 'lg:mr-[45px]' : ''
+          }`}
+          style={{ marginLeft: '0px' }}
         >
           {activeCenterView === 'event' ? (
             <EventDetailedView />

@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Search,
   X,
-  ChevronLeft,
   ChevronDown,
   LogOut,
   Wallet,
@@ -10,9 +9,6 @@ import {
   User,
   Check,
   Settings,
-  Sparkles,
-  HelpCircle,
-  MessageSquare,
 } from 'lucide-react';
 import { useBetting } from '../../context/BettingContext';
 import { HowItWorksModal } from './HowItWorksModal';
@@ -43,7 +39,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   setSearchQuery,
   activeViewTab,
   setActiveViewTab,
-  onToggleChat,
+  onToggleChat: _onToggleChat,
   chatOpen: _chatOpen,
   onOpenMarketDetail,
   onSelectMoreOption,
@@ -62,13 +58,20 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   } = useBetting();
   const isLight = !polymarketDarkMode;
 
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState<boolean>(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
+  // Mobile: the search bar is collapsed to just a magnifier icon until tapped
+  const [mobileSearchOpen, setMobileSearchOpen] = useState<boolean>(false);
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
   const [searchTab, setSearchTab] = useState<'markets' | 'profiles'>('markets');
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Focus the input when the mobile search icon expands into the full bar
+  useEffect(() => {
+    if (mobileSearchOpen) searchInputRef.current?.focus();
+  }, [mobileSearchOpen]);
 
   // Close search dropdown on click outside
   useEffect(() => {
@@ -136,24 +139,64 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
             borderWidth: '1px',
           }}
         >
-          {/* Middle: Search Polymarket Event Searching Bar */}
-          <div ref={searchContainerRef} className="flex-1 max-w-[540px] min-w-0 relative mx-1 sm:mx-3">
-            <Search className="w-4 h-4 text-[#72859e] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              id="polymarket-search-input"
-              type="text"
-              value={searchQuery}
-              onFocus={() => setSearchFocused(true)}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('search_placeholder', language, 'Search polymarkets...')}
-              className="w-full h-[32px] sm:h-[34px] bg-[#111c29] hover:bg-[#142335] focus:bg-[#16273c] border border-[#25394f] focus:border-blue-500 rounded-lg pl-9 pr-8 text-xs sm:text-[13px] text-white placeholder-[#72859e] focus:outline-none transition-colors"
-            />
-            {searchQuery && (
+          {/* Middle: Search — icon-only on mobile (tap to expand), full bar on sm+ */}
+          <div
+            ref={searchContainerRef}
+            className={`relative flex items-center min-w-0 mx-1 sm:mx-3 ${
+              mobileSearchOpen ? 'flex-1 max-w-[540px]' : 'shrink-0 sm:flex-1 sm:max-w-[540px]'
+            }`}
+          >
+            {/* Mobile: collapsed — just the magnifying glass icon */}
+            {!mobileSearchOpen && (
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-neutral-400 hover:text-white rounded cursor-pointer"
+                id="btn-mobile-search-open"
+                onClick={() => setMobileSearchOpen(true)}
+                aria-label="Search polymarkets"
+                aria-expanded={mobileSearchOpen}
+                className="sm:hidden w-8 h-8 flex items-center justify-center rounded-lg bg-[#111c29] border border-[#25394f] text-[#72859e] hover:text-white hover:border-blue-500 transition-colors cursor-pointer active:scale-95 shrink-0"
+                title="Search"
               >
-                <X className="w-3 h-3" />
+                <Search className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* The search bar: hidden on mobile until the icon is tapped; always visible on sm+ */}
+            <div className={`min-w-0 relative ${mobileSearchOpen ? 'block flex-1' : 'hidden sm:block sm:flex-1'}`}>
+              <Search className="w-4 h-4 text-[#72859e] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                id="polymarket-search-input"
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onFocus={() => setSearchFocused(true)}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('search_placeholder', language, 'Search polymarkets...')}
+                className="w-full h-[32px] sm:h-[34px] bg-[#111c29] hover:bg-[#142335] focus:bg-[#16273c] border border-[#25394f] focus:border-blue-500 rounded-lg pl-9 pr-8 text-xs sm:text-[13px] text-white placeholder-[#72859e] focus:outline-none transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-neutral-400 hover:text-white rounded cursor-pointer"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+
+            {/* Mobile: collapse the search back to the icon */}
+            {mobileSearchOpen && (
+              <button
+                id="btn-mobile-search-close"
+                onClick={() => {
+                  setMobileSearchOpen(false);
+                  setSearchQuery('');
+                  setSearchFocused(false);
+                }}
+                aria-label="Close search"
+                className="sm:hidden shrink-0 w-7 h-7 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer ml-1"
+                title="Close search"
+              >
+                <X className="w-4 h-4" />
               </button>
             )}
 
@@ -262,7 +305,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
           </div>
 
           {/* Right: Sportbetting Top Navbar Account Utilities & Controls */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <div className={`flex items-center gap-2 sm:gap-2.5 shrink-0 ${mobileSearchOpen ? 'max-sm:hidden' : ''}`}>
             {user.isLoggedIn ? (
               <>
                 {/* Connected Wallet & Balance Capsule */}
@@ -281,10 +324,10 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
                       <Wallet className="w-2.5 h-2.5 text-emerald-400" />
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="font-mono font-extrabold text-[12px] text-white tracking-tight">
+                      <span className="font-mono font-extrabold text-[12.5px] text-white tracking-tight">
                         {user.balance.toLocaleString()}
                       </span>
-                      <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">
+                      <span className="text-[9.5px] font-bold text-emerald-400 uppercase tracking-wider">
                         {user.currency}
                       </span>
                     </div>
@@ -294,7 +337,7 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
                   <button
                     id="btn-deposit"
                     onClick={() => setDepositModalOpen(true)}
-                    className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[10px] font-extrabold rounded-full transition-all shadow-xs active:scale-95 cursor-pointer ml-0.5"
+                    className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-[10.5px] font-extrabold rounded-full transition-all shadow-xs active:scale-95 cursor-pointer ml-0.5"
                     title="Deposit Funds"
                   >
                     <Plus className="w-3 h-3 stroke-[3]" />
@@ -310,35 +353,35 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
                     window.history.pushState({}, '', '/profile');
                     window.dispatchEvent(new PopStateEvent('popstate'));
                   }}
-                  className="flex items-center gap-2 pl-1.5 pr-2 sm:pr-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#131f2d] to-[#0d1622] hover:from-[#192738] hover:to-[#121c2b] border border-white/10 hover:border-cyan-500/40 cursor-pointer transition-all shadow-xs group select-none"
+                  className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-gradient-to-r from-[#131f2d] to-[#0d1622] hover:from-[#192738] hover:to-[#121c2b] border border-white/10 hover:border-cyan-500/40 cursor-pointer transition-all shadow-sm group select-none"
                   title="Account Profile & Settings"
                 >
                   <div className="relative shrink-0">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-1 ring-white/20 group-hover:ring-cyan-400/60 transition-all">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-1.5 ring-white/20 group-hover:ring-cyan-400/60 transition-all">
                       {user.username ? (
-                        <span className="leading-none select-none tracking-tight font-mono text-[11px]">
+                        <span className="leading-none select-none tracking-tight font-mono">
                           {user.username.charAt(0).toUpperCase()}
                         </span>
                       ) : (
                         <User className="w-3.5 h-3.5 text-white stroke-[2.2]" />
                       )}
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1.5 ring-[#0d1622]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0d1622]" />
                   </div>
 
                   <div className="hidden sm:flex flex-col text-left leading-none">
-                    <span className="text-[11px] font-extrabold text-white group-hover:text-cyan-300 transition-colors truncate max-w-[80px]">
+                    <span className="text-[11.5px] font-extrabold text-white group-hover:text-cyan-300 transition-colors truncate max-w-[90px]">
                       {user.username || 'Account'}
                     </span>
-                    <div className="flex items-center gap-0.5 mt-0.5">
-                      <span className="inline-flex items-center gap-0.5 text-[8px] font-extrabold text-emerald-400 bg-emerald-500/10 px-1 rounded border border-emerald-500/20 uppercase tracking-wide">
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="inline-flex items-center gap-0.5 text-[8.5px] font-extrabold text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded border border-emerald-500/20 uppercase tracking-wide">
                         <Check className="w-2 h-2 stroke-[3]" />
                         Verified
                       </span>
                     </div>
                   </div>
 
-                  <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:text-white transition-transform group-hover:translate-y-0.5 shrink-0 ml-0.5 hidden sm:block" />
+                  <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:text-white transition-transform group-hover:translate-y-0.5 shrink-0 ml-0.5" />
                 </div>
 
                 {/* Log out button */}
@@ -370,17 +413,17 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               </>
             )}
 
-            {/* How it works Button */}
+            {/* How it works — icon-only on mobile (opens the explainer popout), text on lg+ */}
             <button
               id="btn-polymarket-how-it-works"
               onClick={() => setHowItWorksOpen(true)}
-              className="hidden lg:flex items-center gap-1.5 text-[11.5px] font-semibold text-neutral-300 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-white/5"
+              className="flex items-center gap-1.5 text-[11.5px] font-semibold text-neutral-300 hover:text-white transition-colors cursor-pointer px-1.5 py-1 lg:px-2 rounded-md hover:bg-white/5"
               title="How Polymarket Works"
             >
               <span className="w-3.5 h-3.5 rounded-full border border-neutral-500 flex items-center justify-center text-[9.5px] font-serif italic text-neutral-300 leading-none shrink-0">
                 i
               </span>
-              <span>{t('how_it_works', language, 'How it works')}</span>
+              <span className="hidden lg:inline">{t('how_it_works', language, 'How it works')}</span>
             </button>
 
             {/* Settings Gear — now opens the More pop-out menu (with the Dark mode toggle) */}
@@ -403,17 +446,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               onSelectOption={onSelectMoreOption}
               anchorRef={moreBtnRef}
             />
-
-            {/* Mobile Hamburger Menu Icon */}
-            <button
-              id="btn-polymarket-hamburger"
-              onClick={() => setDrawerOpen(true)}
-              className="w-8 h-8 flex flex-col items-center justify-center gap-[4px] text-white hover:text-neutral-300 rounded-lg hover:bg-white/10 transition-colors cursor-pointer shrink-0 md:hidden ml-0.5"
-              title="Open Navigation Menu"
-            >
-              <span className="w-4 h-[2px] bg-white rounded-full"></span>
-              <span className="w-4 h-[2px] bg-white rounded-full"></span>
-            </button>
           </div>
         </div>
 
@@ -449,12 +481,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               marginRight: '7px',
               marginTop: '-3px',
               marginBottom: '-7px',
-              height: '115px',
-              width: '110px',
-              paddingTop: '-10px',
-              paddingLeft: '-12px',
-              paddingRight: '-13px',
-              paddingBottom: '-10px',
             }}
           >
             {/* Rasterized badge (square PNG with a transparent background) */}
@@ -471,10 +497,10 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
         <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
           <defs>
             <clipPath id="fender-cutout-mobile" clipPathUnits="userSpaceOnUse">
-              <path d="M 88.66 0 A 52 52 0 0 1 109.65 36 L 9999 36 L 9999 0 Z" />
+              <path d="M 88.66 0 A 52 52 0 0 1 109.85 46 L 9999 46 L 9999 0 Z" />
             </clipPath>
             <clipPath id="fender-cutout-sm" clipPathUnits="userSpaceOnUse">
-              <path d="M 97.33 0 A 58 58 0 0 1 119.69 40 L 9999 40 L 9999 0 Z" />
+              <path d="M 97.33 0 A 58 58 0 0 1 120 46 L 9999 46 L 9999 0 Z" />
             </clipPath>
             <clipPath id="fender-cutout-lg" clipPathUnits="userSpaceOnUse">
               <path d="M 107.53 0 A 65 65 0 0 1 130.93 47 L 9999 47 L 9999 0 Z" />
@@ -483,183 +509,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
         </svg>
       </header>
 
-      {/* Hamburger Navigation Drawer */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop */}
-          <div
-            className={`fixed inset-0 transition-opacity backdrop-blur-sm ${isLight ? 'bg-black/40' : 'bg-black/70'}`}
-            onClick={() => setDrawerOpen(false)}
-          />
-
-          {/* Drawer Body */}
-          <div
-            className={`relative w-full max-w-[340px] ${isLight ? 'pm-body bg-white' : 'bg-[#0c111a]'} border-l ${isLight ? 'border-neutral-200' : 'border-[#1c2638]'} h-full shadow-2xl flex flex-col justify-between ${isLight ? 'text-neutral-800' : 'text-white'} p-5 animate-slideLeft z-10`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div>
-              {/* Drawer Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-[#1c2638] mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center overflow-hidden">
-                    <img src="/hagerawi-logo.png" alt="Hagerawi" className="w-[88%] h-[88%] object-contain" />
-                  </div>
-                  <span className="font-bold text-base text-white">Polymarket Menu</span>
-                </div>
-                <button
-                  onClick={() => setDrawerOpen(false)}
-                  className="p-1.5 rounded-lg bg-[#161e2c] hover:bg-[#202b3d] text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Quick Switch to ሃገራዊ Sportsbook Banner */}
-              <div className="mb-4">
-                <button
-                  id="drawer-switch-to-1xbet"
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    setAppMode('1xbet');
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-[#143457] to-[#10253d] border border-[#1b4d82] text-white hover:brightness-110 transition-all cursor-pointer shadow-md group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="px-1.5 py-1 rounded-lg bg-[#0070e0] flex items-center justify-center font-black text-[11px] text-white shadow-xs">
-                      ሃገራዊ
-                    </div>
-                    <div className="text-left">
-                      <div className="text-xs font-bold text-white group-hover:text-[#38bdf8] transition-colors">
-                        Switch to ሃገራዊ Sports
-                      </div>
-                      <div className="text-[10px] text-[#93c5fd]">
-                        Live Match Tracker & Odds
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronLeft className="w-4 h-4 text-[#93c5fd] rotate-180 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              </div>
-
-              {/* Navigation Links */}
-              <div className="space-y-1.5">
-                <button
-                  onClick={() => {
-                    setActiveViewTab('featured');
-                    setDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                    activeViewTab === 'featured'
-                      ? 'bg-[#182232] text-white font-bold'
-                      : 'text-[#8e9eb3] hover:text-white hover:bg-[#131a26]'
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4 text-[#38bdf8]" />
-                  <span>{language === 'am' ? 'ተለይተው የቀረቡ ገበያዎች' : 'Featured Highlights'}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveViewTab('all');
-                    setDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                    activeViewTab === 'all'
-                      ? 'bg-[#182232] text-white font-bold'
-                      : 'text-[#8e9eb3] hover:text-white hover:bg-[#131a26]'
-                  }`}
-                >
-                  <div className="w-4 h-4 flex items-center justify-center font-bold text-[10px]">
-                    🌐
-                  </div>
-                  <span>{t('all_prediction_markets', language, 'All Live Prediction Markets')}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    setHowItWorksOpen(true);
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-[#8e9eb3] hover:text-white hover:bg-[#131a26] transition-colors cursor-pointer"
-                >
-                  <HelpCircle className="w-4 h-4 text-emerald-400" />
-                  <span>{t('how_it_works', language, 'How Polymarket Works')}</span>
-                </button>
-
-                {onToggleChat && (
-                  <button
-                    onClick={() => {
-                      setDrawerOpen(false);
-                      onToggleChat();
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-[#8e9eb3] hover:text-white hover:bg-[#131a26] transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <MessageSquare className="w-4 h-4 text-amber-400" />
-                      <span>{language === 'am' ? 'የቀጥታ ውይይት' : 'Live Chat & Trollbox'}</span>
-                    </div>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold">
-                      Online
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Bottom Section */}
-            <div className="pt-4 border-t border-[#1c2638] space-y-3">
-              {user.isLoggedIn ? (
-                <div className="space-y-2">
-                  <div className="p-3 rounded-xl bg-[#111722] border border-[#1c2638] flex items-center justify-between">
-                    <div>
-                      <div className="text-[11px] text-[#6b7c93]">{language === 'am' ? 'የተጠቃሚ ስም' : 'Signed in as'}</div>
-                      <div className="text-xs font-bold text-white">{user.username}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-[11px] text-[#6b7c93]">{language === 'am' ? 'ቀሪ ሂሳብ' : 'Balance'}</div>
-                      <div className="text-xs font-mono font-bold text-emerald-400">
-                        {user.balance.toLocaleString()} {user.currency}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      logout();
-                      setDrawerOpen(false);
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-[#18202e] hover:bg-rose-950/40 text-neutral-300 hover:text-rose-400 border border-[#243044] text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>{t('logout', language, 'Log Out')}</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => {
-                      setDrawerOpen(false);
-                      openAuthModal('login');
-                    }}
-                    className="py-2.5 rounded-lg bg-[#141b27] hover:bg-[#1c2638] border border-[#243248] text-white text-xs font-bold transition-colors cursor-pointer text-center"
-                  >
-                    {t('login', language, 'Log In')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setDrawerOpen(false);
-                      openAuthModal('signup');
-                    }}
-                    className="py-2.5 rounded-lg bg-[#0066ff] hover:bg-[#1a75ff] text-white text-xs font-bold transition-colors cursor-pointer text-center shadow-xs"
-                  >
-                    {t('signup', language, 'Sign Up')}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* How It Works Explainer Modal */}
       <HowItWorksModal
