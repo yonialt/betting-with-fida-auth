@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Loader2, LogIn, UserPlus, ShieldCheck, User, Phone, Mail, Lock } from 'lucide-react';
+import { X, Loader2, LogIn, UserPlus, User, Phone, Mail, Lock } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import {
   validateUsername,
@@ -104,12 +104,6 @@ export const AuthModal: React.FC = () => {
     if (!result.ok) {
       setError(result.error || 'Something went wrong. Please try again.');
     }
-  };
-
-  const fillDemoAccount = () => {
-    setUsername('Player_8831');
-    setPassword('password123');
-    setError('');
   };
 
   return (
@@ -235,7 +229,7 @@ export const AuthModal: React.FC = () => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Player_8831 or +251911000000"
+                  placeholder="Username or +251911000000"
                   autoComplete="username"
                   autoFocus
                   className={inputCls(!!fieldErrors.username)}
@@ -297,22 +291,6 @@ export const AuthModal: React.FC = () => {
               )}
             </button>
           </form>
-
-          {/* Demo hint (only on login) */}
-          {mode === 'login' && (
-            <div className="flex items-start gap-2 p-2.5 bg-[#fff8e1] border border-amber-200 rounded text-xs text-amber-800">
-              <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold">Demo account:</span> Player_8831 / password123.{' '}
-                <button
-                  onClick={fillDemoAccount}
-                  className="underline font-semibold hover:text-amber-900 cursor-pointer"
-                >
-                  Fill it in
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Switch prompt */}
           <div className="text-center text-xs text-neutral-500">
