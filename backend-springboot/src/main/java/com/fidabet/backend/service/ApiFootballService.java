@@ -215,6 +215,23 @@ public class ApiFootballService {
                 oddsEngineService.calculateCoreOdds("eth-1", "Saint George SC", "Ethiopian Coffee", 0, 0)
         ));
 
+        // Match 4: finished fixture (FT) — lets the sportsbook settlement engine
+        // close bets on this match (demo data has no FT fixtures otherwise).
+        list.add(MatchDto.of(
+                "fin-1",
+                "89424",
+                "football",
+                "England. Premier League",
+                "England",
+                "Liverpool",
+                "Chelsea",
+                3, 1,
+                "FT", 5400,
+                "FT", false, false, false, 0,
+                "Anfield", null,
+                oddsEngineService.calculateCoreOdds("fin-1", "Liverpool", "Chelsea", 3, 1)
+        ));
+
         return list;
     }
 }

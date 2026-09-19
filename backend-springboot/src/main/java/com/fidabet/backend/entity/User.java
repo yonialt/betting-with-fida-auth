@@ -64,6 +64,11 @@ public class User {
     @Column(length = 20)
     private String ageVerificationStatus;
 
+    /** Profile picture (data URL, downscaled client-side; ~<= 100 KB). */
+    @Column(length = 400_000)
+    @Builder.Default
+    private String avatarUrl = null;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 

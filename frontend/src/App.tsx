@@ -119,7 +119,6 @@ const BettingAppContent: React.FC = () => {
     appMode,
     apiFootballModalOpen,
     setApiFootballModalOpen,
-    isBetSlipCollapsed,
   } = useBetting();
 
   const [currentPath, setCurrentPath] = React.useState<string>(() => {
@@ -212,9 +211,7 @@ const BettingAppContent: React.FC = () => {
 
         {/* Center Live Matches Area / Event Detailed View */}
         <main
-          className={`flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5 transition-all duration-200 ${
-            isBetSlipCollapsed ? 'lg:mr-[45px]' : ''
-          }`}
+          className={`flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#eaedf1] p-2 sm:p-2.5 transition-all duration-200`}
           style={{ marginLeft: '0px' }}
         >
           {activeCenterView === 'event' ? (

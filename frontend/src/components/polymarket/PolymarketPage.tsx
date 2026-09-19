@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   MessageSquare,
-  X,
 } from 'lucide-react';
 import { PolymarketHeader } from './PolymarketHeader';
 import { PolymarketCategories } from './PolymarketCategories';
@@ -76,7 +75,14 @@ export const PolymarketPage: React.FC = () => {
   );
 
   const handleSelectOutcome = (trade: PolymarketTradeState) => {
+    // Prediction-market flow: selecting an outcome opens the trade modal, which
+    // previews the order and executes it on the backend after confirmation.
     setActiveTrade(trade);
+  };
+
+  // Trade box "Trade" button → confirmation modal (review → Confirm → backend).
+  const handleConfirmOrder = (trade: PolymarketTradeState, amount: number) => {
+    setActiveTrade({ ...trade, amount });
   };
 
   const handleOpenDetail = (market: PolymarketMarket) => {
@@ -302,8 +308,11 @@ export const PolymarketPage: React.FC = () => {
                 onOpenDetail={handleOpenDetail}
                 activeSlideIndex={heroSlideIndex}
                 onSlideChange={(idx) => {
+                  // Only track the slide index. Never clear activeTrade here:
+                  // the carousel auto-advances every 5s, and clearing used to
+                  // slam the trade modal shut mid-review ("box appears then
+                  // vanishes"). The modal owns its lifecycle via onClose.
                   setHeroSlideIndex(idx);
-                  setActiveTrade(null);
                 }}
                 isDarkMode={polymarketDarkMode}
               />
@@ -317,6 +326,7 @@ export const PolymarketPage: React.FC = () => {
                 onSelectTopic={handleSelectTopic}
                 selectedMarket={activeTrade?.market || activeHeroMarket}
                 onSelectOutcome={handleSelectOutcome}
+                onConfirmOrder={handleConfirmOrder}
               />
             </div>
           </div>
@@ -415,20 +425,12 @@ export const PolymarketPage: React.FC = () => {
             polymarketDarkMode ? 'border-[#2e3b52] bg-[#121824]' : 'pm-body border-[#e2e5ea] bg-white'
           }`}
         >
-          <div className="relative">
-            <button
-              onClick={() => setFloatingChatOpen(false)}
-              className="absolute top-2.5 right-12 z-20 p-1 text-neutral-400 hover:text-white rounded bg-[#1e293b]/80 backdrop-blur-xs transition-colors cursor-pointer"
-              title="Close floating chat"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            <PolymarketChat
-              selectedMarket={selectedMarketForChat}
-              onTradeClick={handleSelectOutcome}
-              compact={false}
-            />
-          </div>
+          <PolymarketChat
+            selectedMarket={selectedMarketForChat}
+            onTradeClick={handleSelectOutcome}
+            compact={false}
+            onClose={() => setFloatingChatOpen(false)}
+          />
         </div>
       )}
 

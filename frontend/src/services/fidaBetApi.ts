@@ -103,6 +103,14 @@ class FidaBetApiClient {
     return this.request<UserProfile>('/user/profile');
   }
 
+  /** Persist editable profile fields (name/email/phone/avatarUrl) on the backend. */
+  public async updateProfile(updates: Record<string, unknown>): Promise<UserProfile> {
+    return this.request<UserProfile>('/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
   // --- Wallet API ---
   public async getBalance() {
     return this.request<{ balance: number; bonusBalance: number; currency: string }>('/wallet/balance');

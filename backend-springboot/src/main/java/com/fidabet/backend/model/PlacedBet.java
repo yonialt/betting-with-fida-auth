@@ -27,4 +27,8 @@ public class PlacedBet {
     /** active | pending | won | lost | cashed_out */
     private String status;
     private Double cashoutValue;
+    /** ISO-8601 settlement time (present once the bet is settled). */
+    private String settledAt;
+    /** Payout credited for settled bets (0 for a loss). */
+    private Double payout;
 }

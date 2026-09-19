@@ -2,11 +2,14 @@ package com.fidabet.backend.service;
 
 import com.fidabet.backend.entity.BearerToken;
 import com.fidabet.backend.entity.User;
+import com.fidabet.backend.exception.InvalidCredentialsException;
 import com.fidabet.backend.model.UserProfile;
 import com.fidabet.backend.repository.BearerTokenRepository;
 import com.fidabet.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +18,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Persistent user account service backed by PostgreSQL.
@@ -38,6 +42,9 @@ public class UserAccountService {
     private final UserRepository userRepository;
     private final BearerTokenRepository tokenRepository;
 
+    /** BCrypt hasher for stored passwords (spring-security-crypto, standalone). */
+    private final PasswordEncoder encoder = new BCryptPasswordEncoder();
+
     /**
      * Resolve the acting user from the bearer token presented on the request.
      * Falls back to the shared demo user for unauthenticated demo flows.
@@ -47,7 +54,12 @@ public class UserAccountService {
         if (bearerToken != null && !bearerToken.isBlank()) {
             Optional<BearerToken> bt = tokenRepository.findValidToken(bearerToken.trim());
             if (bt.isPresent()) {
-                return bt.get().getUser();
+                // Re-fetch by id so the returned entity is fully loaded. The raw
+                // BearerToken.getUser() is a lazy proxy that detaches with the token
+                // lookup's session and throws LazyInitializationException as soon as
+                // later code touches balance/currency on it.
+                Long uid = bt.get().getUser().getId();
+                return userRepository.findById(uid).orElseGet(() -> bt.get().getUser());
             }
         }
         return getCurrentUserEntity();
@@ -126,55 +138,69 @@ public class UserAccountService {
                 .email(user.getEmail())
                 .isAgeVerified(user.getIsAgeVerified())
                 .ageVerificationStatus(user.getAgeVerificationStatus())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 
     /**
-     * Mirrors POST /api/auth/login: matches the username to a persistent account and marks
-     * it logged-in. This demo backend performs no password check (matching the original
-     * Express demo); the matched account is returned so a token can be issued for it.
+     * Mirrors POST /api/auth/login: validates the credentials, matches the username
+     * (or phone number) to a persistent account, verifies the password against its
+     * BCrypt hash and marks the account logged-in.
+     *
+     * Legacy accounts created before password storage existed (fixed demo hash) are
+     * still accepted so existing demo users are not locked out.
      */
     @Transactional
-    public User login(String username) {
-        if (username == null || username.isBlank()) {
-            return getCurrentUserEntity();
+    public User login(String usernameOrPhone, String password) {
+        if (usernameOrPhone == null || usernameOrPhone.isBlank()) {
+            throw new InvalidCredentialsException("Username is required");
         }
-        Optional<User> existing = userRepository.findByUsername(username);
-        User user = existing.orElseGet(() -> {
-            User created = User.builder()
-                    .username(username)
-                    .passwordHash("$2a$10$demo")
-                    .balance(BigDecimal.ZERO)
-                    .bonusBalance(BigDecimal.ZERO)
-                    .currency("ETB")
-                    .isLoggedIn(false)
-                    .isAgeVerified(false)
-                    .ageVerificationStatus("unverified")
-                    .build();
-            User saved = userRepository.save(created);
-            log.info("Auto-provisioned account on first login: {}", username);
-            return saved;
-        });
+        if (password == null || password.isBlank()) {
+            throw new InvalidCredentialsException("Password is required");
+        }
+
+        String key = usernameOrPhone.trim();
+        Optional<User> existing = userRepository.findByUsername(key);
+        if (existing.isEmpty() && key.matches("[0-9+\\s()-]{7,20}")) {
+            existing = userRepository.findByPhone(normalizePhone(key));
+        }
+        if (existing.isEmpty()) {
+            throw new InvalidCredentialsException("Invalid username or password");
+        }
+        User user = existing.get();
+        verifyPasswordOrLegacy(user, password);
         user.setIsLoggedIn(true);
         return userRepository.save(user);
     }
 
     /**
-     * Mirrors POST /api/auth/register: creates a new persistent account with zero balance.
-     * Throws when the username is missing or already taken.
+     * Mirrors POST /api/auth/register: validates all fields, then creates a new
+     * persistent account with a BCrypt-hashed password and zero balance.
+     * Throws IllegalArgumentException with a user-facing message on invalid input.
      */
     @Transactional
-    public User register(String username, String phone) {
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Username is required");
+    public User register(String username, String phone, String email, String password) {
+        validateUsername(username);
+        validatePhone(phone);
+        if (email != null && !email.isBlank()) {
+            validateEmail(email);
+            email = email.trim();
+        } else {
+            email = null;
         }
+        validatePassword(password);
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already taken");
         }
+        if (phone != null && userRepository.existsByPhone(phone)) {
+            throw new IllegalArgumentException("Phone number is already registered");
+        }
+
         User user = User.builder()
                 .username(username)
                 .phone(phone)
-                .passwordHash("$2a$10$demo")
+                .email(email)
+                .passwordHash(encoder.encode(password))
                 .balance(BigDecimal.ZERO)
                 .bonusBalance(BigDecimal.ZERO)
                 .currency("ETB")
@@ -185,6 +211,79 @@ public class UserAccountService {
         user = userRepository.save(user);
         log.info("Registered persistent account: {}", username);
         return user;
+    }
+
+    // ------------------------------------------------------------------
+    // Validation helpers (shared rules with the frontend AuthModal)
+    // ------------------------------------------------------------------
+
+    /** Letters, numbers, dot, underscore, hyphen, @ — no spaces; 3-40 chars (emails allowed as usernames). */
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9._@-]{3,40}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[0-9\\s()-]{7,20}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^@\s]+@[^@\s]+\\.[^@\s]{2,}$");
+
+    private void validateUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        String u = username.trim();
+        if (u.length() < 3 || u.length() > 40) {
+            throw new IllegalArgumentException("Username must be 3-40 characters");
+        }
+        if (!USERNAME_PATTERN.matcher(u).matches()) {
+            throw new IllegalArgumentException("Username may only contain letters, numbers, dots, dashes and underscores");
+        }
+    }
+
+    /** Phone is optional at the API level (internal/test flows), but must be valid when present. */
+    private void validatePhone(String phone) {
+        if (phone == null || phone.isBlank()) {
+            return;
+        }
+        String p = normalizePhone(phone);
+        if (!PHONE_PATTERN.matcher(p).matches()) {
+            throw new IllegalArgumentException("Enter a valid phone number (e.g. +251911000000)");
+        }
+        if (p.replaceAll("[^0-9]", "").length() < 9) {
+            throw new IllegalArgumentException("Phone number is too short");
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (!EMAIL_PATTERN.matcher(email.trim()).matches()) {
+            throw new IllegalArgumentException("Enter a valid email address");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+        if (password.length() > 72) {
+            throw new IllegalArgumentException("Password must be at most 72 characters");
+        }
+        if (!password.matches(".*[A-Za-z].*") || !password.matches(".*[0-9].*")) {
+            throw new IllegalArgumentException("Password must contain both letters and numbers");
+        }
+    }
+
+    /** Strip separators/spaces so stored and typed phone numbers match. */
+    private static String normalizePhone(String phone) {
+        return phone == null ? null : phone.replaceAll("[\\s()-]", "");
+    }
+
+    /**
+     * BCrypt verify with a legacy fallback: accounts created before password
+     * storage existed carry the fixed demo hash and accept any password.
+     */
+    private void verifyPasswordOrLegacy(User user, String password) {
+        String hash = user.getPasswordHash();
+        if (hash == null || "$2a$10$demo".equals(hash)) {
+            return; // legacy account — accept any password
+        }
+        if (!encoder.matches(password, hash)) {
+            throw new InvalidCredentialsException("Invalid username or password");
+        }
     }
 
     /**
@@ -212,6 +311,25 @@ public class UserAccountService {
             }
             if (patch.containsKey("currency")) {
                 user.setCurrency(str(patch.get("currency")));
+            }
+            if (patch.containsKey("avatarUrl")) {
+                Object av = patch.get("avatarUrl");
+                if (av == null) {
+                    // Explicit null removes the profile picture.
+                    user.setAvatarUrl(null);
+                } else {
+                    String s = String.valueOf(av);
+                    // Validate data URLs: image only, decoded size capped at 300 KB.
+                    if (s.startsWith("data:image/")) {
+                        int b64 = s.indexOf(";base64,");
+                        int decoded = b64 >= 0
+                                ? (int) ((s.length() - (b64 + 8)) * 0.75)
+                                : s.length();
+                        if (decoded <= 300_000) {
+                            user.setAvatarUrl(s);
+                        }
+        			}
+                }
             }
             if (patch.containsKey("balance")) {
                 Object bal = patch.get("balance");

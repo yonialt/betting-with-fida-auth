@@ -49,6 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
         registration.addUrlPatterns(
                 "/api/wallet/*",
                 "/api/bets/*",
+                "/api/pm/*",
                 "/api/user/*",
                 "/api/favorites", "/api/favorites/*",
                 "/api/settings"

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.CacheErrorHandler;
-import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -106,8 +105,35 @@ public class RedisConfig implements CachingConfigurer {
                 .build();
     }
 
+    /**
+     * Lenient cache error handling: when Redis is unavailable, treat every cache
+     * operation as a miss and invoke the underlying method instead of throwing.
+     * With the strict default handler, a down Redis turned every @Cacheable call
+     * (live matches, upcoming, markets — including the sportsbook settlement's
+     * final-score lookups) into a hard failure even when the data source was fine.
+     */
     @Override
     public CacheErrorHandler errorHandler() {
-        return new SimpleCacheErrorHandler();
+        return new CacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(RuntimeException e, org.springframework.cache.Cache cache, Object key) {
+                // Degrade to cache-miss: fall through to the data source.
+            }
+
+            @Override
+            public void handleCachePutError(RuntimeException e, org.springframework.cache.Cache cache, Object key, Object value) {
+                // Cache writes are best-effort: ignore when the store is down.
+            }
+
+            @Override
+            public void handleCacheEvictError(RuntimeException e, org.springframework.cache.Cache cache, Object key) {
+                // Ignore evict failures when the store is down.
+            }
+
+            @Override
+            public void handleCacheClearError(RuntimeException e, org.springframework.cache.Cache cache) {
+                // Ignore clear failures when the store is down.
+            }
+        };
     }
 }

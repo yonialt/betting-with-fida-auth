@@ -1,6 +1,7 @@
 package com.fidabet.backend.service;
 
 import com.fidabet.backend.entity.User;
+import com.fidabet.backend.exception.InvalidCredentialsException;
 import com.fidabet.backend.repository.BearerTokenRepository;
 import com.fidabet.backend.repository.UserSettingRepository;
 import com.fidabet.backend.repository.UserRepository;
@@ -61,7 +62,7 @@ class UserAccountServiceProdTest {
     void createsPersistentUserOnRegister() {
         assertThat(userRepository.count()).isZero();
 
-        User user = userAccountService.register("demo-user@fidabet.test", "+251911000000");
+        User user = userAccountService.register("demo-user@fidabet.test", "+251911000000", null, "Passw0rd123");
 
         assertThat(user).isNotNull();
         assertThat(user.getUsername()).isEqualTo("demo-user@fidabet.test");
@@ -78,15 +79,15 @@ class UserAccountServiceProdTest {
 
     @Test
     void rejectsDuplicateUsernameOnRegister() {
-        userAccountService.register("dup@fidabet.test", null);
-        assertThatThrownBy(() -> userAccountService.register("dup@fidabet.test", null))
+        userAccountService.register("dup@fidabet.test", null, null, "Passw0rd123");
+        assertThatThrownBy(() -> userAccountService.register("dup@fidabet.test", null, null, "Passw0rd123"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Username already taken");
     }
 
     @Test
     void creditAndDebitRoundTripThroughDatabase() {
-        User user = userAccountService.register("wallet@fidabet.test", null);
+        User user = userAccountService.register("wallet@fidabet.test", null, null, "Passw0rd123");
 
         double afterCredit = userAccountService.credit(user, 100.00);
         assertThat(afterCredit).isEqualTo(100.00);
@@ -103,8 +104,8 @@ class UserAccountServiceProdTest {
 
     @Test
     void keepsBalanceAndSettingsIsolatedAcrossAccounts() {
-        User first = userAccountService.register("first@fidabet.test", null);
-        User second = userAccountService.register("second@fidabet.test", null);
+        User first = userAccountService.register("first@fidabet.test", null, null, "Passw0rd123");
+        User second = userAccountService.register("second@fidabet.test", null, null, "Passw0rd123");
 
         String firstToken = tokenService.issueAccessToken(first);
         TokenContext.set(firstToken);
@@ -126,5 +127,71 @@ class UserAccountServiceProdTest {
         assertThat(settingsService.get())
                 .containsEntry("language", "am")
                 .containsEntry("compactView", true);
+    }
+
+    // ------------------------------------------------------------------
+    // Signup validation (backend-enforced rules, mirrored in the AuthModal)
+    // ------------------------------------------------------------------
+
+    @Test
+    void rejectsInvalidUsernames() {
+        assertThatThrownBy(() -> userAccountService.register("ab", null, null, "Passw0rd123"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("3-40");
+        assertThatThrownBy(() -> userAccountService.register("bad name!", null, null, "Passw0rd123"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("letters, numbers");
+        assertThatThrownBy(() -> userAccountService.register(null, null, null, "Passw0rd123"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("required");
+    }
+
+    @Test
+    void rejectsInvalidPhones() {
+        assertThatThrownBy(() -> userAccountService.register("phoneok", "12", null, "Passw0rd123"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("valid phone");
+    }
+
+    @Test
+    void rejectsInvalidEmails() {
+        assertThatThrownBy(() -> userAccountService.register("emailtest", "+251911000001", "not-an-email", "Passw0rd123"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("valid email");
+    }
+
+    @Test
+    void rejectsWeakPasswords() {
+        assertThatThrownBy(() -> userAccountService.register("pwtest", "+251911000101", null, "short1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("at least 8");
+        assertThatThrownBy(() -> userAccountService.register("pwtest2", "+251911000102", null, "lettersonly"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("letters and numbers");
+        assertThatThrownBy(() -> userAccountService.register("pwtest3", "+251911000103", null, "12345678"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("letters and numbers");
+        assertThatThrownBy(() -> userAccountService.register("pwtest4", "+251911000104", null, null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("at least 8");
+    }
+
+    @Test
+    void rejectsDuplicatePhoneOnRegister() {
+        userAccountService.register("phone-dup", "+251911000009", null, "Passw0rd123");
+        assertThatThrownBy(() -> userAccountService.register("phone-dup2", "+251911000009", null, "Passw0rd123"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already registered");
+    }
+
+    @Test
+    void loginVerifiesPasswordAndAcceptsUsernameOrPhone() {
+        userAccountService.register("logintest", "+251911000077", null, "Secret123");
+
+        // Wrong password throws the 401-mapped exception.
+        assertThatThrownBy(() -> userAccountService.login("logintest", "WrongPass1"))
+                .isInstanceOf(InvalidCredentialsException.class);
+
+        // Correct password by username, by phone, and by formatted phone.
+        assertThat(userAccountService.login("logintest", "Secret123").getUsername()).isEqualTo("logintest");
+        assertThat(userAccountService.login("+251911000077", "Secret123").getUsername()).isEqualTo("logintest");
+        assertThat(userAccountService.login("+251 911-000-077", "Secret123").getUsername()).isEqualTo("logintest");
+    }
+
+    @Test
+    void legacyDemoAccountStillLogsInWithAnyPassword() {
+        userAccountService.getCurrentUserEntity(); // ensure the legacy demo account exists
+        assertThat(userAccountService.login("Player_8831", "anything").getUsername()).isEqualTo("Player_8831");
     }
 }

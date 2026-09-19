@@ -20,6 +20,8 @@ interface PolymarketRightSidebarProps {
   onSelectTopic: (topicName: string) => void;
   selectedMarket?: PolymarketMarket | null;
   onSelectOutcome?: (trade: PolymarketTradeState) => void;
+  /** Prediction-market confirmation flow: Trade button hands the order to the parent modal. */
+  onConfirmOrder?: (trade: PolymarketTradeState, amount: number) => void;
   isDarkMode?: boolean;
 }
 
@@ -29,6 +31,7 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
   onSelectTopic,
   selectedMarket,
   onSelectOutcome,
+  onConfirmOrder,
 }) => {
   // Theme comes from context: the sidebar lives in the body scope, so the
   // pm-body CSS handles light-mode colors. Flag exposed for native theming
@@ -62,9 +65,8 @@ export const PolymarketRightSidebar: React.FC<PolymarketRightSidebarProps> = ({
       {/* 1. Main Primary Trade Box ("Sid Box" from screenshot) */}
       <PolymarketTradeWidget
         market={displayMarket}
-        onTradeExecuted={(trade, amount) => {
-          onSelectOutcome?.(trade);
-        }}
+        onTradeExecuted={onSelectOutcome}
+        onConfirmOrder={onConfirmOrder}
       />
 
       {/* 2. Secondary Tabs: Live Chat & Hot Topics */}

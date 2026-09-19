@@ -4,7 +4,9 @@ import com.fidabet.backend.entity.User;
 import com.fidabet.backend.model.UserProfile;
 import com.fidabet.backend.security.TokenService;
 import com.fidabet.backend.service.UserAccountService;
+import com.fidabet.backend.exception.InvalidCredentialsException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,9 @@ import java.util.Map;
  * Authentication endpoints, ported from the Express /api/auth/* routes.
  * The token lifecycle (issue on login/register, validate on session, invalidate on logout) is
  * preserved exactly; tokens are owned by the acting user and stored in PostgreSQL.
+ *
+ * Validation: register enforces username/phone/email/password rules server-side
+ * (mirrored in the frontend modal); login verifies the BCrypt password hash.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -29,15 +34,24 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, Object> login(@RequestBody(required = false) Map<String, Object> body) {
-        User entity = users.login(strField(body, "username"));
-        return authPayload(entity);
+    public ResponseEntity<?> login(@RequestBody(required = false) Map<String, Object> body) {
+        try {
+            User entity = users.login(strField(body, "username"), strField(body, "password"));
+            return ResponseEntity.ok(authPayload(entity));
+        } catch (InvalidCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", ex.getMessage()));
+        }
     }
 
     @PostMapping("/register")
-    public Map<String, Object> register(@RequestBody(required = false) Map<String, Object> body) {
-        User entity = users.register(strField(body, "username"), strField(body, "phone"));
-        return authPayload(entity);
+    public ResponseEntity<?> register(@RequestBody(required = false) Map<String, Object> body) {
+        User entity = users.register(
+                strField(body, "username"),
+                strField(body, "phone"),
+                strField(body, "email"),
+                strField(body, "password"));
+        return ResponseEntity.ok(authPayload(entity));
     }
 
     @PostMapping("/refresh")

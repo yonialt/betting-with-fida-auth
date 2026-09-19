@@ -18,10 +18,13 @@ public class BetController {
 
     private final BetService bets;
     private final UserAccountService users;
+    private final com.fidabet.backend.service.SportsbookSettlementService settlement;
 
-    public BetController(BetService bets, UserAccountService users) {
+    public BetController(BetService bets, UserAccountService users,
+                         com.fidabet.backend.service.SportsbookSettlementService settlement) {
         this.bets = bets;
         this.users = users;
+        this.settlement = settlement;
     }
 
     @PostMapping("/place")
@@ -75,6 +78,29 @@ public class BetController {
         return bets.findById(id)
                 .<ResponseEntity<?>>map(b -> ResponseEntity.ok(Map.of("cashoutValue", b.getCashoutValue())))
                 .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Bet not found")));
+    }
+
+    /** Final score snapshot for a match (finished flag included) — used by the settlement UI/tests. */
+    @GetMapping("/matches/{matchId}/result")
+    public ResponseEntity<?> matchResult(@PathVariable String matchId) {
+        Map<String, Object> score = bets.findFinalScore(matchId);
+        if (score == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "Match not found"));
+        }
+        return ResponseEntity.ok(score);
+    }
+
+    /** Manual settlement trigger (single bet): settles immediately if decidable. */
+    @PostMapping("/settle/{betId}")
+    public ResponseEntity<?> settleOne(@PathVariable String betId) {
+        return ResponseEntity.ok(settlement.forceSettle(betId));
+    }
+
+    /** Manual settlement sweep (all active bets). */
+    @PostMapping("/settle")
+    public ResponseEntity<?> settleAll() {
+        int n = settlement.settleAll();
+        return ResponseEntity.ok(Map.of("settled", n));
     }
 
     private static String bearer(String authorization) {

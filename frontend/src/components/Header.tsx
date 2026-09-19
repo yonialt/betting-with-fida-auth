@@ -442,8 +442,14 @@ export const Header: React.FC = () => {
               >
                 {/* Modern Geometric / Monogram Avatar (No person photo or skin tone) */}
                 <div className="relative shrink-0">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-1.5 ring-white/20 group-hover:ring-cyan-400/60 transition-all">
-                    {user.username ? (
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs ring-1.5 ring-white/20 group-hover:ring-cyan-400/60 transition-all overflow-hidden">
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt="Profile picture"
+                        className="w-7 h-7 rounded-full object-cover"
+                      />
+                    ) : user.username ? (
                       <span className="leading-none select-none tracking-tight font-mono">
                         {user.username.charAt(0).toUpperCase()}
                       </span>

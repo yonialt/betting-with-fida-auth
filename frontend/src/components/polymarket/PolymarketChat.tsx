@@ -1,43 +1,75 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Send,
-  Sparkles,
-  TrendingUp,
-  TrendingDown,
-  Smile,
-  Volume2,
-  VolumeX,
-  Pause,
-  Play,
-  Share2,
-  Bot,
-  Zap,
-  Users,
-  ShieldCheck,
-  CheckCircle2,
-} from 'lucide-react';
+import { Send, Pause, Play, Zap, X } from 'lucide-react';
 import { useBetting } from '../../context/BettingContext';
 import { PolymarketMarket, PolymarketTradeState } from '../../types/polymarket';
-import { POLYMARKET_HERO, POLYMARKET_ALL_MARKETS } from '../../data/polymarketData';
+
+/** UI strings — English / Amharic. */
+const STRINGS = {
+  en: {
+    title: 'Live chat',
+    messagePlaceholder: (ch: string) => `Message #${ch}`,
+    loginPlaceholder: 'Log in to chat',
+    superchat: 'Superchat',
+    cancel: 'Cancel',
+    pause: 'Pause stream',
+    resume: 'Resume',
+    aiThinking: 'AI is analyzing the order book…',
+    trade: 'Trade',
+    insufficient: 'Low balance',
+    now: 'now',
+    guest: 'Guest',
+    close: 'Close chat',
+  },
+  am: {
+    title: 'ቀጥታ ውይይት',
+    messagePlaceholder: (ch: string) => `መልእክት #${ch}`,
+    loginPlaceholder: 'ውይይት ለመጠቀም ይግቡ',
+    superchat: 'ሱፐርቻት',
+    cancel: 'ሰርዝ',
+    pause: 'ለአፍታ አቁም',
+    resume: 'ቀጥል',
+    aiThinking: 'AI ትዕዛዙን በማስተንተን ላይ…',
+    trade: 'ገዛ',
+    insufficient: 'ሂሳብ አልበቃ',
+    now: 'አሁን',
+    guest: 'እንግዳ',
+    close: 'ውይይቱን ዝጋ',
+  },
+} as const;
+
+/** Avatar: real image when provided, otherwise an initials circle derived from the name. */
+const Avatar: React.FC<{ name: string; url?: string; cls?: string }> = ({ name, url, cls = 'w-6 h-6' }) => {
+  if (url) {
+    return <img src={url} alt="" className={`${cls} rounded-full object-cover shrink-0`} />;
+  }
+  const hue = [...(name || '?')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+  return (
+    <div
+      className={`${cls} rounded-full shrink-0 flex items-center justify-center text-white font-black text-[10px] select-none`}
+      style={{ backgroundColor: `hsl(${hue} 55% 45%)` }}
+    >
+      {(name || '?').charAt(0).toUpperCase()}
+    </div>
+  );
+};
 
 export interface ChatMessage {
   id: string;
   sender: string;
   avatar: string;
-  badge?: 'Whale' | 'Top Trader' | 'Pro' | 'AI Oracle' | 'Mod';
-  badgeColor?: string;
   text: string;
   channel: string;
   timestamp: string;
-  isTradeAlert?: boolean;
+  isAi?: boolean;
+  /** Highlighted Superchat (paid highlight or whale trade announcement). */
+  isSuperchat?: boolean;
+  superAmount?: number;
   tradeDetails?: {
     marketTitle: string;
-    side: 'YES' | 'NO' | string;
+    side: string;
     price: number;
     amount: string;
   };
-  isAi?: boolean;
-  reactions: { [emoji: string]: number };
 }
 
 interface PolymarketChatProps {
@@ -46,178 +78,190 @@ interface PolymarketChatProps {
   onTradeClick?: (trade: PolymarketTradeState) => void;
   compact?: boolean;
   className?: string;
+  /** When provided, a close (X) control renders in the chat header. */
+  onClose?: () => void;
 }
+
+const CHANNELS = [
+  { id: 'general', label: 'general' },
+  { id: 'politics', label: 'politics' },
+  { id: 'crypto', label: 'crypto' },
+  { id: 'sports', label: 'sports' },
+  { id: 'ai', label: 'ai' },
+];
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
-    id: 'msg-1',
-    sender: 'SatoshiPrediction',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=64&h=64&fit=crop&crop=faces',
-    badge: 'Top Trader',
-    badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-    text: 'Fed probability of 50bps rate cut in September just bounced to 44% following morning jobs revision. Huge volume moving in!',
-    channel: '#fed-rates',
-    timestamp: '2m ago',
-    reactions: { '🚀': 14, '🔥': 8, '🐂': 19 },
+    id: 'm1',
+    sender: 'MacroAlpha',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=faces',
+    text: 'Fed probability of a 50bps cut in September bounced to 44% after the morning jobs revision.',
+    channel: 'general',
+    timestamp: '2m',
   },
   {
-    id: 'msg-2',
-    sender: 'WhaleWatcher_0x82',
-    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=64&h=64&fit=crop&crop=faces',
-    badge: 'Whale',
-    badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-    text: 'Just loaded 35,000 ETB YES position on Gen.G winning LCK 2-0. KT drafting has been shaky all split.',
-    channel: '#sports',
-    timestamp: '1m ago',
-    isTradeAlert: true,
+    id: 'm2',
+    sender: 'WhaleWatcher',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop&crop=faces',
+    text: 'Big position just went through on the LCK final.',
+    channel: 'sports',
+    timestamp: '1m',
+    isSuperchat: true,
+    superAmount: 100,
     tradeDetails: {
-      marketTitle: 'Gen.G vs KT Rolster - Match Winner',
+      marketTitle: 'Gen.G vs KT Rolster — Match Winner',
       side: 'YES (Gen.G)',
       price: 92,
       amount: '35,000 ETB',
     },
-    reactions: { '🐋': 28, '🔥': 12 },
   },
   {
-    id: 'msg-3',
-    sender: 'Polymarket AI Oracle',
-    avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
-    badge: 'AI Oracle',
-    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-    text: '📊 Market Brief: Claude Mythos by Oct 31 is currently trading at 96% (96% probability) with over 971K ETB in 24h trading volume. Order book liquidity depth remains heavily bid.',
-    channel: '#general',
-    timestamp: 'Just now',
-    isAi: true,
-    reactions: { '🎯': 21, '⚡': 15 },
-  },
-  {
-    id: 'msg-4',
-    sender: 'AlphaSeeker_eth',
+    id: 'm3',
+    sender: 'AlphaSeeker',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&crop=faces',
-    badge: 'Pro',
-    badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    text: 'Bitcoin holding above 64 ETBk. Up or Down Bitcoin market for 5:30 PM is pricing 78% UP right now.',
-    channel: '#crypto-perps',
-    timestamp: 'Just now',
-    reactions: { '🐂': 9, '🚀': 16 },
+    text: 'Bitcoin holding above 64k. The 5:30pm Up/Down market is pricing 78% UP.',
+    channel: 'crypto',
+    timestamp: '1m',
   },
 ];
 
-const CHANNELS = [
-  { id: '#general', label: '#general', count: '1.2k' },
-  { id: '#fed-rates', label: '#fed-rates', count: '840' },
-  { id: '#politics', label: '#politics-2024', count: '2.1k' },
-  { id: '#crypto-perps', label: '#crypto-perps', count: '1.5k' },
-  { id: '#sports', label: '#sports', count: '690' },
-  { id: '#ai-oracle', label: '#ai-oracle', count: 'Bot' },
+const CHATTER_POOL = [
+  'Order book spread is tightening fast on the Sep 30 target.',
+  'Anyone looking at the Champions League winner odds? Real Madrid at 22% looks like value.',
+  'Fed minutes tomorrow decide 50bps vs 25bps. Market is split evenly.',
+  'Closed my Bitcoin weekly position for a 34% gain.',
+  'Whales are accumulating YES shares heavily this afternoon.',
+  'Watching the LCK playoff finals live — Game 2 draft was wild.',
 ];
+
+const NAMES = ['CryptoWhale99', 'PredictMaster', 'MacroAlpha', 'VoltTrader', 'QuantAnalyst', 'DeFiDegen'];
+const AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=64&h=64&fit=crop',
+  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64&h=64&fit=crop',
+];
+
+const SUPER_TIERS = [
+  { min: 100, cls: 'bg-amber-50/90 border-amber-300', badge: 'bg-amber-500' },
+  { min: 50, cls: 'bg-violet-50/90 border-violet-300', badge: 'bg-violet-500' },
+  { min: 0, cls: 'bg-blue-50/90 border-blue-300', badge: 'bg-blue-600' },
+];
+
+const tierFor = (amount: number) => SUPER_TIERS.find((t) => amount >= t.min) || SUPER_TIERS[2];
 
 export const PolymarketChat: React.FC<PolymarketChatProps> = ({
-  initialChannel = '#general',
+  initialChannel = 'general',
   selectedMarket,
   onTradeClick,
   compact = false,
   className = '',
+  onClose,
 }) => {
-  const { user } = useBetting();
+  const { user, language, openAuthModal } = useBetting();
+  const S = STRINGS[language];
+  const isGuest = !user.isLoggedIn;
   const [activeChannel, setActiveChannel] = useState<string>(initialChannel);
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
-  const [inputText, setInputText] = useState<string>('');
-  const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-  const [bullishVotes, setBullishVotes] = useState<number>(68);
-  const [userVoted, setUserVoted] = useState<'bull' | 'bear' | null>(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-  const [aiThinking, setAiThinking] = useState<boolean>(false);
+  const [inputText, setInputText] = useState('');
+  const [isPaused, setIsPaused] = useState(false);
+  const [superAmount, setSuperAmount] = useState<number | null>(null);
+  const [pinned, setPinned] = useState<ChatMessage | null>(null);
+  const [aiThinking, setAiThinking] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const pinTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Auto-scroll when messages change if not paused
   useEffect(() => {
-    if (!isPaused) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (!isPaused) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isPaused]);
 
-  // Simulated real-time incoming chatter & whale trades
+  const pushMessage = (msg: ChatMessage) => {
+    setMessages((prev) => [...prev.slice(-60), msg]);
+    if (msg.isSuperchat) {
+      setPinned(msg);
+      if (pinTimer.current) clearTimeout(pinTimer.current);
+      pinTimer.current = setTimeout(() => setPinned(null), 8000);
+    }
+  };
+
+  // Simulated live chatter: quiet, human, emoji-free. Every third event is a
+  // whale trade that lands as a Superchat card.
   useEffect(() => {
     if (isPaused) return;
-
-    const simulatedNames = ['CryptoWhale99', 'PredictMaster', 'MacroAlpha', 'DeFiDegen', 'VoltTrader', 'QuantAnalyst'];
-    const simulatedAvatars = [
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop',
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=64&h=64&fit=crop',
-      'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64&h=64&fit=crop',
-    ];
-    const generalPool = [
-      'Order book spread is tightening fast on the September 30 target! 📈',
-      'Anyone looking at the UEFA Champions League winner odds? Real Madrid at 22% seems solid value.',
-      'Fed minutes tomorrow will decide if we hit 50bps or 25bps. Market is split 50/50.',
-      'Just cashed out +34% profit on the Bitcoin weekly prediction 🔥',
-      'Whales are accumulating YES shares heavily this afternoon.',
-      'Who is watching the LCK playoff finals live? Insane draft in Game 2!',
-    ];
-
     const interval = setInterval(() => {
-      const randomIdx = Math.floor(Math.random() * generalPool.length);
       const isTrade = Math.random() > 0.65;
-      const randomSender = simulatedNames[Math.floor(Math.random() * simulatedNames.length)];
-      const randomAvatar = simulatedAvatars[Math.floor(Math.random() * simulatedAvatars.length)];
+      const sender = NAMES[Math.floor(Math.random() * NAMES.length)];
+      const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
 
-      const newMsg: ChatMessage = {
-        id: `msg-${Date.now()}`,
-        sender: randomSender,
-        avatar: randomAvatar,
-        badge: isTrade ? 'Whale' : 'Pro',
-        badgeColor: isTrade
-          ? 'bg-purple-100 text-purple-800 border-purple-300'
-          : 'bg-emerald-100 text-emerald-800 border-emerald-300',
-        text: isTrade
-          ? `Executed market order: ${(Math.floor(Math.random() * 15) + 5) * 1000} ETB on high volume prediction.`
-          : generalPool[randomIdx],
-        channel: activeChannel,
-        timestamp: 'Just now',
-        isTradeAlert: isTrade,
-        tradeDetails: isTrade
-          ? {
-              marketTitle: 'Claude Mythos - Next-Gen Model Release',
-              side: 'YES (Oct 31)',
-              price: 96,
-              amount: `${(Math.floor(Math.random() * 25) + 8) * 1000} ETB`,
-            }
-          : undefined,
-        reactions: { '🔥': 2, '🚀': 1 },
-      };
-
-      setMessages((prev) => [...prev.slice(-40), newMsg]);
-    }, 6500);
-
+      if (isTrade) {
+        const amount = (Math.floor(Math.random() * 25) + 8) * 1000;
+        pushMessage({
+          id: `msg-${Date.now()}`,
+          sender,
+          avatar,
+          text: 'Executed a market order on high volume.',
+          channel: activeChannel,
+          timestamp: language === 'am' ? 'አሁን' : 'now',
+          isSuperchat: true,
+          superAmount: 100,
+          tradeDetails: {
+            marketTitle: 'Claude Mythos — Next-Gen Model Release',
+            side: 'YES (Oct 31)',
+            price: 96,
+            amount: `${amount.toLocaleString()} ETB`,
+          },
+        });
+      } else {
+        pushMessage({
+          id: `msg-${Date.now()}`,
+          sender,
+          avatar,
+          text: CHATTER_POOL[Math.floor(Math.random() * CHATTER_POOL.length)],
+          channel: activeChannel,
+          timestamp: language === 'am' ? 'አሁን' : 'now',
+        });
+      }
+    }, 9000);
     return () => clearInterval(interval);
-  }, [isPaused, activeChannel]);
+  }, [isPaused, activeChannel, language]);
 
-  const handleSendMessage = (e?: React.FormEvent) => {
+  const answerAi = (prompt: string): string => {
+    const p = prompt.toLowerCase();
+    if (p.includes('fed') || p.includes('rate') || p.includes('cut')) {
+      return 'Fed rates: order flow currently prices 56% for a 25bps cut and 44% for 50bps. Key catalysts: the next CPI print and Jackson Hole remarks.';
+    }
+    if (p.includes('claude') || p.includes('model') || p.includes('mythos') || p.includes('ai')) {
+      return 'AI release market: "October 31" holds a 96% probability with 971K ETB in 24h volume and deep bid-side liquidity.';
+    }
+    if (p.includes('btc') || p.includes('bitcoin') || p.includes('crypto')) {
+      return 'Crypto momentum: order books indicate 78% bullish sentiment on BTC holding above key moving averages into settlement.';
+    }
+    return `Analysis for "${prompt.slice(0, 40)}": liquidity depth is strong with a balanced 64/36 buy-to-sell ratio across the book.`;
+  };
+
+  const handleSend = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!inputText.trim()) return;
-
     const userText = inputText.trim();
-    const newMsg: ChatMessage = {
+    if (!userText) return;
+
+    const amount = superAmount;
+    // Real profile identity: the signed-in user's actual username renders in the
+    // chat (with an initials avatar); guests post as Guest.
+    pushMessage({
       id: `user-${Date.now()}`,
-      sender: user.isLoggedIn ? user.username : 'You (Trader)',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=64&h=64&fit=crop',
-      badge: 'Pro',
-      badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
+      sender: user.isLoggedIn ? user.username : S.guest,
+      avatar: '',
       text: userText,
       channel: activeChannel,
-      timestamp: 'Just now',
-      reactions: { '👍': 1 },
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
+      timestamp: S.now,
+      isSuperchat: amount != null,
+      superAmount: amount ?? undefined,
+    });
     setInputText('');
+    setSuperAmount(null);
 
-    // If in #ai-oracle channel or user mentioned @ai, provide instant intelligent oracle response
-    if (activeChannel === '#ai-oracle' || userText.toLowerCase().includes('@ai') || userText.toLowerCase().includes('oracle')) {
+    if (activeChannel === 'ai' || userText.toLowerCase().includes('@ai')) {
       setAiThinking(true);
       fetch('/api/ai/oracle', {
         method: 'POST',
@@ -230,107 +274,32 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           setAiThinking(false);
-          const aiResponse: ChatMessage = {
+          pushMessage({
             id: `ai-${Date.now()}`,
-            sender: 'Polymarket AI Oracle',
+            sender: 'AI',
             avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
-            badge: 'AI Oracle',
-            badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-            text: data?.analysis || generateAiAnalysis(userText),
+            text: data?.analysis || answerAi(userText),
             channel: activeChannel,
-            timestamp: 'Just now',
+            timestamp: S.now,
             isAi: true,
-            reactions: { '🎯': 3, '⚡': 2 },
-          };
-          setMessages((prev) => [...prev, aiResponse]);
+          });
         })
         .catch(() => {
           setAiThinking(false);
-          const aiResponse: ChatMessage = {
+          pushMessage({
             id: `ai-${Date.now()}`,
-            sender: 'Polymarket AI Oracle',
+            sender: 'AI',
             avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=64&h=64&fit=crop',
-            badge: 'AI Oracle',
-            badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-            text: generateAiAnalysis(userText),
+            text: answerAi(userText),
             channel: activeChannel,
-            timestamp: 'Just now',
+            timestamp: S.now,
             isAi: true,
-            reactions: { '🎯': 3, '⚡': 2 },
-          };
-          setMessages((prev) => [...prev, aiResponse]);
+          });
         });
     }
   };
 
-  const generateAiAnalysis = (prompt: string): string => {
-    const p = prompt.toLowerCase();
-    if (p.includes('fed') || p.includes('rate') || p.includes('cut')) {
-      return '🧠 Fed Rates Forecast: Polymarket order flow currently prices a 56% probability of 25bps cut and 44% probability of 50bps cut. Key catalyst: upcoming CPI print and Jackson Hole remarks.';
-    }
-    if (p.includes('claude') || p.includes('model') || p.includes('mythos') || p.includes('ai')) {
-      return '🧠 AI Release Market: "October 31" outcome holds a 96% win probability with massive liquidity (971K ETB volume). Historical delivery timelines suggest end of Q3/early Q4 target.';
-    }
-    if (p.includes('btc') || p.includes('bitcoin') || p.includes('crypto')) {
-      return '🧠 Crypto Momentum: Real-time order books indicate 78% bullish sentiment on BTC holding above key moving averages through today\'s settlement.';
-    }
-    return `🧠 Polymarket Market Analysis: Analyzing real-time order books and historical prediction volume for "${prompt.slice(0, 40)}...". Liquidity depth is strong with balanced 64/36 buy-to-sell ratios.`;
-  };
-
-  const handleReaction = (msgId: string, emoji: string) => {
-    setMessages((prev) =>
-      prev.map((msg) => {
-        if (msg.id === msgId) {
-          const currentCount = msg.reactions[emoji] || 0;
-          return {
-            ...msg,
-            reactions: {
-              ...msg.reactions,
-              [emoji]: currentCount + 1,
-            },
-          };
-        }
-        return msg;
-      })
-    );
-  };
-
-  const handleShareMarketPosition = () => {
-    const market = selectedMarket || POLYMARKET_HERO;
-    const shareMsg: ChatMessage = {
-      id: `share-${Date.now()}`,
-      sender: user.isLoggedIn ? user.username : 'You (Trader)',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=64&h=64&fit=crop',
-      badge: 'Top Trader',
-      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      text: `📢 Discussing live market: "${market.title}" (Current volume: ${market.volume})`,
-      channel: activeChannel,
-      timestamp: 'Just now',
-      isTradeAlert: true,
-      tradeDetails: {
-        marketTitle: market.title,
-        side: market.outcomes[0]?.name || 'YES',
-        price: market.outcomes[0]?.probability || 50,
-        amount: '100 Shares',
-      },
-      reactions: { '🔥': 5, '🎯': 4 },
-    };
-    setMessages((prev) => [...prev, shareMsg]);
-  };
-
-  const handleVoteSentiment = (type: 'bull' | 'bear') => {
-    if (userVoted === type) return;
-    setUserVoted(type);
-    if (type === 'bull') {
-      setBullishVotes((prev) => Math.min(99, prev + 2));
-    } else {
-      setBullishVotes((prev) => Math.max(1, prev - 2));
-    }
-  };
-
-  const filteredMessages = messages.filter(
-    (m) => m.channel === activeChannel || activeChannel === '#general'
-  );
+  const filtered = messages.filter((m) => m.channel === activeChannel || activeChannel === 'general');
 
   return (
     <div
@@ -339,322 +308,221 @@ export const PolymarketChat: React.FC<PolymarketChatProps> = ({
         compact ? 'h-[520px]' : 'h-[620px]'
       } ${className}`}
     >
-      {/* 1. Chat Top Header Bar */}
-      <div className="bg-[#f8fafc] border-b border-neutral-200 px-3.5 py-2.5 flex items-center justify-between gap-2 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-            💬
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 font-bold text-xs sm:text-sm text-neutral-900">
-              <span>Polymarket Trollbox</span>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                2,841 Live
-              </span>
-            </div>
-            <p className="text-[11px] text-neutral-500">Real-time prediction discussions & whale alerts</p>
-          </div>
+      {/* Header */}
+      <div className="border-b border-neutral-100 px-3.5 py-2.5 flex items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <span className="font-bold text-xs sm:text-sm text-neutral-900">{S.title}</span>
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-neutral-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            2,841
+          </span>
         </div>
-
-        {/* Action Controls */}
-        <div className="flex items-center gap-1 text-neutral-500">
-          <button
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-1.5 hover:bg-neutral-200 rounded-md transition-colors cursor-pointer"
-            title={soundEnabled ? 'Mute chat chime' : 'Enable chat chime'}
-          >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-neutral-400" />}
-          </button>
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setIsPaused(!isPaused)}
-            className={`p-1.5 rounded-md transition-colors cursor-pointer ${
-              isPaused ? 'bg-amber-100 text-amber-800' : 'hover:bg-neutral-200'
-            }`}
-            title={isPaused ? 'Resume auto-scroll' : 'Pause chat stream'}
+            className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-md transition-colors cursor-pointer"
+            title={isPaused ? S.resume : S.pause}
           >
             {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
           </button>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors cursor-pointer"
+              title={S.close}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 2. Channel Filter Pills */}
-      <div className="bg-white border-b border-neutral-100 px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 text-xs">
-        {CHANNELS.map((ch) => {
-          const isActive = activeChannel === ch.id;
-          return (
-            <button
-              key={ch.id}
-              onClick={() => setActiveChannel(ch.id)}
-              className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600'
-              }`}
-            >
-              <span>{ch.label}</span>
+      {/* Channels */}
+      <div className="border-b border-neutral-100 px-3 py-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0">
+        {CHANNELS.map((ch) => (
+          <button
+            key={ch.id}
+            onClick={() => setActiveChannel(ch.id)}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap ${
+              activeChannel === ch.id
+                ? 'bg-neutral-900 text-white'
+                : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'
+            }`}
+          >
+            {ch.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Pinned Superchat */}
+      {pinned && (
+        <div
+          className={`mx-3 mt-2 rounded-xl border px-3 py-2 flex items-start gap-2.5 shrink-0 ${tierFor(pinned.superAmount || 0).cls}`}
+        >
+          <Avatar name={pinned.sender} url={pinned.avatar} cls="w-6 h-6" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-xs">{pinned.sender}</span>
               <span
-                className={`text-[9px] px-1 rounded ${
-                  isActive ? 'bg-blue-700 text-blue-100' : 'bg-neutral-200 text-neutral-600'
+                className={`text-[9px] font-black text-white px-1.5 py-0.5 rounded-full ${
+                  tierFor(pinned.superAmount || 0).badge
                 }`}
               >
-                {ch.count}
+                {pinned.superAmount ? `${pinned.superAmount} ETB` : S.superchat.toUpperCase()}
               </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 3. Community Sentiment Meter Bar */}
-      <div className="bg-gradient-to-r from-emerald-50 via-neutral-50 to-red-50 border-b border-neutral-200 px-3 py-1.5 flex items-center justify-between gap-3 text-xs shrink-0">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-bold text-neutral-700">Sentiment:</span>
-          <div className="flex items-center gap-1">
-            <span className="text-emerald-700 font-extrabold text-[11px]">{bullishVotes}% Bullish</span>
-            <div className="w-16 sm:w-24 h-2 bg-neutral-200 rounded-full overflow-hidden flex">
-              <div
-                className="bg-emerald-500 h-full transition-all duration-300"
-                style={{ width: `${bullishVotes}%` }}
-              />
-              <div
-                className="bg-red-500 h-full transition-all duration-300"
-                style={{ width: `${100 - bullishVotes}%` }}
-              />
             </div>
-            <span className="text-red-700 font-extrabold text-[11px]">{100 - bullishVotes}%</span>
+            <p className="text-xs text-neutral-700 leading-relaxed truncate">{pinned.text}</p>
           </div>
-        </div>
-
-        {/* Sentiment Vote Buttons */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => handleVoteSentiment('bull')}
-            className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 transition-all cursor-pointer ${
-              userVoted === 'bull'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800'
-            }`}
-          >
-            <TrendingUp className="w-2.5 h-2.5" />
-            <span>Bull 🐂</span>
-          </button>
-          <button
-            onClick={() => handleVoteSentiment('bear')}
-            className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 transition-all cursor-pointer ${
-              userVoted === 'bear'
-                ? 'bg-red-600 text-white shadow-xs'
-                : 'bg-red-100 hover:bg-red-200 text-red-800'
-            }`}
-          >
-            <TrendingDown className="w-2.5 h-2.5" />
-            <span>Bear 🐻</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 4. Chat Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#fafbfe]">
-        {filteredMessages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`group rounded-xl p-2.5 transition-colors ${
-              msg.isAi
-                ? 'bg-blue-50/80 border border-blue-200/80'
-                : msg.isTradeAlert
-                ? 'bg-purple-50/80 border border-purple-200/80'
-                : 'bg-white border border-neutral-150 hover:border-neutral-300 shadow-2xs'
-            }`}
-          >
-            {/* Header of message: Avatar, Name, Badge, Time */}
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="flex items-center gap-2">
-                <img
-                  src={msg.avatar}
-                  alt={msg.sender}
-                  className="w-5 h-5 rounded-full object-cover border border-neutral-200"
-                />
-                <span className="font-bold text-xs text-neutral-900">{msg.sender}</span>
-                {msg.badge && (
-                  <span
-                    className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-full border ${
-                      msg.badgeColor || 'bg-neutral-100 text-neutral-700'
-                    }`}
-                  >
-                    {msg.badge}
-                  </span>
-                )}
-                {msg.isAi && <Sparkles className="w-3 h-3 text-blue-600" />}
-              </div>
-              <span className="text-[10px] text-neutral-400 font-medium">{msg.timestamp}</span>
-            </div>
-
-            {/* Message Body */}
-            <p className="text-xs text-neutral-800 leading-relaxed font-normal">{msg.text}</p>
-
-            {/* Trade Alert Card Snippet inside chat */}
-            {msg.tradeDetails && (
-              <div className="mt-2 p-2 bg-white/90 border border-neutral-200 rounded-lg flex items-center justify-between gap-2 shadow-2xs">
-                <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                    Market Position
-                  </div>
-                  <div className="text-xs font-bold text-neutral-900 truncate">
-                    {msg.tradeDetails.marketTitle}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold mt-0.5">
-                    <span className="text-emerald-600 font-extrabold">{msg.tradeDetails.side}</span>
-                    <span className="text-neutral-400">·</span>
-                    <span className="text-neutral-700">{msg.tradeDetails.price}%</span>
-                    <span className="text-neutral-400">·</span>
-                    <span className="font-mono text-purple-700 font-bold">{msg.tradeDetails.amount}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    const hero = POLYMARKET_HERO;
-                    onTradeClick?.({
-                      market: hero,
-                      outcome: hero.outcomes[0],
-                      side: 'yes',
-                      price: msg.tradeDetails?.price || 96,
-                    });
-                  }}
-                  className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[11px] font-bold shrink-0 transition-colors cursor-pointer shadow-2xs"
-                >
-                  Trade
-                </button>
-              </div>
-            )}
-
-            {/* Reactions bar */}
-            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-              {Object.entries(msg.reactions).map(([emoji, count]) => (
-                <button
-                  key={emoji}
-                  onClick={() => handleReaction(msg.id, emoji)}
-                  className="flex items-center gap-1 px-1.5 py-0.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-full text-[10px] font-bold transition-all cursor-pointer"
-                >
-                  <span>{emoji}</span>
-                  <span>{count}</span>
-                </button>
-              ))}
-
-              {/* Quick Add Reaction buttons */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-auto">
-                {['🔥', '🚀', '🎯', '🐂'].map((emo) => (
-                  <button
-                    key={emo}
-                    onClick={() => handleReaction(msg.id, emo)}
-                    className="hover:scale-125 transition-transform text-xs cursor-pointer p-0.5"
-                    title={`React ${emo}`}
-                  >
-                    {emo}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {aiThinking && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-2.5 flex items-center gap-2 text-xs text-blue-900 animate-pulse">
-            <Bot className="w-4 h-4 text-blue-600" />
-            <span className="font-bold">Polymarket AI Oracle is analyzing market order book...</span>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* 5. Quick Prompts / Share Position Action Row */}
-      <div className="bg-white border-t border-neutral-100 px-3 py-1.5 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shrink-0 text-xs">
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={handleShareMarketPosition}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold transition-colors cursor-pointer border border-blue-200 whitespace-nowrap"
-            title="Share active market probability to trollbox"
-          >
-            <Share2 className="w-3 h-3" />
-            <span>Share Market</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveChannel('#ai-oracle');
-              setInputText('Analyze odds for Fed 50bps rate cut in September');
-            }}
-            className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold transition-colors cursor-pointer border border-purple-200 whitespace-nowrap"
-          >
-            <Sparkles className="w-3 h-3 text-purple-600" />
-            <span>Ask AI: Fed Cut</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveChannel('#ai-oracle');
-              setInputText('Who has the highest winning probability in Claude Mythos release?');
-            }}
-            className="flex items-center gap-1 px-2 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold transition-colors cursor-pointer border border-indigo-200 whitespace-nowrap"
-          >
-            <Bot className="w-3 h-3 text-indigo-600" />
-            <span>Ask AI: Claude</span>
-          </button>
-        </div>
-
-        {/* Emoji Quick Picker Trigger */}
-        <button
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          className="p-1 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
-        >
-          <Smile className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* 6. Emoji Picker Popover */}
-      {showEmojiPicker && (
-        <div className="bg-white border-t border-neutral-200 px-3 py-1.5 flex items-center gap-2 overflow-x-auto shrink-0 bg-neutral-50">
-          {['🚀', '🔥', '🐂', '🐻', '📉', '🎯', '🐋', '💎', '🍿', '⚡'].map((emoji) => (
-            <button
-              key={emoji}
-              onClick={() => {
-                setInputText((prev) => prev + ' ' + emoji);
-                setShowEmojiPicker(false);
-              }}
-              className="text-base hover:scale-125 transition-transform cursor-pointer p-0.5"
-            >
-              {emoji}
-            </button>
-          ))}
         </div>
       )}
 
-      {/* 7. Chat Input Form */}
-      <form
-        onSubmit={handleSendMessage}
-        className="bg-white border-t border-neutral-200 p-2.5 flex items-center gap-2 shrink-0"
-      >
-        <div className="relative flex-1">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
+        {filtered.map((msg) =>
+          msg.isSuperchat ? (
+            /* Superchat: highlighted card */
+            <div
+              key={msg.id}
+              className={`rounded-xl border px-3 py-2.5 ${tierFor(msg.superAmount || 0).cls}`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Avatar name={msg.sender} url={msg.avatar} cls="w-5 h-5" />
+                <span className="font-bold text-xs">{msg.sender}</span>
+                {msg.superAmount ? (
+                  <span
+                    className={`text-[9px] font-black text-white px-1.5 py-0.5 rounded-full ${
+                      tierFor(msg.superAmount).badge
+                    }`}
+                  >
+                    {msg.superAmount} ETB
+                  </span>
+                ) : null}
+                <span className="ml-auto text-[10px] text-neutral-400">{msg.timestamp}</span>
+              </div>
+              <p className="text-xs text-neutral-800 leading-relaxed">{msg.text}</p>
+              {msg.tradeDetails && (
+                <div className="mt-2 pt-2 border-t border-black/5 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold text-neutral-900 truncate">
+                      {msg.tradeDetails.marketTitle}
+                    </div>
+                    <div className="text-[10px] text-neutral-500 font-semibold">
+                      {msg.tradeDetails.side} · {msg.tradeDetails.price}% ·{' '}
+                      <span className="font-mono">{msg.tradeDetails.amount}</span>
+                    </div>
+                  </div>
+                  {onTradeClick && selectedMarket && (
+                    <button
+                      onClick={() => {
+                        onTradeClick({
+                          market: selectedMarket,
+                          outcome: selectedMarket.outcomes[0],
+                          side: 'yes',
+                          price: msg.tradeDetails?.price || 50,
+                        });
+                      }}
+                      className="px-2.5 py-1 rounded-md bg-neutral-900 hover:bg-neutral-700 text-white text-[10px] font-bold shrink-0 transition-colors cursor-pointer"
+                    >
+                      {S.trade}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Regular message: clean single row */
+            <div key={msg.id} className="group flex items-start gap-2.5 px-1 py-1 rounded-lg hover:bg-neutral-50 transition-colors">
+              <Avatar name={msg.sender} url={msg.avatar} cls="w-6 h-6 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="font-bold text-xs text-neutral-900">{msg.sender}</span>
+                  {msg.isAi && (
+                    <span className="text-[9px] font-black text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-px rounded">
+                      AI
+                    </span>
+                  )}
+                  <span className="text-[10px] text-neutral-400">{msg.timestamp}</span>
+                </div>
+                <p className="text-xs text-neutral-700 leading-relaxed break-words">{msg.text}</p>
+              </div>
+            </div>
+          )
+        )}
+
+        {aiThinking && (
+          <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-blue-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="font-semibold">{S.aiThinking}</span>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <form onSubmit={handleSend} className="border-t border-neutral-100 p-2.5 shrink-0">
+        {superAmount != null && (
+          <div className="mb-2 flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide mr-1">{S.superchat}</span>
+            {[10, 25, 50, 100].map((a) => (
+              <button
+                key={a}
+                type="button"
+                onClick={() => setSuperAmount(a)}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-black transition-colors cursor-pointer ${
+                  superAmount === a
+                    ? 'bg-neutral-900 text-white'
+                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                }`}
+              >
+                {a} ETB
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setSuperAmount(null)}
+              className="ml-auto text-[10px] font-bold text-neutral-400 hover:text-neutral-700 cursor-pointer"
+            >
+              {S.cancel}
+            </button>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder={`Message ${activeChannel}...`}
-            className="w-full bg-[#f4f6f8] focus:bg-white border border-neutral-200 focus:border-blue-500 rounded-xl px-3 py-2 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none transition-all pr-8"
+            onFocus={() => {
+              if (isGuest) {
+                openAuthModal('login');
+              }
+            }}
+            placeholder={isGuest ? S.loginPlaceholder : S.messagePlaceholder(activeChannel)}
+            className="flex-1 bg-neutral-50 focus:bg-white border border-neutral-200 focus:border-neutral-400 rounded-xl px-3 py-2 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none transition-colors"
           />
+          <button
+            type="button"
+            onClick={() => setSuperAmount(superAmount == null ? 50 : null)}
+            title={S.superchat}
+            className={`p-2 rounded-xl transition-colors shrink-0 cursor-pointer ${
+              superAmount != null
+                ? 'bg-amber-500 text-white'
+                : 'text-neutral-400 hover:text-amber-600 hover:bg-amber-50'
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+          </button>
+          <button
+            type="submit"
+            disabled={!inputText.trim()}
+            className={`p-2 rounded-xl transition-all shrink-0 cursor-pointer ${
+              inputText.trim()
+                ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+            }`}
+          >
+            <Send className="w-4 h-4" />
+          </button>
         </div>
-
-        <button
-          type="submit"
-          disabled={!inputText.trim()}
-          className={`p-2 rounded-xl transition-all flex items-center justify-center shrink-0 cursor-pointer ${
-            inputText.trim()
-              ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:scale-95'
-              : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-          }`}
-        >
-          <Send className="w-4 h-4" />
-        </button>
       </form>
     </div>
   );

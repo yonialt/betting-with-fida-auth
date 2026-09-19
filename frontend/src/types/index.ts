@@ -138,6 +138,8 @@ export interface BetSlipItem {
   odds: number;
   isLive?: boolean;
   stake?: number;
+  /** Match kickoff (ISO-8601) — proves a match started before settlement may run. */
+  startTime?: string;
 }
 
 export interface PlacedBet {
@@ -151,6 +153,10 @@ export interface PlacedBet {
   currency?: string;
   status: 'active' | 'pending' | 'won' | 'lost' | 'cashed_out';
   cashoutValue?: number;
+  /** ISO-8601 settlement time once the bet is settled (backend-provided). */
+  settledAt?: string;
+  /** Amount credited for settled bets (0 for a loss). */
+  payout?: number;
 }
 
 export interface UserProfile {
@@ -164,6 +170,8 @@ export interface UserProfile {
   email?: string;
   isAgeVerified?: boolean;
   ageVerificationStatus?: 'verified' | 'pending' | 'unverified';
+  /** Profile picture (data URL, persisted on the backend). */
+  avatarUrl?: string | null;
 }
 
 export interface MarketGroup {

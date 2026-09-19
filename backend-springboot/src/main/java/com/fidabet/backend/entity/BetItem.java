@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -66,6 +67,11 @@ public class BetItem {
 
     @Column(precision = 12, scale = 2)
     private BigDecimal stake;
+
+    /** Match kickoff time (ISO-8601), captured at placement. Used to prove the
+     *  match has actually started before settlement is allowed to run. */
+    @Column
+    private Instant startTime;
 
     @Override
     public boolean equals(Object o) {

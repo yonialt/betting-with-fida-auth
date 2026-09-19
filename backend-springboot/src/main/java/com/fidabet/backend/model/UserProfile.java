@@ -45,4 +45,7 @@ public class UserProfile {
 
     /** verified | pending | unverified */
     private String ageVerificationStatus;
+
+    /** Profile picture (data URL). Persisted via PUT /api/user/profile. */
+    private String avatarUrl;
 }

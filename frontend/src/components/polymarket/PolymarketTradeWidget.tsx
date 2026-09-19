@@ -5,10 +5,22 @@ import { useBetting } from '../../context/BettingContext';
 import { t, translateMarketTitle, translateOutcomeName } from '../../data/polymarketTranslations';
 import { heroSlideLogoUrl } from '../../data/polymarketExtendedData';
 import { marketLogoUrl } from '../../data/polymarketData';
+import {
+  polymarketTradingApi,
+  PmPosition,
+  PM_PORTFOLIO_CHANGED,
+} from '../../services/polymarketTradingApi';
 
 interface PolymarketTradeWidgetProps {
   market: PolymarketMarket;
   onTradeExecuted?: (trade: PolymarketTradeState, amount: number) => void;
+  /**
+   * Prediction-market confirmation mode: when set, the Trade button no longer
+   * executes locally — it hands the order to the parent to show a confirmation
+   * modal, and the backend executes it on confirm. The sportsbook bet slip is
+   * never involved.
+   */
+  onConfirmOrder?: (trade: PolymarketTradeState, amount: number) => void;
   className?: string;
 }
 
@@ -34,9 +46,10 @@ const getMarketEmoji = (m: PolymarketMarket): string => {
 export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
   market,
   onTradeExecuted,
+  onConfirmOrder,
   className = '',
 }) => {
-  const { placeBet, user, language } = useBetting();
+  const { user, language } = useBetting();
   const [orderSide, setOrderSide] = useState<'buy' | 'sell'>('buy');
   const [selectedOutcomeSide, setSelectedOutcomeSide] = useState<'yes' | 'no'>('yes');
   const [orderType, setOrderType] = useState<'Market' | 'Limit'>('Market');
@@ -44,6 +57,11 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
   const [amount, setAmount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tradeSuccess, setTradeSuccess] = useState(false);
+
+  // SELL mode: the user's open position on this market (either side) and the
+  // number of shares they want to sell. Powered by the real backend position.
+  const [heldPosition, setHeldPosition] = useState<PmPosition | null>(null);
+  const [sellShares, setSellShares] = useState<string>('');
 
   // Real-time live drift & price tick simulation (matching chart live behavior)
   const [liveDriftOffset, setLiveDriftOffset] = useState<number>(0);
@@ -87,6 +105,31 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
   const noPrice = 100 - yesPrice;
   const currentPrice = selectedOutcomeSide === 'yes' ? yesPrice : noPrice;
 
+  // Load the real open position for this market so Sell can close it (crypto-style).
+  const loadHeldPosition = async () => {
+    if (!user.isLoggedIn) {
+      setHeldPosition(null);
+      return;
+    }
+    try {
+      const open = await polymarketTradingApi.openPositions();
+      const mine = open.filter((p) => p.marketId === market.id && p.shares > 0);
+      setHeldPosition(mine.length > 0 ? mine[0] : null);
+    } catch {
+      setHeldPosition(null);
+    }
+  };
+
+  useEffect(() => {
+    loadHeldPosition();
+    // Re-check holdings whenever any confirmed order lands (incl. this widget's own)
+    // and whenever the user opens the Sell tab, so the shares input is current.
+    const onPmChange = () => loadHeldPosition();
+    window.addEventListener(PM_PORTFOLIO_CHANGED, onPmChange);
+    return () => window.removeEventListener(PM_PORTFOLIO_CHANGED, onPmChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [market.id, user.isLoggedIn, orderSide]);
+
   // Potential payout calculation: shares = (amount / (price / 100))
   const calculatedShares =
     amount > 0 && currentPrice > 0 ? (amount / (currentPrice / 100)).toFixed(1) : '0';
@@ -97,26 +140,90 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
     setAmount((prev) => prev + value);
   };
 
-  const handleExecuteTrade = () => {
-    if (amount <= 0) return;
-    setIsSubmitting(true);
+  // SELL sizing: shares typed, capped at what the user actually holds.
+  const numSellShares = parseFloat(sellShares) || 0;
+  const heldShares = heldPosition ? heldPosition.shares : 0;
+  const sellPrice = heldPosition ? heldPosition.currentPriceCents : currentPrice;
+  const sellProceeds = Math.round(numSellShares * sellPrice) / 100;
+  const sellPnl =
+    heldPosition && numSellShares > 0
+      ? Math.round(
+          (numSellShares * sellPrice - numSellShares * heldPosition.avgPriceCents) / 100 * 100,
+        ) / 100
+      : 0;
 
+  const handleExecuteTrade = () => {
+    // ---- SELL: close part/all of the held position at the live market price ----
+    if (orderSide === 'sell') {
+      if (!heldPosition || numSellShares <= 0) return;
+      const sellState: PolymarketTradeState = {
+        market,
+        outcome: activeOutcome,
+        side: heldPosition.side,
+        price: sellPrice,
+        orderAction: 'SELL',
+        sellShares: Math.min(numSellShares, heldPosition.shares),
+        heldShares: heldPosition.shares,
+        heldAvgPriceCents: heldPosition.avgPriceCents,
+      };
+      // Confirmation flow: the modal reviews and executes the SELL on confirm.
+      if (onConfirmOrder) {
+        onConfirmOrder(sellState, 0);
+        return;
+      }
+      // Standalone (no confirmation modal attached): execute against the backend now.
+      setIsSubmitting(true);
+      polymarketTradingApi
+        .placeOrder({
+          action: 'SELL',
+          marketId: market.id,
+          side: heldPosition.side,
+          priceCents: sellPrice,
+          shares: Math.min(numSellShares, heldPosition.shares),
+        })
+        .then(() => {
+          setTradeSuccess(true);
+          setSellShares('');
+          window.dispatchEvent(new CustomEvent(PM_PORTFOLIO_CHANGED));
+          setTimeout(() => setTradeSuccess(false), 2000);
+        })
+        .catch(() => {
+          // Validation errors (no position / too many shares) — state resets below.
+        })
+        .finally(() => setIsSubmitting(false));
+      return;
+    }
+
+    // ---- BUY: open/extend a position ----
+    if (amount <= 0) return;
+
+    const tradeState: PolymarketTradeState = {
+      market,
+      outcome: activeOutcome,
+      side: selectedOutcomeSide,
+      price: currentPrice,
+      amount,
+      orderAction: 'BUY',
+    };
+
+    // Prediction-market confirmation flow: hand the order to the confirmation
+    // modal; the backend executes it only after the user reviews and confirms.
+    if (onConfirmOrder) {
+      onConfirmOrder(tradeState, amount);
+      return;
+    }
+
+    // Legacy standalone behavior (kept for direct usages without confirmation):
+    // simulate fill locally and notify.
+    setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setTradeSuccess(true);
 
-      const tradeState: PolymarketTradeState = {
-        market,
-        outcome: activeOutcome,
-        side: selectedOutcomeSide,
-        price: currentPrice,
-      };
-
       onTradeExecuted?.(tradeState, amount);
 
-      // Place bet in context if available
       try {
-        placeBet();
+        window.dispatchEvent(new CustomEvent(PM_PORTFOLIO_CHANGED));
       } catch {
         // Handled
       }
@@ -331,7 +438,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             <span
               className={`font-extrabold transition-all duration-300 ${
                 priceFlash === 'down' && selectedOutcomeSide === 'no'
-                  ? 'scale-110 text-rose-100'
+                  ? 'scale-110 text-emerald-100'
                   : ''
               }`}
             >
@@ -340,7 +447,106 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           </button>
         </div>
 
-        {/* 4. Amount Input Section — typeable, comma-formatted (like the reference) */}
+        {/* 4. Amount (BUY) or Shares (SELL) input — same styling, mode-dependent */}
+        {orderSide === 'sell' ? (
+          <div className="mb-3">
+            <div className="flex items-start justify-between mb-2 gap-3">
+              <div className="shrink-0">
+                <span className="text-sm font-semibold text-white block">
+                  {t('sell_shares', language, 'Shares to sell')}
+                </span>
+                {heldPosition ? (
+                  <span className="text-[11px] text-neutral-500">
+                    {t('you_hold', language, 'You hold')}{' '}
+                    <span className="text-emerald-400 font-mono font-bold">
+                      {heldPosition.shares}
+                    </span>{' '}
+                    {heldPosition.side.toUpperCase()} @ {(heldPosition.avgPriceCents / 100).toFixed(2)} ETB{' '}
+                    {t('avg', language, 'avg')}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-amber-400">
+                    {t('no_position', language, 'No open position on this market')}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-baseline gap-1 flex-1 justify-end min-w-0">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={sellShares}
+                  onChange={(e) => setSellShares(e.target.value.replace(/[^0-9.]/g, ''))}
+                  placeholder="0"
+                  disabled={!heldPosition}
+                  className="min-w-0 flex-1 text-right bg-transparent text-3xl sm:text-4xl font-extrabold font-mono text-white placeholder-neutral-600 focus:outline-none disabled:opacity-40"
+                />
+                <span className="text-xs font-bold text-neutral-400 font-mono self-end mb-1.5 shrink-0">
+                  {t('shares', language, 'shares')}
+                </span>
+              </div>
+            </div>
+
+            {/* Quick share chips: 25% / 50% / 75% / MAX — same chip styling */}
+            <div className="flex items-center justify-end gap-1.5">
+              {[25, 50, 75].map((pct) => (
+                <button
+                  key={pct}
+                  onClick={() =>
+                    heldPosition &&
+                    setSellShares(String(Math.floor(heldPosition.shares * (pct / 100) * 10000) / 10000))
+                  }
+                  disabled={!heldPosition}
+                  className="px-2.5 py-1 rounded-lg bg-[#1a2232] hover:bg-[#253248] text-neutral-300 hover:text-white border border-[#2e3b52] text-xs font-semibold font-mono transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {pct}%
+                </button>
+              ))}
+              <button
+                onClick={() =>
+                  heldPosition && setSellShares(String(Math.floor(heldPosition.shares * 10000) / 10000))
+                }
+                disabled={!heldPosition}
+                className="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 text-xs font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                MAX
+              </button>
+              {sellShares && (
+                <button
+                  onClick={() => setSellShares('')}
+                  className="px-2 py-1 rounded-lg bg-[#1a2232] hover:bg-rose-950/50 text-neutral-400 hover:text-rose-400 border border-[#2e3b52] text-xs font-semibold transition-all cursor-pointer"
+                  title="Clear"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Proceeds preview — mirrors the BUY 'To win' block styling */}
+            {numSellShares > 0 && heldPosition && (
+              <div className="flex items-center justify-between gap-3 mb-4 pt-3 border-t border-[#1e293b]">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 text-sm font-extrabold text-white">
+                    <span>{t('you_receive', language, 'You receive')}</span>
+                    <span aria-hidden="true">💵</span>
+                  </div>
+                  <div
+                    className={`text-[11px] font-mono mt-0.5 ${
+                      sellPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                    }`}
+                  >
+                    {sellPnl >= 0 ? '+' : ''}
+                    {sellPnl.toFixed(2)} {language === 'am' ? 'ብር' : 'ETB'}{' '}
+                    {t('pnl', language, 'P/L')}
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-right truncate">
+                  {sellProceeds.toFixed(2)}{' '}
+                  <span className="text-sm text-amber-400">{language === 'am' ? 'ብር' : 'ETB'}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
         <div className="mb-3">
           <div className="flex items-start justify-between mb-2 gap-3">
             <div className="shrink-0">
@@ -392,6 +598,7 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             )}
           </div>
         </div>
+        )}
 
         {/* To win payout (prominent, like the reference) */}
         {amount > 0 && (
@@ -412,15 +619,15 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
           </div>
         )}
 
-        {/* 5. Trade Button */}
+        {/* 5. Trade Button — Sell uses rose, Buy uses the existing blue */}
         <button
           onClick={handleExecuteTrade}
-          disabled={isSubmitting}
-          className={`w-full py-3.5 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 ${
+          disabled={isSubmitting || (orderSide === 'sell' && (!heldPosition || numSellShares <= 0))}
+          className={`w-full py-3.5 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed ${
             tradeSuccess
               ? 'bg-emerald-600 text-white'
-              : amount > 0
-              ? 'bg-[#0084ff] hover:bg-[#0070db] text-white shadow-blue-900/30'
+              : orderSide === 'sell'
+              ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-900/30'
               : 'bg-[#0084ff] hover:bg-[#0070db] text-white shadow-blue-900/30'
           }`}
         >
@@ -433,6 +640,13 @@ export const PolymarketTradeWidget: React.FC<PolymarketTradeWidgetProps> = ({
             <span className="flex items-center gap-2">
               <Check className="w-5 h-5" />
               {language === 'am' ? 'ትዕዛዝ ተጠናቋል!' : 'Order Placed!'}
+            </span>
+          ) : orderSide === 'sell' ? (
+            <span>
+              {t('sell', language, 'Sell')}
+              {heldPosition && numSellShares > 0
+                ? ` ${numSellShares} ${heldPosition.side.toUpperCase()}`
+                : ''}
             </span>
           ) : (
             <span>{t('trade', language, 'Trade')}</span>

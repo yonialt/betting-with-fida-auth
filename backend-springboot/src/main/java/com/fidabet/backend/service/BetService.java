@@ -2,6 +2,7 @@ package com.fidabet.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fidabet.backend.dto.MatchDto;
 import com.fidabet.backend.entity.Bet;
 import com.fidabet.backend.entity.BetItem;
 import com.fidabet.backend.entity.User;
@@ -41,6 +42,7 @@ public class BetService {
     private final UserAccountService users;
     private final UserRepository userRepository;
     private final BetRepository betRepository;
+    private final ApiFootballService apiFootball;
     private final ObjectMapper objectMapper;
 
     /**
@@ -97,10 +99,12 @@ public class BetService {
                 .status("active")
                 .cashoutValue(BigDecimal.valueOf(round2(stake * 0.95)))
                 .placedAt(Instant.now())
+                .settledAt(null)
                 .build();
 
         // Add items
         for (BetSlipItem item : items) {
+            Instant kickoff = parseInstant(item.getStartTime());
             BetItem betItem = BetItem.builder()
                     .itemId(item.getId() != null ? item.getId() : "item-" + System.currentTimeMillis())
                     .matchId(item.getMatchId())
@@ -114,6 +118,7 @@ public class BetService {
                     .odds(BigDecimal.valueOf(item.getOdds()))
                     .isLive(item.getIsLive())
                     .stake(item.getStake() != null ? BigDecimal.valueOf(item.getStake()) : null)
+                    .startTime(kickoff)
                     .build();
             bet.addItem(betItem);
         }
@@ -218,6 +223,12 @@ public class BetService {
                 .currency(bet.getCurrency())
                 .status(bet.getStatus())
                 .cashoutValue(bet.getCashoutValue() != null ? bet.getCashoutValue().doubleValue() : null)
+                .settledAt(bet.getSettledAt() != null ? bet.getSettledAt().toString() : null)
+                .payout(bet.getSettledAt() != null
+                        ? ("won".equals(bet.getStatus())
+                                ? (bet.getPotentialWin() != null ? bet.getPotentialWin().doubleValue() : 0.0)
+                                : 0.0)
+                        : null)
                 .build();
     }
 
@@ -246,5 +257,54 @@ public class BetService {
 
     private static double round2(double v) {
         return Math.round(v * 100.0) / 100.0;
+    }
+
+    /** Parse an ISO-8601 timestamp; null on absent or malformed input. */
+    public static Instant parseInstant(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        try {
+            return Instant.parse(raw);
+        } catch (Exception e) {
+            try {
+                return java.time.OffsetDateTime.parse(raw).toInstant();
+            } catch (Exception ignore) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Final score for a match, looked up across every match list (live, upcoming and
+     * archived demo fixtures). Only meaningful once a fixture reports FT/HT/AET/PEN —
+     * a live or not-started fixture is NOT a result.
+     */
+    public Map<String, Object> findFinalScore(String matchId) {
+        for (MatchDto m : apiFootball.getLiveMatches("all")) {
+            if (m.getId().equals(matchId)) return matchScoreMap(m);
+        }
+        for (String sport : new String[]{"football", "basketball", "tennis"}) {
+            for (MatchDto m : apiFootball.getUpcomingMatches(sport)) {
+                if (m.getId().equals(matchId)) return matchScoreMap(m);
+            }
+        }
+        return null;
+    }
+
+    private Map<String, Object> matchScoreMap(MatchDto m) {
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("matchId", m.getId());
+        r.put("team1", m.getTeam1());
+        r.put("team2", m.getTeam2());
+        r.put("score1", m.getScore1() != null ? m.getScore1() : 0);
+        r.put("score2", m.getScore2() != null ? m.getScore2() : 0);
+        r.put("period", m.getPeriod());
+        r.put("finished", isMatchFinished(m.getPeriod()));
+        return r;
+    }
+
+    /** True only for genuinely finished fixtures (FT / AET / PEN; HT too — score stands). */
+    public static boolean isMatchFinished(String period) {
+        return period != null && (period.equals("FT") || period.equals("AET")
+                || period.equals("PEN") || period.equals("HT"));
     }
 }

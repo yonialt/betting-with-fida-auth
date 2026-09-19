@@ -1,8 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { X, Loader2, LogIn, UserPlus, ShieldCheck, User, Phone, Mail, Lock } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
+import {
+  validateUsername,
+  validatePhone,
+  validateEmail,
+  validatePassword,
+  validateConfirm,
+  type FieldErrors,
+} from '../utils/validation';
 
 type AuthMode = 'login' | 'signup';
+
+/** Inline validation message under a form field. */
+const FieldError: React.FC<{ msg?: string }> = ({ msg }) =>
+  msg ? <p className="mt-1 text-[11px] font-semibold text-red-600">{msg}</p> : null;
+
+/** Input border turns red while the field has a validation error. */
+const inputCls = (hasError: boolean) =>
+  `w-full bg-white border rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden transition-colors ${
+    hasError ? 'border-red-400 focus:border-red-500' : 'border-neutral-300 focus:border-[#0091ff]'
+  }`;
 
 /**
  * Shared Sign up / Log in modal.
@@ -25,6 +43,7 @@ export const AuthModal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
 
   // Sync tab + reset fields every time the modal opens
@@ -37,6 +56,7 @@ export const AuthModal: React.FC = () => {
       setPassword('');
       setConfirmPassword('');
       setError('');
+      setFieldErrors({});
       setLoading(false);
     }
   }, [authModalOpen, authModalMode]);
@@ -47,30 +67,32 @@ export const AuthModal: React.FC = () => {
     setMode(next);
     setAuthModalMode(next);
     setError('');
+    setFieldErrors({});
+  };  /** Run every rule for the active mode; returns true when all pass. */
+  const runValidation = (): boolean => {
+    const errs: FieldErrors = {};
+
+    if (mode === 'signup') {
+      errs.username = validateUsername(username);
+      errs.phone = validatePhone(phone);
+      errs.email = validateEmail(email);
+      errs.password = validatePassword(password);
+      errs.confirmPassword = validateConfirm(confirmPassword, password);
+    } else {
+      // Login: identifier + non-empty password (server verifies the rest).
+      const id = username.trim();
+      if (!id) errs.username = 'Username or phone is required';
+      if (!password) errs.password = 'Password is required';
+    }
+
+    setFieldErrors(errs);
+    return Object.values(errs).every((v) => !v);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (username.trim().length < 3) {
-      setError('Username must be at least 3 characters');
-      return;
-    }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-    if (mode === 'signup') {
-      if (phone.trim().length < 7) {
-        setError('Please enter a valid phone number');
-        return;
-      }
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
-    }
+    if (!runValidation()) return;
 
     setLoading(true);
     const result =
@@ -165,8 +187,9 @@ export const AuthModal: React.FC = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Choose a username"
                     autoComplete="username"
-                    className="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden focus:border-[#0091ff]"
+                    className={inputCls(!!fieldErrors.username)}
                   />
+                  <FieldError msg={fieldErrors.username} />
                 </div>
 
                 {/* Phone */}
@@ -180,8 +203,9 @@ export const AuthModal: React.FC = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. +251911000000"
                     autoComplete="tel"
-                    className="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden focus:border-[#0091ff]"
+                    className={inputCls(!!fieldErrors.phone)}
                   />
+                  <FieldError msg={fieldErrors.phone} />
                 </div>
 
                 {/* Email (optional) */}
@@ -195,8 +219,9 @@ export const AuthModal: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     autoComplete="email"
-                    className="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden focus:border-[#0091ff]"
+                    className={inputCls(!!fieldErrors.email)}
                   />
+                  <FieldError msg={fieldErrors.email} />
                 </div>
               </div>
             )}
@@ -213,8 +238,9 @@ export const AuthModal: React.FC = () => {
                   placeholder="Player_8831 or +251911000000"
                   autoComplete="username"
                   autoFocus
-                  className="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden focus:border-[#0091ff]"
+                  className={inputCls(!!fieldErrors.username)}
                 />
+                <FieldError msg={fieldErrors.username} />
               </div>
             )}
 
@@ -229,8 +255,9 @@ export const AuthModal: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                className="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden focus:border-[#0091ff]"
+                className={inputCls(!!fieldErrors.password)}
               />
+              <FieldError msg={fieldErrors.password} />
             </div>
 
             {mode === 'signup' && (
@@ -238,15 +265,16 @@ export const AuthModal: React.FC = () => {
                 <label className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-600 uppercase tracking-wide mb-1">
                   <Lock className="w-3 h-3 text-neutral-400" /> Confirm password
                 </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat your password"
-                  autoComplete="new-password"
-                  className="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-hidden focus:border-[#0091ff]"
-                />
-              </div>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Repeat your password"
+                autoComplete="new-password"
+                className={inputCls(!!fieldErrors.confirmPassword)}
+              />
+              <FieldError msg={fieldErrors.confirmPassword} />
+            </div>
             )}
 
             {/* Submit */}

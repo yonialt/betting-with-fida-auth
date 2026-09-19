@@ -110,5 +110,15 @@ export interface PolymarketTradeState {
   outcome?: PolymarketOutcome;
   side: 'yes' | 'no' | 'team1' | 'team2' | 'up' | 'down' | string;
   price?: number;
+  /** ETB amount typed on the trade box, carried into the confirmation modal. */
+  amount?: number;
+  /** Order direction: BUY opens/extends a position, SELL closes part/all of one. */
+  orderAction?: 'BUY' | 'SELL';
+  /** For SELL orders: the number of shares the user chose to sell. */
+  sellShares?: number;
+  /** Shares held on the traded side (SELL sizing/preview). */
+  heldShares?: number;
+  /** Avg entry price (cents) of the held shares (SELL P/L preview). */
+  heldAvgPriceCents?: number;
 }
 

@@ -459,11 +459,11 @@ export const BetSlip: React.FC = () => {
       return (
         <aside
           id="bet-slip-collapsed-rail"
-          className="fixed right-0 top-[88px] border-t-2 border-[#ffb800] border-l border-neutral-800 flex flex-col items-center py-2 gap-2 z-30 select-none shadow-md transition-all"
+          className="w-[45px] shrink-0 self-stretch h-full min-h-[500px] border-t-2 border-[#ffb800] border-l border-neutral-800 flex flex-col items-center py-2 gap-2 select-none shadow-md transition-all"
           style={{
             backgroundColor: '#1b2838',
-            width: '45px',
-            height: '700.359px',
+            marginLeft: '2px',
+            marginBottom: '-3px',
           }}
         >
           {/* 1. Expand Block Button « */}
@@ -476,21 +476,41 @@ export const BetSlip: React.FC = () => {
             <ChevronsLeft className="w-4 h-4 text-neutral-300 group-hover:scale-110 transition-transform" />
           </button>
 
-          {/* 2. REGISTRATION Button */}
-          <button
-            id="btn-rail-registration"
-            onClick={() => openAuthModal('signup')}
-            className="w-8 py-3.5 px-0.5 rounded-lg text-white font-black flex items-center justify-center cursor-pointer shadow-xs transition-colors hover:brightness-105 active:scale-95"
-            style={{ backgroundColor: '#383d44' }}
-            title="Registration"
-          >
-            <span
-              className="text-[10px] font-black tracking-wider uppercase select-none leading-none text-white"
-              style={{ writingMode: 'vertical-rl', color: '#ffffff' }}
+          {/* 2. REGISTRATION (guests) / My bets (signed-in) Button */}
+          {user.isLoggedIn ? (
+            <button
+              id="btn-rail-mybets"
+              onClick={() => {
+                setActiveTabSlip('mybets');
+                setIsBetSlipCollapsed(false);
+              }}
+              className="w-8 py-3.5 px-0.5 rounded-lg text-white font-black flex items-center justify-center cursor-pointer shadow-xs transition-colors hover:brightness-105 active:scale-95"
+              style={{ backgroundColor: '#383d44' }}
+              title="My bets"
             >
-              REGISTRATION
-            </span>
-          </button>
+              <span
+                className="text-[10px] font-black tracking-wider uppercase select-none leading-none text-white"
+                style={{ writingMode: 'vertical-rl', color: '#ffffff' }}
+              >
+                MY BETS
+              </span>
+            </button>
+          ) : (
+            <button
+              id="btn-rail-registration"
+              onClick={() => openAuthModal('signup')}
+              className="w-8 py-3.5 px-0.5 rounded-lg text-white font-black flex items-center justify-center cursor-pointer shadow-xs transition-colors hover:brightness-105 active:scale-95"
+              style={{ backgroundColor: '#383d44' }}
+              title="Registration"
+            >
+              <span
+                className="text-[10px] font-black tracking-wider uppercase select-none leading-none text-white"
+                style={{ writingMode: 'vertical-rl', color: '#ffffff' }}
+              >
+                REGISTRATION
+              </span>
+            </button>
+          )}
 
           {/* 3. Bet slip Button */}
           <button

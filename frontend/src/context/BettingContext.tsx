@@ -414,6 +414,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
         league: match.league,
         matchTitle: `${match.team1} - ${match.team2}`,
         currentScore: `${match.score1}:${match.score2}`,
+        startTime: match.startTime,
         marketName: oddsItem.marketName,
         selectionName: oddsItem.name,
         selectionLabel: oddsItem.label === '1' ? 'W1' : oddsItem.label === '2' ? 'W2' : oddsItem.label,
@@ -594,10 +595,20 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     return true;
   };
 
-  // Update the signed-in user's editable profile fields (name, email, phone).
+  // Update the signed-in user's editable profile fields (name, email, phone,
+  // avatar). Local state updates immediately; a backend session persists them
+  // via PUT /api/user/profile so the picture survives reloads.
   const updateProfile = (updates: Partial<UserProfile>) => {
     setUser((prev) => ({ ...prev, ...updates }));
     setNotification({ message: 'Profile updated successfully', type: 'success' });
+    const token = localStorage.getItem('fidabet_token');
+    if (token) {
+      fidaBetApi.updateProfile(updates as Record<string, unknown>).catch(() => {});
+      // Reconcile with the authoritative copy (e.g. avatar rejected for size).
+      fidaBetApi.getProfile()
+        .then((p) => { if (p?.avatarUrl !== undefined) setUser((prev) => ({ ...prev, avatarUrl: p.avatarUrl ?? null })); })
+        .catch(() => {});
+    }
   };
 
   // ---- Shared Sign up / Log in (one account across sport betting & Polymarket) ----
@@ -610,6 +621,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       currency: rawUser?.currency || 'ETB',
       bonusBalance: Number(rawUser?.bonusBalance) || 0,
       phone: rawUser?.phone || '',
+      avatarUrl: rawUser?.avatarUrl ?? null,
     };
 
     // Account switches are a hard client-state boundary. No slip, bet history,
@@ -620,6 +632,17 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setFavorites(new Set());
     setPromoCode('');
     setActiveTabSlip('slip');
+
+    // Signed-in users are never blocked by the age gate: verification is an
+    // account-level concern tracked on the server profile (ageVerificationStatus)
+    // and the gate itself is a guest-first flow. Clear the blocking gate
+    // immediately on login/signup AND persist the flag so a reload after login
+    // doesn't re-block on a fresh browser. Logout still resets it (guests
+    // verify again), see logout().
+    setAgeVerified(true);
+    try {
+      localStorage.setItem(AGE_VERIFIED_KEY, '1');
+    } catch {}
 
     const savedLanguage = readAccountPreference('language', nextUser.userId);
     setLanguageState(savedLanguage === 'en' || savedLanguage === 'am' ? savedLanguage : DEFAULT_LANGUAGE);
@@ -632,6 +655,26 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setAuthModalMode(mode);
     setAuthModalOpen(true);
   };
+
+  // ---- Sportsbook bet history: load the persisted bet list from the backend whenever
+  // an account is active, so placed bets survive refresh and appear in My Bets/portfolio. 
+  // This is sportsbook-only data (/api/bets/*) — the prediction market has its own pipeline.
+  const loadSportsbookHistory = React.useCallback(async () => {
+    try {
+      const bets = await fidaBetApi.getBetHistory();
+      if (Array.isArray(bets)) {
+        setPlacedBets(bets);
+      }
+    } catch {
+      // Not authenticated / backend down: keep current state.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user.isLoggedIn) {
+      loadSportsbookHistory();
+    }
+  }, [user.isLoggedIn, user.userId, loadSportsbookHistory]);
 
   const loginUser = async (username: string, password: string) => {
     try {

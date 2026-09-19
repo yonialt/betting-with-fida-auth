@@ -35,4 +35,8 @@ public class BetSlipItem {
     private Boolean isLive;
 
     private Double stake;
+
+    /** Match kickoff time (ISO-8601) as known by the frontend, used to prove a match
+     *  has actually started before any settlement is allowed to run. Optional. */
+    private String startTime;
 }
