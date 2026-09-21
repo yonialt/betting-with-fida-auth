@@ -58,7 +58,7 @@ const heroSlideToMarket = (slide: HeroSlideItem): PolymarketMarket => ({
 });
 
 export const PolymarketPage: React.FC = () => {
-  const { language, polymarketDarkMode, setAppMode, setBonusesModalOpen } = useBetting();
+  const { language, polymarketDarkMode, setAppMode } = useBetting();
   const [activeCategory, setActiveCategory] = useState<string>('trending');
   const [activeViewTab, setActiveViewTab] = useState<'featured' | 'all'>('featured');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -382,27 +382,9 @@ export const PolymarketPage: React.FC = () => {
         onToggleChat={() => setFloatingChatOpen(!floatingChatOpen)}
         chatOpen={floatingChatOpen}
         onOpenMarketDetail={handleOpenDetail}
-        onSelectMoreOption={(option) => {
-          if (option === 'Dashboards') {
-            // Navigate to profile page
-            window.history.pushState({}, '', '/profile');
-            window.dispatchEvent(new PopStateEvent('popstate'));
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (option === 'Rewards') {
-            setBonusesModalOpen(true);
-          } else if (option === 'Documentation') {
-            setBonusesModalOpen(true);
-          } else if (option === 'Help Center') {
-            setBonusesModalOpen(true);
-          } else if (option === 'Terms of Use') {
-            setBonusesModalOpen(true);
-          } else if (option === 'Activity') {
-            setBonusesModalOpen(true);
-          } else if (option === 'Leaderboard') {
-            setBonusesModalOpen(true);
-          } else if (option === 'APIs') {
-            // Coming soon - do nothing
-          }
+        onSelectMoreOption={() => {
+          // Menu entries are informational placeholders for now — they close the
+          // menu without opening the Promotions & Bonus Offers modal.
         }}
       >
         {/* 2. Category Carousel Filter Bar (Navbar 2) */}

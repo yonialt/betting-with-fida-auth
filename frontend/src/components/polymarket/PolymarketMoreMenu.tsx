@@ -1,9 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Activity,
-  Trophy,
-  LayoutDashboard,
   Gift,
   Code,
   Moon,
@@ -82,45 +79,6 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
     >
       {/* Top Section */}
       <div className="py-1 px-1.5 space-y-0.5">
-        <button
-          onClick={() => {
-            onSelectOption?.('Activity');
-            onClose();
-          }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
-            isDarkMode ? 'hover:bg-[#182334] text-neutral-200' : 'hover:bg-neutral-100 text-neutral-700'
-          }`}
-        >
-          <Activity className="w-4 h-4 text-blue-400 shrink-0" />
-          <span>Activity</span>
-        </button>
-
-        <button
-          onClick={() => {
-            onSelectOption?.('Leaderboard');
-            onClose();
-          }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
-            isDarkMode ? 'hover:bg-[#182334] text-neutral-200' : 'hover:bg-neutral-100 text-neutral-700'
-          }`}
-        >
-          <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-          <span>Leaderboard</span>
-        </button>
-
-        <button
-          onClick={() => {
-            onSelectOption?.('Dashboards');
-            onClose();
-          }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
-            isDarkMode ? 'hover:bg-[#182334] text-neutral-200' : 'hover:bg-neutral-100 text-neutral-700'
-          }`}
-        >
-          <LayoutDashboard className="w-4 h-4 text-purple-400 shrink-0" />
-          <span>Dashboards</span>
-        </button>
-
         <button
           onClick={() => {
             onSelectOption?.('Rewards');
