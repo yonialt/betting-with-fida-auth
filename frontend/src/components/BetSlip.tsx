@@ -11,8 +11,6 @@ import {
   ArrowUpRight,
   Sparkles,
   ChevronsLeft,
-  Smartphone,
-  Headphones,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
 import { BetType, OddsAcceptanceMode } from '../types';
@@ -544,45 +542,6 @@ export const BetSlip: React.FC = () => {
               style={{ color: '#ffffff' }}
             />
           </button>
-
-          {/* 5. Mobile app button 📱 */}
-          <button
-            id="btn-rail-mobile"
-            onClick={() => {
-              if (setNotification) {
-                setNotification({
-                  message: 'ሃገራዊ Betting Mobile App: Available on Android & iOS',
-                  type: 'info',
-                });
-              }
-            }}
-            className="w-8 h-8 rounded-md bg-[#2b2f36] hover:bg-[#383d46] flex items-center justify-center cursor-pointer transition-colors shadow-xs active:scale-95 group"
-            title="Mobile Applications"
-          >
-            <Smartphone
-              className="w-4 h-4 group-hover:scale-110 transition-transform"
-              style={{ color: '#fcfcfc' }}
-            />
-          </button>
-
-          {/* 6. Protruding Semi-Circle Live Support / Headphones tab 🎧 */}
-          <div className="mt-auto mb-6 w-full flex justify-end">
-            <button
-              id="btn-rail-support"
-              onClick={() => {
-                if (setNotification) {
-                  setNotification({
-                    message: '24/7 Live Support: Chat agent is standing by',
-                    type: 'info',
-                  });
-                }
-              }}
-              className="w-8 h-8 bg-[#cfd3d8] hover:bg-white text-[#1c1f24] rounded-l-full flex items-center justify-center cursor-pointer shadow-md transition-all hover:w-9 active:scale-95 pl-1"
-              title="Customer Support 24/7"
-            >
-              <Headphones className="w-4 h-4 text-[#1c1f24]" />
-            </button>
-          </div>
         </aside>
       );
     }
