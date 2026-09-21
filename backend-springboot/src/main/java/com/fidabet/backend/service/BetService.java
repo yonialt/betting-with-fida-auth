@@ -19,10 +19,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -68,6 +70,17 @@ public class BetService {
         for (BetSlipItem it : items) {
             if (it.getOdds() <= 0 || !Double.isFinite(it.getOdds())) {
                 failureReason[0] = "Invalid odds on selection";
+                return null;
+            }
+        }
+
+        // One selection per match: the same fixture must not appear twice on a slip
+        // (e.g. backing both W1 and W2 of one match), which is contradictory.
+        Set<String> seenMatchIds = new HashSet<>();
+        for (BetSlipItem it : items) {
+            String mid = it.getMatchId() == null ? "" : it.getMatchId();
+            if (!mid.isBlank() && !seenMatchIds.add(mid)) {
+                failureReason[0] = "Only one selection per match is allowed";
                 return null;
             }
         }

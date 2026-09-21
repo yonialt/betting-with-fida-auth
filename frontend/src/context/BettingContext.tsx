@@ -248,7 +248,7 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
 
     loadMatches();
-    const interval = setInterval(loadMatches, 45000);
+    const interval = setInterval(loadMatches, 20000);
 
     return () => {
       isMounted = false;
@@ -407,6 +407,31 @@ export const BettingProvider: React.FC<{ children: ReactNode }> = ({ children })
       setBetSlip((prev) => prev.filter((item) => item.id !== oddsItem.id));
       setNotification({ message: `Removed ${oddsItem.name} from bet slip`, type: 'info' });
     } else {
+      // One selection per match: picking another market for a match already on the
+      // slip replaces the previous selection instead of stacking contradictory bets
+      // (e.g. Team A wins AND Team B wins) on the same ticket.
+      const replaced = betSlip.find((item) => item.matchId === match.id);
+      if (replaced && replaced.id !== oddsItem.id) {
+        const newItem: BetSlipItem = {
+          id: oddsItem.id,
+          matchId: match.id,
+          matchCode: match.matchCode,
+          league: match.league,
+          matchTitle: `${match.team1} - ${match.team2}`,
+          currentScore: `${match.score1}:${match.score2}`,
+          startTime: match.startTime,
+          marketName: oddsItem.marketName,
+          selectionName: oddsItem.name,
+          selectionLabel: oddsItem.label === '1' ? 'W1' : oddsItem.label === '2' ? 'W2' : oddsItem.label,
+          odds: oddsItem.value,
+          isLive: match.isLive,
+        };
+        setBetSlip((prev) => prev.map((item) => (item.matchId === match.id ? newItem : item)));
+        setActiveTabSlip('slip');
+        setNotification({ message: `Changed ${match.team1} vs ${match.team2} selection to ${oddsItem.label} (${oddsItem.value})`, type: 'info' });
+        return;
+      }
+
       const newItem: BetSlipItem = {
         id: oddsItem.id,
         matchId: match.id,

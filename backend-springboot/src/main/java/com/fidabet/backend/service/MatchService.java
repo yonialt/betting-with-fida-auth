@@ -19,11 +19,9 @@ import java.util.Optional;
 /**
  * Serves the sportsbook match/odds contract (/api/matches/*), ported from the Express handlers.
  *
- * <p>The seed fixtures are the same {@code INITIAL_MATCHES} used by the frontend, ported to
- * {@code seed/initial-matches.json} and served through as loosely-typed maps so every field is
- * preserved byte-for-byte. Market groups, stats and events are synthesised exactly as the Express
- * fallback did. When a live feed (API-Football) is wired in later, this service is the seam to
- * delegate to it, mirroring the original try/fallback shape.</p>
+ * <p>Live queries delegate to {@link LiveSportsFeedService}, which serves real API-Football
+ * fixtures when a key is configured and a deterministic simulation otherwise. Upcoming/seeded
+ * fixtures still come from {@code seed/initial-matches.json}, preserved byte-for-byte.</p>
  */
 @Service
 public class MatchService {
@@ -31,10 +29,12 @@ public class MatchService {
     private static final Logger log = LoggerFactory.getLogger(MatchService.class);
 
     private final ObjectMapper objectMapper;
+    private final LiveSportsFeedService liveFeed;
     private volatile List<Map<String, Object>> matches = List.of();
 
-    public MatchService(ObjectMapper objectMapper) {
+    public MatchService(ObjectMapper objectMapper, LiveSportsFeedService liveFeed) {
         this.objectMapper = objectMapper;
+        this.liveFeed = liveFeed;
     }
 
     @PostConstruct
@@ -53,8 +53,8 @@ public class MatchService {
 
     public List<Map<String, Object>> getLive(String sport) {
         List<Map<String, Object>> out = new ArrayList<>();
-        for (Map<String, Object> m : matches) {
-            if (isLive(m) && sportMatches(m, sport)) out.add(m);
+        for (Map<String, Object> m : liveFeed.snapshot()) {
+            if (sportMatches(m, sport)) out.add(m);
         }
         return out;
     }

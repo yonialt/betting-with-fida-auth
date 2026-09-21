@@ -202,11 +202,6 @@ export const MatchList: React.FC = () => {
                             <LeagueHeaderDropdown label="X" />
                             <span className="w-[48px] sm:w-[50px] text-center">2</span>
 
-                            {/* Double Chance */}
-                            <span className="w-[48px] sm:w-[50px] text-center">1X</span>
-                            <LeagueHeaderDropdown label="12" />
-                            <span className="w-[48px] sm:w-[50px] text-center">2X</span>
-
                             {/* Total Goals */}
                             <span className="w-[48px] sm:w-[50px] text-center">O</span>
                             <LeagueHeaderDropdown label="Total" widthClass="w-[36px] sm:w-[40px]" />
@@ -739,11 +734,6 @@ const MatchRow: React.FC<MatchRowProps> = ({
                 {renderOddsPill(match.odds.w1)}
                 {renderOddsPill(match.odds.x)}
                 {renderOddsPill(match.odds.w2)}
-
-                {/* Double Chance */}
-                {renderOddsPill(match.odds.x1)}
-                {renderOddsPill(match.odds.w12)}
-                {renderOddsPill(match.odds.x2)}
 
                 {/* Total Goals */}
                 {renderOddsPill(match.odds.totalOver)}

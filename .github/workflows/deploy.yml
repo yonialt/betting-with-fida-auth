@@ -173,6 +173,7 @@ jobs:
              IMAGE_TAG='$IMAGE_TAG' \
              AWS_REGION='$AWS_REGION' \
              DEPLOY_DIR='$DEPLOY_DIR' \
+             API_FOOTBALL_KEY='${{ secrets.API_FOOTBALL_KEY }}' \
              bash -s" <<'DEPLOYEOF'
 
             set -e
