@@ -382,10 +382,6 @@ export const PolymarketPage: React.FC = () => {
         onToggleChat={() => setFloatingChatOpen(!floatingChatOpen)}
         chatOpen={floatingChatOpen}
         onOpenMarketDetail={handleOpenDetail}
-        onSelectMoreOption={() => {
-          // Menu entries are informational placeholders for now — they close the
-          // menu without opening the Promotions & Bonus Offers modal.
-        }}
       >
         {/* 2. Category Carousel Filter Bar (Navbar 2) */}
         <PolymarketCategories

@@ -9,7 +9,6 @@ interface PolymarketCategoriesProps {
   setActiveCategory: (catId: string) => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
-  onSelectMoreOption?: (opt: string) => void;
 }
 
 export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
@@ -17,7 +16,6 @@ export const PolymarketCategories: React.FC<PolymarketCategoriesProps> = ({
   setActiveCategory,
   isDarkMode = false,
   onToggleDarkMode,
-  onSelectMoreOption,
 }) => {
   const { language, setAppMode, polymarketDarkMode, togglePolymarketDarkMode } = useBetting();
   const scrollContainerRef = useRef<HTMLDivElement>(null);

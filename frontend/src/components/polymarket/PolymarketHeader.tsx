@@ -13,6 +13,10 @@ import {
 import { useBetting } from '../../context/BettingContext';
 import { HowItWorksModal } from './HowItWorksModal';
 import { PolymarketMoreMenu } from './PolymarketMoreMenu';
+import {
+  PolymarketSectionPopout,
+  PolymarketSection,
+} from './PolymarketSectionPopout';
 import { t, translateMarketTitle } from '../../data/polymarketTranslations';
 import {
   POLYMARKET_SEARCH_AUTOCOMPLETE,
@@ -30,7 +34,6 @@ interface PolymarketHeaderProps {
   onToggleChat?: () => void;
   chatOpen?: boolean;
   onOpenMarketDetail?: (market: PolymarketMarket) => void;
-  onSelectMoreOption?: (option: string) => void;
   children?: React.ReactNode;
 }
 
@@ -42,7 +45,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
   onToggleChat: _onToggleChat,
   chatOpen: _chatOpen,
   onOpenMarketDetail,
-  onSelectMoreOption,
   children,
 }) => {
   const {
@@ -59,6 +61,8 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
 
   const [howItWorksOpen, setHowItWorksOpen] = useState<boolean>(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
+  // Section popout: each gear-menu entry opens its own content panel.
+  const [activeSection, setActiveSection] = useState<PolymarketSection | null>(null);
   // Mobile: the search bar is collapsed to just a magnifier icon until tapped
   const [mobileSearchOpen, setMobileSearchOpen] = useState<boolean>(false);
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
@@ -450,7 +454,17 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               onClose={() => setMoreMenuOpen(false)}
               isDarkMode={polymarketDarkMode}
               onToggleDarkMode={togglePolymarketDarkMode}
-              onSelectOption={onSelectMoreOption}
+              onSelectOption={(option) => {
+                if (
+                  option === 'Rewards' ||
+                  option === 'APIs' ||
+                  option === 'Documentation' ||
+                  option === 'Help Center' ||
+                  option === 'Terms of Use'
+                ) {
+                  setActiveSection(option as PolymarketSection);
+                }
+              }}
               anchorRef={moreBtnRef}
             />
           </div>
@@ -522,6 +536,12 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
         isOpen={howItWorksOpen}
         onClose={() => setHowItWorksOpen(false)}
         onOpenSignUp={() => openAuthModal('signup')}
+      />
+
+      {/* Section popout — each gear-menu entry opens its own content panel */}
+      <PolymarketSectionPopout
+        section={activeSection}
+        onClose={() => setActiveSection(null)}
       />
     </>
   );
