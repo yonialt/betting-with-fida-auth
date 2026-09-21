@@ -11,7 +11,6 @@ import {
   FileText,
   HelpCircle,
   Shield,
-  Settings,
 } from 'lucide-react';
 
 interface PolymarketMoreMenuProps {
@@ -20,8 +19,6 @@ interface PolymarketMoreMenuProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
   onSelectOption?: (option: string) => void;
-  /** Opens the main betting SettingsModal (odds format, sound, highlights). */
-  onOpenSettings?: () => void;
   /**
    * When provided, the menu is rendered through a portal on top of everything
    * (document.body) and positioned just under this anchor element. This lets the
@@ -37,7 +34,6 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
   isDarkMode,
   onToggleDarkMode,
   onSelectOption,
-  onOpenSettings,
   anchorRef,
 }) => {
   const usePortal = !!anchorRef;
@@ -86,19 +82,6 @@ export const PolymarketMoreMenu: React.FC<PolymarketMoreMenuProps> = ({
     >
       {/* Top Section */}
       <div className="py-1 px-1.5 space-y-0.5">
-        <button
-          onClick={() => {
-            onOpenSettings?.();
-            onClose();
-          }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
-            isDarkMode ? 'hover:bg-[#182334] text-neutral-200' : 'hover:bg-neutral-100 text-neutral-700'
-          }`}
-        >
-          <Settings className="w-4 h-4 text-neutral-400 shrink-0" />
-          <span>Settings</span>
-        </button>
-
         <button
           onClick={() => {
             onSelectOption?.('Activity');

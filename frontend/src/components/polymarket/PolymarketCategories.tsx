@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TrendingUp, ChevronRight, ChevronLeft, ChevronDown, Menu, X } from 'lucide-react';
 import { POLYMARKET_CATEGORIES, PolymarketCategoryItem } from '../../data/polymarketData';
-import { PolymarketMoreMenu } from './PolymarketMoreMenu';
 import { useBetting } from '../../context/BettingContext';
 import { t } from '../../data/polymarketTranslations';
 

@@ -50,7 +50,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
     setAppMode,
     logout,
     language,
-    setSettingsModalOpen,
     setDepositModalOpen,
     openAuthModal,
     polymarketDarkMode,
@@ -433,9 +432,8 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               <span className="hidden lg:inline">{t('how_it_works', language, 'How it works')}</span>
             </button>
 
-            {/* Settings Gear — opens the More pop-out menu (with the Dark mode
-                toggle and the betting SettingsModal entry). Visible on all
-                breakpoints including mobile. */}
+            {/* Settings Gear — opens the More pop-out (Dark mode toggle, Activity,
+                Leaderboard, etc.). Visible on all breakpoints including mobile. */}
             <button
               ref={moreBtnRef}
               id="btn-settings"
@@ -453,7 +451,6 @@ export const PolymarketHeader: React.FC<PolymarketHeaderProps> = ({
               isDarkMode={polymarketDarkMode}
               onToggleDarkMode={togglePolymarketDarkMode}
               onSelectOption={onSelectMoreOption}
-              onOpenSettings={() => setSettingsModalOpen(true)}
               anchorRef={moreBtnRef}
             />
           </div>
