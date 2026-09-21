@@ -29,7 +29,9 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://host.docker.internal:5432/fidabet}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-}
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-https://hagerawi.click,http://107.23.159.58,http://107.23.159.58:3000}
+    volumes:
+      - fidabet-data:/app/data
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -44,3 +46,4 @@ services:
 
 volumes:
   redis-data:
+  fidabet-data:
