@@ -15,6 +15,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
+import { useAdminAccess } from '../hooks/useAdminAccess';
 import { OddsAcceptanceMode } from '../types';
 
 export const SettingsModal: React.FC = () => {
@@ -27,6 +28,10 @@ export const SettingsModal: React.FC = () => {
     setStakeAmount,
     user,
   } = useBetting();
+
+  // Admin Console gateway renders only after the admin console was unlocked
+  // via the AdminGate passphrase in this browser session.
+  const isAdmin = useAdminAccess();
 
   const [oddsFormat, setOddsFormat] = useState<string>(() => {
     try {
@@ -444,7 +449,8 @@ export const SettingsModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 5: Developer Console Gateway */}
+          {/* Section 5: Developer Console Gateway (admins only) */}
+          {isAdmin && (
           <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-neutral-200 text-neutral-700 flex items-center justify-center font-mono font-bold text-xs">
@@ -468,6 +474,7 @@ export const SettingsModal: React.FC = () => {
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
+          )}
         </div>
 
         {/* Modal Footer with Actions: Crisp light footer + Green button */}

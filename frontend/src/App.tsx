@@ -22,11 +22,11 @@ import { CasinoLobby } from './components/CasinoLobby';
 import { TelebirrDepositModal } from './components/TelebirrDepositModal';
 import { ApiFootballRedisModal } from './components/ApiFootballRedisModal';
 import { AgeVerificationGate } from './components/AgeVerificationGate';
-import { PartnersPanel } from './components/PartnersPanel';
 import { Footer } from './components/Footer';
 import { PolymarketPage } from './components/polymarket/PolymarketPage';
 import { AdminPage } from './components/admin/AdminPage';
 import PolymarketAdmin from './components/admin/PolymarketAdmin';
+import { AdminGate } from './components/admin/AdminGate';
 
 // Seed the admin page with real data references via globals (read-only, one-time).
 // The admin component reads these to populate initial editable values without
@@ -145,20 +145,22 @@ const BettingAppContent: React.FC = () => {
   // Dedicated /admin route hosting the Free Match & Odds API · Redis Cache Engine
   // and the Polymarket admin editor at /admin/polymarket
   if (currentPath === '/admin' || currentPath.startsWith('/admin')) {
-    // Polymarket admin sub-route
-    if (currentPath === '/admin/polymarket' || currentPath.startsWith('/admin/polymarket')) {
-      return (
-        <>
-          <PolymarketAdmin onBack={() => navigateTo('/')} />
-          <ToastNotification />
-        </>
-      );
-    }
+    // Admin routes are gated: the passphrase prompt shows for anyone who has not
+    // unlocked the console in this browser session.
     return (
-      <>
-        <AdminPage onBack={() => navigateTo('/')} />
-        <ToastNotification />
-      </>
+      <AdminGate>
+        {currentPath === '/admin/polymarket' || currentPath.startsWith('/admin/polymarket') ? (
+          <>
+            <PolymarketAdmin onBack={() => navigateTo('/')} />
+            <ToastNotification />
+          </>
+        ) : (
+          <>
+            <AdminPage onBack={() => navigateTo('/')} />
+            <ToastNotification />
+          </>
+        )}
+      </AdminGate>
     );
   }
 
@@ -237,9 +239,6 @@ const BettingAppContent: React.FC = () => {
         {/* Right Sidebar: Bet Slip & My Bets */}
         <BetSlip />
       </div>
-
-      {/* Partners Showcase Panel */}
-      <PartnersPanel />
 
       {/* Main Footer */}
       <Footer />

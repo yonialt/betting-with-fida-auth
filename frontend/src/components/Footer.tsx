@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Globe } from 'lucide-react';
 import { useBetting } from '../context/BettingContext';
+import { useAdminAccess } from '../hooks/useAdminAccess';
 
 // Helper: staggered transition delay for the AOS-style fade-up.
 // The .footer-fade-up / .is-visible classes live in index.css and are
@@ -15,6 +16,10 @@ export const Footer: React.FC = () => {
   const {
     setAppMode,
   } = useBetting();
+
+  // Admin Console links render only for users who unlocked the admin console
+  // (AdminGate passphrase) in this browser session.
+  const isAdmin = useAdminAccess();
 
   // Scroll-reactive circle animation (matches the reference footer animation)
   const footerRef = useRef<HTMLElement | null>(null);
@@ -123,7 +128,7 @@ export const Footer: React.FC = () => {
     'Oracle Resolution',
     'Institutional Trading',
     'Brand & Press',
-    'Admin Console',
+    ...(isAdmin ? ['Admin Console'] : []),
   ];
 
   const handlePolymarketLinkClick = (linkName: string) => {
@@ -375,7 +380,9 @@ export const Footer: React.FC = () => {
             <span>·</span>
             <button type="button" className="py-1.5 hover:text-white transition-colors cursor-pointer">Help Center</button>
             <span>·</span>
-            <button type="button" onClick={handleAdminConsoleClick} className="py-1.5 hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
+            {isAdmin && (
+              <button type="button" onClick={handleAdminConsoleClick} className="py-1.5 hover:text-emerald-300 font-semibold transition-colors cursor-pointer">Admin Console</button>
+            )}
           </div>
 
           {/* Language Selector */}
